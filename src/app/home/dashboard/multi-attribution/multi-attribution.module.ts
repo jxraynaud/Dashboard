@@ -6,6 +6,10 @@ import { MultiAttributionRoutingModule} from './multi-attribution-routing.module
 import { MultiAttributionComponent } from './multi-attribution.component';
 import { OverviewComponent } from './overview/overview.component';
 
+import { DataRequestService } from '../services/data-request.service';
+import { DataFiltersService } from '../services/data-filters.service';
+import { DataService } from '../services/data.service';
+
 @NgModule({
     imports: [
         CommonModule,
@@ -14,7 +18,12 @@ import { OverviewComponent } from './overview/overview.component';
     declarations: [
         MultiAttributionComponent,
         OverviewComponent,
-    ]
+    ],
+    providers: [
+        DataRequestService,
+        DataFiltersService,
+        DataService,
+    ],
 })
 
 export class MultiAttributionModule { }
