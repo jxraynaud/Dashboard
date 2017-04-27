@@ -9,24 +9,24 @@ import { DashboardModule } from './dashboard/dashboard.module'
 import { AuthGuard } from './auth.guard';
 
 export const homeRoutes : Routes = [
-{
-    path: 'home',
-    canActivate: [AuthGuard],
-    component: HomeComponent,
-    children: [
-      // This is the default route for somebody who goes to home.
-        {
-            path: '',
-            canActivate: [AuthGuard],
-            component: DefaultComponent
-        },
-        {
-            path: 'dashboard',
-            canActivateChild: [AuthGuard],
-            loadChildren: '../dashboard/dashboard.module#DashboardModule'
-        },
-    ]
-},
+    {
+        path: 'home',
+        canActivate: [AuthGuard],
+        component: HomeComponent,
+        children: [
+          // This is the default route for somebody who goes to home.
+            {
+                path: '',
+                canActivate: [AuthGuard],
+                component: DefaultComponent
+            },
+            {
+                path: 'dashboard',
+                canActivateChild: [AuthGuard],
+                loadChildren: './dashboard/dashboard.module#DashboardModule'
+            },
+        ]
+    },
   /*
   the redirect to home on '' must be place here because otherwise,
   the dashboard '' route will take precedence.
@@ -37,6 +37,8 @@ export const homeRoutes : Routes = [
         pathMatch: 'full'
     },
 ];
+
+
 @NgModule({
     imports: [
         RouterModule.forChild(homeRoutes),
