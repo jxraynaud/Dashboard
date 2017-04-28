@@ -1,5 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 
+import { DataService } from '../services/data.service'
+
 @Component({
   selector: 'app-multi-attribution',
   templateUrl: './multi-attribution.component.html',
@@ -7,9 +9,10 @@ import { Component, OnInit } from '@angular/core';
 })
 export class MultiAttributionComponent implements OnInit {
 
-  constructor() { }
+  constructor(public dataService : DataService) { }
 
   ngOnInit() {
+      this.dataService.test();
   }
 
 }
