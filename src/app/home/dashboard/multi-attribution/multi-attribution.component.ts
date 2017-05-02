@@ -12,7 +12,6 @@ export class MultiAttributionComponent implements OnInit {
   constructor(public dataService : DataService) { }
 
   ngOnInit() {
-      this.dataService.test();
   }
 
 }

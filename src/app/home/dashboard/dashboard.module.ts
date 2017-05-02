@@ -6,7 +6,6 @@ import { CovalentHighlightModule } from '@covalent/highlight';
 import { CovalentDataTableModule } from '@covalent/core';
 
 import { DashboardRoutingModule } from './dashboard-routing.module';
-import { MultiAttributionModule } from './multi-attribution/multi-attribution.module';
 
 import { DashboardComponent } from './dashboard.component';
 import { DefaultComponent } from './default/default.component';

@@ -11,6 +11,8 @@ import { Observable } from 'rxjs/Observable';
 
 @Injectable()
 export class AuthGuard implements CanActivate, CanActivateChild, CanLoad {
+    DEBUG: boolean = false;
+    private debugLog(str){ this.DEBUG && console.log(str); }
 
     constructor(
         private router: Router,
@@ -20,15 +22,15 @@ export class AuthGuard implements CanActivate, CanActivateChild, CanLoad {
         next: ActivatedRouteSnapshot,
         state: RouterStateSnapshot
     ): Observable<boolean> | Promise<boolean> | boolean {
-        console.log("Starting auth guard");
+        this.debugLog("Starting auth guard");
         if (localStorage.getItem('currentUser')) {
             // logged in so return true
             let user = JSON.parse(localStorage.getItem('currentUser'));
             let exp_timestamp = JSON.parse(atob(user.token.split('.')[1])).exp;
-            console.log("Time out datetime:");
-            console.log(new Date(exp_timestamp*1000) );
-            console.log("Current datetime:");
-            console.log(new Date());
+            this.debugLog("Time out datetime:");
+            this.debugLog(new Date(exp_timestamp*1000) );
+            this.debugLog("Current datetime:");
+            this.debugLog(new Date());
             if (new Date(exp_timestamp*1000) > new Date()) {
                 return true;
             }
@@ -42,7 +44,7 @@ export class AuthGuard implements CanActivate, CanActivateChild, CanLoad {
         route: ActivatedRouteSnapshot,
         state: RouterStateSnapshot
     ): Observable<boolean> | Promise<boolean> | boolean {
-        console.log("canActivateChild fired");
+        this.debugLog("canActivateChild fired");
         return this.canActivate(route, state);
     }
 
