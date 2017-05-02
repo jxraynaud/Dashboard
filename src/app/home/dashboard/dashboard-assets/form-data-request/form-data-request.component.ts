@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { DataRequestService } from '../../services/data-request.service';
 
 @Component({
   selector: 'app-form-data-request',
@@ -7,7 +8,7 @@ import { Component, OnInit } from '@angular/core';
 })
 export class FormDataRequestComponent implements OnInit {
 
-  constructor() { }
+  constructor(private dataRequestService : DataRequestService) { }
 
   ngOnInit() {
   }

@@ -10,16 +10,7 @@ import { MultiAttributionModule } from './multi-attribution/multi-attribution.mo
 
 import { DashboardComponent } from './dashboard.component';
 import { DefaultComponent } from './default/default.component';
-import { DatavizDatatableComponent } from './dataviz-datatable/dataviz-datatable.component';
-import { DatavizChartComponent } from './dataviz-chart/dataviz-chart.component';
-import { DatavizMapComponent } from './dataviz-map/dataviz-map.component';
-import { FormDataRequestComponent } from './form-data-request/form-data-request.component';
-import { FormDataFiltersComponent } from './form-data-filters/form-data-filters.component';
-
-
-
-
-
+import { DashboardAssetsModule } from './dashboard-assets/dashboard-assets.module';
 
 
 /*
@@ -41,15 +32,11 @@ import { NgxChartsModule } from '@swimlane/ngx-charts';
         CovalentHighlightModule,
         DashboardRoutingModule,
         CovalentDataTableModule.forRoot(),
+        DashboardAssetsModule,
     ],
     declarations: [
         DashboardComponent,
         DefaultComponent,
-        DatavizDatatableComponent,
-        DatavizChartComponent,
-        DatavizMapComponent,
-        FormDataRequestComponent,
-        FormDataFiltersComponent,
     ],
     providers: [
     ]

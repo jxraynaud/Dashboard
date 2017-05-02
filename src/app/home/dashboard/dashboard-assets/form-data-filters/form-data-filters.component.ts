@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { DataFiltersService } from '../../services/data-filters.service';
 
 @Component({
   selector: 'app-form-data-filters',
@@ -7,7 +8,7 @@ import { Component, OnInit } from '@angular/core';
 })
 export class FormDataFiltersComponent implements OnInit {
 
-  constructor() { }
+  constructor(private dataFiltersService : DataFiltersService) { }
 
   ngOnInit() {
   }

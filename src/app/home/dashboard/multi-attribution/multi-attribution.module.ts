@@ -4,6 +4,8 @@ import { InjectionToken } from '@angular/core';
 
 import { MultiAttributionRoutingModule} from './multi-attribution-routing.module'
 
+import { DashboardAssetsModule } from '../dashboard-assets/dashboard-assets.module';
+
 import { MultiAttributionComponent } from './multi-attribution.component';
 import { OverviewComponent } from './overview/overview.component';
 
@@ -32,6 +34,7 @@ let dataServiceFactory = (configObject):DataService => { return new DataService(
     imports: [
         CommonModule,
         MultiAttributionRoutingModule,
+        DashboardAssetsModule,
     ],
     declarations: [
         MultiAttributionComponent,
