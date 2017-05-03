@@ -1,45 +1,112 @@
 import { Injectable } from '@angular/core';
+import { Http, Headers, RequestOptions, Response } from '@angular/http';
+import { Router} from '@angular/router';
 
 import { BehaviorSubject }    from 'rxjs/BehaviorSubject';
 import { Subscription }   from 'rxjs/Subscription';
+import 'rxjs/add/operator/combineLatest'
+import 'rxjs/add/operator/toPromise';
+
+import { ConfigService } from './config.service';
 
 @Injectable()
 export class DataRequestService {
     DEBUG: boolean = false;
     private debugLog(str){ this.DEBUG && console.log(str); }
 
+    defaultRequestParams = [{
+        "start_date": new Date(Date.now() - 31*24*3600*1000),
+        "end_date":  new Date(Date.now() - 1*24*3600*1000),
+        "attribution_model" : [2,5]
+    }];
+
     //TODO : typer
-    dataRequestBehaviorSubject = new BehaviorSubject([]);
+    dataRequestParamsBehaviorSubject = new BehaviorSubject(this.defaultRequestParams);
     rawDataBehaviorSubject = new BehaviorSubject([]);
-    //Used as flag to trigger recalculation
-    dimensionReloaBehaviorSubject = new BehaviorSubject('');
     requestDimensionMappingBehaviorSubject = new BehaviorSubject([]);
 
     //TODO : destroy subscription at the end
     dataRequestBehaviorSubjectSubscription : Subscription;
-    dimensionReloaBehaviorSubjectSubscription : Subscription;
 
-    constructor() {
-        this.dataRequestBehaviorSubjectSubscription = this.dataRequestBehaviorSubject.subscribe({
-            next : (data) => {
-                this.debugLog("dataRequestBehaviorSubject triggered for subscribers :");
-                this.debugLog("rawDataBehaviorSubject (TODO)");
+    constructor(
+        private http: Http,
+        private router: Router,
+        private configService : ConfigService,
+    ) {
+        this.dataRequestBehaviorSubjectSubscription = this.dataRequestParamsBehaviorSubject.combineLatest(
+            this.configService.configBehaviorSubject,
+        ).subscribe({
+            next : (latestValues) => {
+                let dataRequestParams = latestValues[0];
+                let config = latestValues[1];
+                this.debugLog("DataRequestService : combined subscription triggered for subscribers :");
+                this.debugLog("rawDataBehaviorSubject");
                 this.debugLog("with value :");
-                this.debugLog(data);
-                //this.rawDataBehaviorSubject.next(data);
+                this.debugLog(latestValues);
+                if(Object.keys(config).length === 0 && config.constructor === Object){
+                    this.rawDataBehaviorSubject.next([]);
+                    console.warn("---!!!--- Config empty");
+                }else{
+                    this.debugLog("Trying to get data from API with params :");
+                    this.debugLog(config);
+                    this.debugLog(dataRequestParams);
+                    this.getAll(config, dataRequestParams).then(response => {
+                        this.requestDimensionMappingBehaviorSubject.next(this.mapDimensionFromRawData(response, config));
+                        this.rawDataBehaviorSubject.next(response);
+                    });
+                }
             },
             error : (err) => console.error(err),
         });
 
-        this.dimensionReloaBehaviorSubjectSubscription = this.dimensionReloaBehaviorSubject.subscribe({
-            next : (data) => {
-                this.debugLog("dimensionReloaBehaviorSubject triggered for subscribers :");
-                this.debugLog("requestDimensionMappingBehaviorSubject (TODO)");
-                this.debugLog("with value :");this.debugLog(data);
-                //this.requestDimensionMappingBehaviorSubject.next([]);
-            },
-            error : (err) => console.error(err),
-        });
+        this.debugLog("---DataRequestService instanciated---");
     }
 
+    /**
+    * Make a reqest to the API and return a Promise for the set of all Advertisers
+    * @method getAll
+    * @return {Promise} Promise for the list of all the Advertisers from the API
+    */
+    getAll(config, dataRequestParams):Promise<[{}]> {
+        return this.http.post(config.api_url + config.api_endpoint, dataRequestParams, this.jwt())
+            .toPromise()
+            .then(response => {
+                this.debugLog("Promise result received for DataRequestService.getAll()");
+                this.debugLog(response.json());
+                return response.json();
+            })
+            .catch(error => {
+                console.error("PROMISE REJECTED : could not get data from api in dataRequest");
+                console.log("error : "+error.json().detail);
+                console.log(error.json());
+            //    this.router.navigate(['/login'], { queryParams: { returnUrl : window.location.pathname }});
+                return [];
+            });
+    }
+
+
+    /**
+     * Retrieves JWT token from localStorage and returns it if available. For use in HTTP requests
+     * @method jwt
+     * @return {[type]} [description]
+     */
+    private jwt() {
+        // create authorization header with jwt token
+        let currentUser = JSON.parse(localStorage.getItem('currentUser'));
+        if (currentUser && currentUser.token) {
+            let headers = new Headers({ 'Authorization': 'JWT ' + currentUser.token });
+            return new RequestOptions({ headers: headers });
+        }
+    }
+
+    mapDimensionFromRawData(rawData, config){
+        this.debugLog(Object.keys(rawData[0]));
+        let dimensions = config.available_dimensions.map(dimension => {
+            if(Object.keys(rawData[0]).indexOf(dimension.data_id_column_name) != -1){
+                return(dimension)
+            }
+        });
+        this.debugLog(dimensions);
+        return dimensions
+    }
 }
