@@ -4,5 +4,8 @@
 <app-form-data-request></app-form-data-request>
 <app-form-data-filters></app-form-data-filters>
 <app-dataviz-chart></app-dataviz-chart>
-<app-dataviz-datatable></app-dataviz-datatable>
+<app-dataviz-datatable
+  [filteredData]="filteredData"
+  [dimensionColumns]="activeDimensionColumns"
+></app-dataviz-datatable>
 <app-dataviz-map></app-dataviz-map>

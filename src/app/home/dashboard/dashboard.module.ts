@@ -1,7 +1,8 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
-import { CovalentCoreModule } from '@covalent/core';
+import { MaterialModule } from '@angular/material';
+//import { CovalentCoreModule } from '@covalent/core';
 import { CovalentHighlightModule } from '@covalent/highlight';
 import { CovalentDataTableModule } from '@covalent/core';
 
@@ -10,7 +11,6 @@ import { DashboardRoutingModule } from './dashboard-routing.module';
 import { DashboardComponent } from './dashboard.component';
 import { DefaultComponent } from './default/default.component';
 import { DashboardAssetsModule } from './dashboard-assets/dashboard-assets.module';
-
 
 /*
 import { DatePickerModule } from 'ng2-datepicker';
@@ -27,10 +27,11 @@ import { NgxChartsModule } from '@swimlane/ngx-charts';
 @NgModule({
     imports: [
         CommonModule,
-        CovalentCoreModule,
+        //CovalentCoreModule,
         CovalentHighlightModule,
         DashboardRoutingModule,
-        CovalentDataTableModule.forRoot(),
+        //CovalentDataTableModule.forRoot(),
+        MaterialModule,
         DashboardAssetsModule,
     ],
     declarations: [

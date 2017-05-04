@@ -11,7 +11,7 @@ import {debugLog, debugLogGroup} from '../../../utils';
 
 @Injectable()
 export class DataService {
-    DEBUG: boolean = true;
+    DEBUG: boolean = false;
     //private debugLog(str){ this.DEBUG && console.log(str) }
     //private debugLogGroup(strArray){ if(this.DEBUG){ for(let e in strArray){ e == '0' ? console.groupCollapsed(strArray[e]):console.log(strArray[e]) ;} console.groupEnd() } }
 
@@ -19,14 +19,14 @@ export class DataService {
     filteredDataBehaviorSubject = new BehaviorSubject<Array<{}>>([]);
 
     //TODO : destroy subscription at the end
-    filteredDataBehaviorSubjectSubscription : Subscription;
+    rawDataBehaviorSubjectSubscription : Subscription;
 
     constructor(
         //public viewConfig : any,
         private dataRequestService: DataRequestService,
         private dataFiltersService : DataFiltersService,
     ) {
-            this.filteredDataBehaviorSubjectSubscription = this.dataRequestService.rawDataBehaviorSubject.combineLatest(
+            this.rawDataBehaviorSubjectSubscription = this.dataRequestService.rawDataBehaviorSubject.combineLatest(
                 this.dataFiltersService.filtersDimensionBehaviorSubject,
                 this.dataFiltersService.filtersDimensionMappingBehaviorSubject,
             ).subscribe(
@@ -43,11 +43,33 @@ export class DataService {
                             filtersDimension,
                             filtersDimensionMapping]);
 
+                            //Generating filteredData
+                            let filteredData = rawData;
+                            //Filter data for each filter criteria:
+                            for(let attributeColName in filtersDimension){
+                                let checked = filtersDimension[attributeColName].checked;
+                                //TODO : DELETE IN PROD
+                                checked = filtersDimension[attributeColName].active.slice(2,10);
+                                //Do not filter if nothing checked
+                                if(checked.length > 0){
+                                    filteredData = filteredData.filter((dataLine)=>{;
+                                        return checked.indexOf(dataLine[attributeColName]) != -1;
+                                    });
+                                }
+                                debugLogGroup(this.DEBUG,[
+                                        "DataService : "+checked.length+" values checked for ["+attributeColName+"] resulting in "+filteredData.length+" results",
+                                        "Checked : ",
+                                        checked,
+                                        "FilteredData : ",
+                                        filteredData
+                                     ]);
+                            }
+                            this.filteredDataBehaviorSubject.next(filteredData);
                     },
                     error : (err) => console.error(err),
                 }
             );
-            console.log("---Data service instanciated----");
+            debugLog(this.DEBUG,"---Data service instanciated----");
       }
 
 }

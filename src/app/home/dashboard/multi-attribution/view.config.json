@@ -8,28 +8,68 @@
           "label" : "KPI",
           "description" : "",
           "api_endpoint" : "kpis/",
-          "is_name_unique": "true"
+          "is_name_unique": "true",
+          "is_numeric": "false",
+          "is_usable_as_request_parameter": "false"
         },
         {
           "data_id_column_name" : "partner_id",
           "label" : "Partner",
           "description" : "",
           "api_endpoint" : "partners/",
-          "is_name_unique": "true"
+          "is_name_unique": "true",
+          "is_numeric": "false",
+          "is_usable_as_request_parameter": "false"
         },
         {
           "data_id_column_name" : "advertiser_id",
           "label" : "Advertiser",
           "description" : "",
           "api_endpoint" : "countries/",
-          "is_name_unique": "true"
+          "is_name_unique": "true",
+          "is_numeric": "false",
+          "is_usable_as_request_parameter": "false"
         },
         {
           "data_id_column_name" : "metacampaign_id",
           "label" : "Meta Campaign",
           "description" : "",
           "api_endpoint" : "metacampaigns/",
-          "is_name_unique": "true"
+          "is_name_unique": "true",
+          "is_numeric": "false",
+          "is_usable_as_request_parameter": "false"
         }
+    ],
+    "available_metrics" : [
+      {
+        "data_id_column_name" : "conversion_date",
+        "label" : "Conversion Date",
+        "description" : "",
+        "is_numeric": "false",
+        "is_usable_as_request_parameter": "false",
+        "is_additive": "false",
+        "is_usable_as_groupby": "true",
+        "specific_endpoint_url": ""
+      },
+      {
+        "data_id_column_name" : "conversions Default 7.5/7.5",
+        "label" : "Conversion Default 7.5/7.5",
+        "description" : "",
+        "is_numeric": "true",
+        "is_usable_as_request_parameter": "false",
+        "is_additive": "true",
+        "is_usable_as_groupby": "true",
+        "specific_endpoint_url": ""
+      },
+      {
+        "data_id_column_name" : "conversions Sizmek 30/15",
+        "label" : "Conversion Sizmek 30/15",
+        "description" : "",
+        "is_numeric": "true",
+        "is_usable_as_request_parameter": "false",
+        "is_additive": "true",
+        "is_usable_as_groupby": "true",
+        "specific_endpoint_url": ""
+      }
     ]
 }

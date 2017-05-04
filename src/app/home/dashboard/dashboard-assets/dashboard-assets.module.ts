@@ -1,5 +1,9 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { MaterialModule } from '@angular/material';
+
+import { CovalentCoreModule } from '@covalent/core';
+import { CovalentDataTableModule } from '@covalent/core';
 
 import { DatavizChartComponent } from './dataviz-chart/dataviz-chart.component';
 import { DatavizDatatableComponent } from './dataviz-datatable/dataviz-datatable.component';
@@ -10,7 +14,10 @@ import { FormDataRequestComponent } from './form-data-request/form-data-request.
 
 @NgModule({
   imports: [
-    CommonModule
+    CommonModule,
+    CovalentCoreModule,
+    CovalentDataTableModule,
+    MaterialModule,
   ],
   declarations: [
       DatavizChartComponent,

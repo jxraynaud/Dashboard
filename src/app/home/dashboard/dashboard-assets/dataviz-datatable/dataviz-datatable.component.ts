@@ -1,5 +1,13 @@
-import { Component, OnInit } from '@angular/core';
-import { DataService } from '../../services/data.service'
+import { Component, OnInit, Input } from '@angular/core';
+
+import {
+    TdDataTableService,
+    TdDataTableSortingOrder,
+    ITdDataTableSortChangeEvent,
+    ITdDataTableColumn,
+    IPageChangeEvent } from '@covalent/core';
+
+import {debugLog, debugLogGroup} from '../../../../utils';
 
 @Component({
   selector: 'app-dataviz-datatable',
@@ -7,10 +15,16 @@ import { DataService } from '../../services/data.service'
   styleUrls: ['./dataviz-datatable.component.css']
 })
 export class DatavizDatatableComponent implements OnInit {
+    DEBUG: boolean = false;
 
-  constructor(private dataService : DataService) { }
+    @Input() filteredData : Array<{}>;
+    @Input() dimensionColumns : Array<{}>;
 
-  ngOnInit() {
-  }
+    constructor(
+        private _dataTableService: TdDataTableService) {
+    }
+
+    ngOnInit() {
+    }
 
 }
