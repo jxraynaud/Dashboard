@@ -9,8 +9,9 @@ import { DataRequestService } from './data-request.service';
 
 @Injectable()
 export class DataFiltersService {
-    DEBUG: boolean = true;
+    DEBUG: boolean = false;
     private debugLog(str){ this.DEBUG && console.log(str); }
+    private debugLogGroup(strArray){ if(this.DEBUG){ for(let e in strArray){ e == '0' ? console.groupCollapsed(strArray[e]):console.log(strArray[e]) ;} console.groupEnd() } }
 
     checkedDimensions = {};
 
@@ -35,7 +36,7 @@ export class DataFiltersService {
                 let config = latestValues[1];
                 this.debugLog("DataFiltersService : this.dataRequestService.requestDimensionMappingBehaviorSubject triggered for subscribers :");
                 this.debugLog("filtersDimensionMappingBehaviorSubject");
-                this.debugLog("with values [dimensions,config] :");
+                this.debugLog("with values [dimensions, config] :");
                 this.debugLog(dimensions);
                 this.debugLog(config);
                 if(Object.keys(config).length > 0){
