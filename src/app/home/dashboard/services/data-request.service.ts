@@ -9,10 +9,12 @@ import 'rxjs/add/operator/toPromise';
 
 import { ConfigService } from './config.service';
 
+import {debugLog, debugLogGroup} from '../../../utils';
+
 @Injectable()
 export class DataRequestService {
-    DEBUG: boolean = false;
-    private debugLog(str){ this.DEBUG && console.log(str); }
+    DEBUG: boolean = true;
+    //private debugLog(str){ this.DEBUG && console.log(str); }
 
     defaultRequestParams = [{
         "start_date": new Date(Date.now() - 31*24*3600*1000),
@@ -39,17 +41,19 @@ export class DataRequestService {
             next : (latestValues) => {
                 let dataRequestParams = latestValues[0];
                 let config = latestValues[1];
-                this.debugLog("DataRequestService : combined subscription triggered for subscribers :");
-                this.debugLog("rawDataBehaviorSubject");
-                this.debugLog("with value :");
-                this.debugLog(latestValues);
+                debugLogGroup(this.DEBUG,[
+                    "DataRequestService : combined subscription triggered for subscribers :",
+                    "rawDataBehaviorSubject",
+                    "with values [dataRequestParams, config] :",
+                    dataRequestParams,
+                    config]);
                 if(Object.keys(config).length === 0 && config.constructor === Object){
                     this.rawDataBehaviorSubject.next([]);
                     console.warn("---!!!--- Config empty");
                 }else{
-                    this.debugLog("Trying to get data from API with params :");
-                    this.debugLog(config);
-                    this.debugLog(dataRequestParams);
+                    debugLogGroup(this.DEBUG, ["DataRequestService : Trying to get data from API with params [config, dataRequestParams]:",
+                        config,
+                        dataRequestParams]);
                     this.getAll(config, dataRequestParams).then(response => {
                         this.requestDimensionMappingBehaviorSubject.next(this.mapDimensionFromRawData(response, config));
                         this.rawDataBehaviorSubject.next(response);
@@ -59,7 +63,7 @@ export class DataRequestService {
             error : (err) => console.error(err),
         });
 
-        this.debugLog("---DataRequestService instanciated---");
+        debugLog(this.DEBUG, "---DataRequestService instanciated---");
     }
 
     /**
@@ -71,8 +75,8 @@ export class DataRequestService {
         return this.http.post(config.api_url + config.api_endpoint, dataRequestParams, this.jwt())
             .toPromise()
             .then(response => {
-                this.debugLog("Promise result received for DataRequestService.getAll()");
-                this.debugLog(response.json());
+                debugLogGroup(this.DEBUG, ["Promise result received for DataRequestService.getAll()",
+                    response.json()]);
                 return response.json();
             })
             .catch(error => {
@@ -100,13 +104,18 @@ export class DataRequestService {
     }
 
     mapDimensionFromRawData(rawData, config){
-        this.debugLog(Object.keys(rawData[0]));
         let dimensions = config.available_dimensions.map(dimension => {
             if(Object.keys(rawData[0]).indexOf(dimension.data_id_column_name) != -1){
                 return(dimension)
             }
         });
-        this.debugLog(dimensions);
+        debugLogGroup(this.DEBUG, [
+            "DataRequestService : mapDimensionFromRawData on rawData",
+            Object.keys(rawData[0]),
+            "Resulting in [dimensions] : ",
+            dimensions,
+        ]);
+        //debugLog(this.DEBUG, dimensions);
         return dimensions
     }
 }
