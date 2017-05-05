@@ -7,11 +7,13 @@ import { Subscription } from 'rxjs/Subscription';
 import { ConfigService } from './config.service';
 import { DataRequestService } from './data-request.service';
 
+import {debugLog, debugLogGroup} from '../../../utils';
+
 @Injectable()
 export class DataFiltersService {
-    DEBUG: boolean = false;
-    private debugLog(str){ this.DEBUG && console.log(str); }
-    private debugLogGroup(strArray){ if(this.DEBUG){ for(let e in strArray){ e == '0' ? console.groupCollapsed(strArray[e]):console.log(strArray[e]) ;} console.groupEnd() } }
+    DEBUG: boolean = true;
+    //private debugLog(str){ this.DEBUG && console.log(str); }
+    //private debugLogGroup(strArray){ if(this.DEBUG){ for(let e in strArray){ e == '0' ? console.groupCollapsed(strArray[e]):console.log(strArray[e]) ;} console.groupEnd() } }
 
     checkedDimensions = {};
 
@@ -34,16 +36,22 @@ export class DataFiltersService {
             next : (latestValues) => {
                 let dimensions = latestValues[0];
                 let config = latestValues[1];
-                this.debugLog("DataFiltersService : this.dataRequestService.requestDimensionMappingBehaviorSubject triggered for subscribers :");
-                this.debugLog("filtersDimensionMappingBehaviorSubject");
-                this.debugLog("with values [dimensions, config] :");
-                this.debugLog(dimensions);
-                this.debugLog(config);
+                debugLogGroup(this.DEBUG,["DataFiltersService : this.dataRequestService.requestDimensionMappingBehaviorSubject triggered for subscribers :",
+                    "filtersDimensionMappingBehaviorSubject",
+                    "with values [dimensions, config] :",
+                    dimensions,
+                    config
+                ]);
                 if(Object.keys(config).length > 0){
-                    let dimensionsObject = this.getAllDimensionsItemLists(config,dimensions);
-                    this.debugLog("Pushing result (all dimensions) to this.filtersDimensionMappingBehaviorSubject : ");
-                    this.debugLog(dimensionsObject);
-                    this.filtersDimensionMappingBehaviorSubject.next(dimensionsObject);
+                    let aggregatedDimensionsObjectPromise = this.getAllDimensionsItemLists(config,dimensions);
+                    aggregatedDimensionsObjectPromise.then(
+                        dimensionsObject => {
+                            debugLogGroup(this.DEBUG,["DataFiltersService : Pushing result (all dimensions) to this.filtersDimensionMappingBehaviorSubject : [dimensionsObject]",
+                                dimensionsObject, "of length", Object.keys(dimensionsObject).length
+                            ]);
+                            this.filtersDimensionMappingBehaviorSubject.next(dimensionsObject)
+                        }
+                    );
                 }
             },
             error : (err) => console.error(err),
@@ -55,10 +63,10 @@ export class DataFiltersService {
             next : (latestValues) => {
                 let data = latestValues[0];
                 let dimensions = latestValues[1];
-                this.debugLog("DataFiltersService : this.dataRequestService.rawDataBehaviorSubject triggered for subscribers :");
-                this.debugLog("filtersDimensionBehaviorSubject");
-                this.debugLog("with value :");
-                this.debugLog(data);
+                debugLogGroup(this.DEBUG,["DataFiltersService : this.dataRequestService.rawDataBehaviorSubject triggered for subscribers :",
+                    "filtersDimensionBehaviorSubject",
+                    "with value :",
+                    data]);
 
                 //Map on the dimensions (lis tof used dimensions) to find for each dimension a list of unique id from the data
                 let dimensionsFilters = {};
@@ -73,13 +81,14 @@ export class DataFiltersService {
                     dimensionsFilters[dim.data_id_column_name] = { "active" : singleDimension, "checked" : singleDimensionCheckedList };
                 });
 
-                this.debugLog("DataFiltersService :  Calculated list of available / checked filters to be pushed to this.filtersDimensionBehaviorSubject : ");
-                this.debugLog(dimensionsFilters);
+                debugLogGroup(this.DEBUG,["DataFiltersService :  Calculated list of available / checked filters to be pushed to this.filtersDimensionBehaviorSubject : ",
+                    dimensionsFilters
+                ]);
                 this.filtersDimensionBehaviorSubject.next(dimensionsFilters);
             },
             error : (err) => console.error(err),
         });
-        this.debugLog("---DataFiltersService instanciated---");
+        debugLog(this.DEBUG,"---DataFiltersService instanciated---");
     }
 
     private jwt() {
@@ -112,10 +121,10 @@ export class DataFiltersService {
 
     private getAllDimensionsItemLists(config,dimensionsList){
         let dimensionsObject = {};
-        dimensionsList.map((e)=>{
-            this.debugLog("Calling this.getSingleDimension on dimension "+e.data_id_column_name);
-            this.getSingleDimensionItemList(config,e)
-                .then( response => {
+        let dimensionsPromiseList = dimensionsList.map((e)=>{
+            debugLog(this.DEBUG,"Calling this.getSingleDimension on dimension "+e.data_id_column_name);
+            return this.getSingleDimensionItemList(config,e)
+                /*.then( response => {
                     dimensionsObject[e.data_id_column_name] = response;
                 })
                 .catch(error => {
@@ -123,8 +132,47 @@ export class DataFiltersService {
                     console.log("error : "+error.json().detail);
                     console.log(error.json());
                     //this.router.navigate(['/login'], { queryParams: { returnUrl : window.location.pathname }});
-                });
+                });*/
         });
-        return  dimensionsObject;
+        return Promise.all(dimensionsPromiseList)
+            .then( responses => {
+                //Map on dim list, based on same order of responses than order of dimensionsList
+                let dimensionsPromiseResponsesList = dimensionsList.map((e,index)=>{
+                    dimensionsObject[e.data_id_column_name] = responses[index];
+                });
+                return dimensionsObject;
+            })
+            .catch(error => {
+                console.error("PROMISE REJECTED : could not get data for dimensions 2");
+                console.log("error : "+error.json().detail);
+                console.log(error.json());
+                return {};
+            });
+
+    }
+
+    filterDataByMultipleDimensions(rawData,filtersDimension){
+        //Generating filteredData
+        let filteredData = rawData;
+        //Filter data for each filter criteria:
+        for(let attributeColName in filtersDimension){
+            let checked = filtersDimension[attributeColName].checked;
+            //TODO : DELETE IN PROD
+            checked = filtersDimension[attributeColName].active.slice(2,10);
+            //Do not filter if nothing checked
+            if(checked.length > 0){
+                filteredData = filteredData.filter((dataLine)=>{;
+                    return checked.indexOf(dataLine[attributeColName]) != -1;
+                });
+            }
+            debugLogGroup(this.DEBUG,[
+                    "DataFiltersService : "+checked.length+" values checked for ["+attributeColName+"] resulting in "+filteredData.length+" results",
+                    "Checked : ",
+                    checked,
+                    "FilteredData : ",
+                    filteredData
+                 ]);
+        }
+        return filteredData;
     }
 }

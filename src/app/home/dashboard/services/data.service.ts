@@ -11,7 +11,7 @@ import {debugLog, debugLogGroup} from '../../../utils';
 
 @Injectable()
 export class DataService {
-    DEBUG: boolean = false;
+    DEBUG: boolean = true;
     //private debugLog(str){ this.DEBUG && console.log(str) }
     //private debugLogGroup(strArray){ if(this.DEBUG){ for(let e in strArray){ e == '0' ? console.groupCollapsed(strArray[e]):console.log(strArray[e]) ;} console.groupEnd() } }
 
@@ -36,34 +36,33 @@ export class DataService {
                         let filtersDimension = latestValues[1];
                         let filtersDimensionMapping = latestValues[2];
 
-                        debugLogGroup(this.DEBUG,["DataService : combined subscription triggered :",
+                        debugLogGroup(this.DEBUG,["DataService : combined subscription on (dataRequestService.rawDataBehaviorSubject, dataFiltersService.filtersDimensionBehaviorSubject, dataFiltersService.filtersDimensionMappingBehaviorSubject) triggered :",
                             "For subscriber : filteredDataBehaviorSubject (TODO)",
                             "with values [rawData, filtersDimension, fitersDimensionMapping] :",
                             rawData,
                             filtersDimension,
                             filtersDimensionMapping]);
 
-                            //Generating filteredData
-                            let filteredData = rawData;
-                            //Filter data for each filter criteria:
-                            for(let attributeColName in filtersDimension){
-                                let checked = filtersDimension[attributeColName].checked;
-                                //TODO : DELETE IN PROD
-                                checked = filtersDimension[attributeColName].active.slice(2,10);
-                                //Do not filter if nothing checked
-                                if(checked.length > 0){
-                                    filteredData = filteredData.filter((dataLine)=>{;
-                                        return checked.indexOf(dataLine[attributeColName]) != -1;
-                                    });
+                            //Data mapped with their name column : for each element and each column fin name if present in config
+                            let namedRawData = rawData;
+                            namedRawData.map((e)=>{
+                                //console.log("-------------------");
+                                //console.log(filtersDimensionMapping);
+                                //console.log(filtersDimensionMapping);
+                                if(Object.keys(filtersDimensionMapping).length === 0){
+                                    //console.warn("FILTERS DIMENSION MAPPING EMPTY");
+                                    //console.warn(filtersDimensionMapping);
+                                }else{
+                                    //console.warn(Object.keys(filtersDimensionMapping).length);
                                 }
-                                debugLogGroup(this.DEBUG,[
-                                        "DataService : "+checked.length+" values checked for ["+attributeColName+"] resulting in "+filteredData.length+" results",
-                                        "Checked : ",
-                                        checked,
-                                        "FilteredData : ",
-                                        filteredData
-                                     ]);
-                            }
+                                for(let attributeColName in filtersDimensionMapping){
+                                    //console.log(attributeColName);
+                                    //console.log(filtersDimensionMapping);
+                                }
+                            });
+
+                            let filteredData = this.dataFiltersService.filterDataByMultipleDimensions(rawData,filtersDimension);
+
                             this.filteredDataBehaviorSubject.next(filteredData);
                     },
                     error : (err) => console.error(err),
@@ -71,6 +70,8 @@ export class DataService {
             );
             debugLog(this.DEBUG,"---Data service instanciated----");
       }
+
+
 
 }
 
