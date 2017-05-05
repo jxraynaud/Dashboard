@@ -3,7 +3,7 @@
 </p>
 <td-data-table
   [data]="filteredData"
-  [columns]="dimensionColumns">
+  [columns]="dimensionColumnsWithId">
   <ng-template tdDataTableTemplate="type" let-value="value" let-row="row" let-column="column">
     <div layout="row">
       <span flex>{{value}}</span> // or <span flex>{{row[column]}}</span>
