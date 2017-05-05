@@ -5,6 +5,7 @@
     "available_dimensions" : [
         {
           "data_id_column_name" : "kpi_id",
+          "data_name_column_name" : "kpi_name",
           "label" : "KPI",
           "description" : "",
           "api_endpoint" : "kpis/",
@@ -14,6 +15,7 @@
         },
         {
           "data_id_column_name" : "partner_id",
+          "data_name_column_name" : "partner_name",
           "label" : "Partner",
           "description" : "",
           "api_endpoint" : "partners/",
@@ -23,6 +25,7 @@
         },
         {
           "data_id_column_name" : "advertiser_id",
+          "data_name_column_name" : "advertiser_name",
           "label" : "Advertiser",
           "description" : "",
           "api_endpoint" : "countries/",
@@ -32,6 +35,7 @@
         },
         {
           "data_id_column_name" : "metacampaign_id",
+          "data_name_column_name" : false,
           "label" : "Meta Campaign",
           "description" : "",
           "api_endpoint" : "metacampaigns/",

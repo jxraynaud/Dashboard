@@ -152,6 +152,10 @@ export class DataFiltersService {
     }
 
     filterDataByMultipleDimensions(rawData,filtersDimension){
+        debugLogGroup(this.DEBUG,["DataFiltersService : Filtering data [rawData,filtersDimension]",
+                  rawData,
+                  filtersDimension
+              ]);
         //Generating filteredData
         let filteredData = rawData;
         //Filter data for each filter criteria:
@@ -166,10 +170,10 @@ export class DataFiltersService {
                 });
             }
             debugLogGroup(this.DEBUG,[
-                    "DataFiltersService : "+checked.length+" values checked for ["+attributeColName+"] resulting in "+filteredData.length+" results",
-                    "Checked : ",
+                    "    DataFiltersService : "+checked.length+" values checked for ["+attributeColName+"] resulting in "+filteredData.length+" results",
+                    "Checked elements ids : ",
                     checked,
-                    "FilteredData : ",
+                    "Resulting filteredData : ",
                     filteredData
                  ]);
         }
