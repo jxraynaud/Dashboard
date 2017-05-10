@@ -8,11 +8,11 @@ const multiAttributionRoutes: Routes = [
   {
     path: '',
     component: MultiAttributionComponent,
-    children: [
+    /*children: [
       {
         component: OverviewComponent,
-        path: ''
-      },
+        path: '',
+    },*/
     /*  {
         component: FraudDetectorComponent,
         path: 'fraud-detector',
@@ -23,7 +23,7 @@ const multiAttributionRoutes: Routes = [
         component: ReportingComponent,
         path: 'reporting',
     }*/
-    ]
+    /*]*/
   },
 ];
 @NgModule({

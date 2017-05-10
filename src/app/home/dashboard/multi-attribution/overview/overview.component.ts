@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Input } from '@angular/core';
 
 import { Subscription } from 'rxjs/Subscription';
 
@@ -15,18 +15,18 @@ import {debugLog, debugWarn, debugLogGroup} from '../../../../utils';
 export class OverviewComponent implements OnInit {
     DEBUG : boolean = true;
 
-    activeDimensions : string[] = ['advertiser_id','partner_id','kpi_id','metacampaign_id','bbb'];
-    activeDimensionWithIdColumns : Array<{}>;
-    activeDimensionsWithoutIdColumns : Array<{}>;
+    //activeDimensions : string[] = ['advertiser_id','partner_id','kpi_id','metacampaign_id','bbb'];
+    @Input() activeDimensionWithIdColumns : Array<{}>;
+    @Input() activeDimensionsWithoutIdColumns : Array<{}>;
 
-    activeMetrics : string[] = ['conversion_date','conversions Default 7.5/7.5','conversions Sizmek 30/15'];
-    activeMetricColumns : Array<{}>;
+    //activeMetrics : string[] = ['conversion_date','conversions Default 7.5/7.5','conversions Sizmek 30/15'];
+    //activeMetricColumns : Array<{}>;
 
-    filteredData : Array<{}>;
+    @Input() filteredData : Array<{}>;
 
     //TODO : destroy subscription at the end
-    filteredDataBehaviorSubjectSubscription : Subscription;
-    configBehaviorSubjectSubscription : Subscription;
+    //filteredDataBehaviorSubjectSubscription : Subscription;
+    //configBehaviorSubjectSubscription : Subscription;
 
     constructor(
         private dataService : DataService,
@@ -35,7 +35,7 @@ export class OverviewComponent implements OnInit {
     }
 
     ngOnInit() {
-        this.filteredDataBehaviorSubjectSubscription = this.dataService.filteredDataBehaviorSubject.subscribe({
+        /*this.filteredDataBehaviorSubjectSubscription = this.dataService.filteredDataBehaviorSubject.subscribe({
             next : (filteredData) => {
                 if(filteredData.length > 0){
                     debugLogGroup(this.DEBUG,["Overview Component : this.dataService.filteredDataBehaviorSubject subscription triggered with value [filteredData] :",
@@ -60,7 +60,7 @@ export class OverviewComponent implements OnInit {
                 this.activeDimensionsWithoutIdColumns = this.generateDimensionColumnsListsObject(configData['available_dimensions']).withoutIdColumns;
             },
             error : (err) => console.error(err),
-        });
+        });*/
     }
     /**
      * Generates 2 things : list of columns with id columns and list of columns withour id columns
@@ -68,7 +68,7 @@ export class OverviewComponent implements OnInit {
      * @param  {[type]}                            availableDimensions [description]
      * @return {{withIdColumns:[],withoutIdColumns:[]}}     Object containing both with id and withoutIds columns
      */
-    private generateDimensionColumnsListsObject(availableDimensions){
+    /*private generateDimensionColumnsListsObject(availableDimensions){
         //Creating empty arrays for column list
         let activeWithIdDimensionColumnsTemp = [];
         let activeWithoutIdDimensionColumnsTemp = [];
@@ -111,7 +111,7 @@ export class OverviewComponent implements OnInit {
             activeWithoutIdDimensionColumnsTemp
         ]);
         return {withIdColumns:activeWithIdDimensionColumnsTemp, withoutIdColumns:activeWithoutIdDimensionColumnsTemp};
-    }
+    }*/
 
 
 
