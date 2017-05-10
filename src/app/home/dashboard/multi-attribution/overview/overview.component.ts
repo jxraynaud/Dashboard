@@ -26,7 +26,7 @@ export class OverviewComponent implements OnInit {
 
     //TODO : destroy subscription at the end
     filteredDataBehaviorSubjectSubscription : Subscription;
-    configBehaviorSubjectSubsciption : Subscription;
+    configBehaviorSubjectSubscription : Subscription;
 
     constructor(
         private dataService : DataService,
@@ -49,7 +49,7 @@ export class OverviewComponent implements OnInit {
             error : (err) => console.error(err),
         });
 
-        this.configBehaviorSubjectSubsciption = this.configService.configBehaviorSubject.subscribe({
+        this.configBehaviorSubjectSubscription = this.configService.configBehaviorSubject.subscribe({
             next : (configData) => {
                 debugLogGroup(this.DEBUG,["Overview Component : this.configService.configBehaviorSubject subscription triggered with value [config] for generating list of columns in datatable :",
                     configData,

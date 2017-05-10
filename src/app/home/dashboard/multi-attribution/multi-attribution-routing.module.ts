@@ -5,13 +5,13 @@ import { MultiAttributionComponent } from './multi-attribution.component';
 import { OverviewComponent} from './overview/overview.component';
 
 const multiAttributionRoutes: Routes = [
-  {  
+  {
     path: '',
     component: MultiAttributionComponent,
     children: [
       {
         component: OverviewComponent,
-        path: '',
+        path: ''
       },
     /*  {
         component: FraudDetectorComponent,

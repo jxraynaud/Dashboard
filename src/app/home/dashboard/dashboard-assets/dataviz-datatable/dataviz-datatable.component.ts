@@ -1,4 +1,4 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, OnChanges, SimpleChanges } from '@angular/core';
 
 import {
     TdDataTableService,
@@ -14,7 +14,7 @@ import {debugLog, debugLogGroup} from '../../../../utils';
   templateUrl: './dataviz-datatable.component.html',
   styleUrls: ['./dataviz-datatable.component.css']
 })
-export class DatavizDatatableComponent implements OnInit {
+export class DatavizDatatableComponent implements OnInit, OnChanges {
     DEBUG: boolean = false;
 
     @Input() filteredData : Array<{}>;
@@ -52,6 +52,11 @@ export class DatavizDatatableComponent implements OnInit {
     }
 
     ngOnInit() {
+    }
+
+    ngOnChanges(changes: SimpleChanges){
+        console.log("CHANGE DETECTED");
+        console.log(changes);
     }
 
 }
