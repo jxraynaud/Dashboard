@@ -1,5 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 
+import {
+    TdDataTableService,
+    TdDataTableSortingOrder,
+    ITdDataTableSortChangeEvent,
+    ITdDataTableColumn,
+    IPageChangeEvent } from '@covalent/core';
+
 import { Subscription } from 'rxjs/Subscription';
 
 import { DataService } from '../services/data.service'
@@ -18,12 +25,31 @@ import viewConfig from './view.config.json';
 export class MultiAttributionComponent implements OnInit {
     DEBUG : boolean = true;
 
-    activeDimensions : string[] = ['advertiser_id','partner_id','kpi_id','metacampaign_id','bbb'];
-    activeDimensionWithIdColumns : Array<{}>;
-    activeDimensionsWithoutIdColumns : Array<{}>;
+    //Attributes used for template structure
+    openedNav = true;
+    activeView = "overview";
+    viewsList=[
+        {
+            name : "overview",
+            menuText : "Overview view",
+            description: "Overview blabla",
+            icon: "view_compact"
+        },
+        {
+            name : "bykpiview",
+            menuText : "View 2 - by KPI",
+            description: "By KPI View example",
+            icon: "business"
+        }
+    ]
 
-    activeMetrics : string[] = ['conversion_date','conversions Default 7.5/7.5','conversions Sizmek 30/15'];
-    activeMetricColumns : Array<{}>;
+
+    activeDimensions : string[] = ['advertiser_id','partner_id','kpi_id','metacampaign_id','falseDimension'];
+    activeDimensionsWithIdColumns : ITdDataTableColumn[];
+    activeDimensionsWithoutIdColumns : ITdDataTableColumn[];
+
+    activeMetrics : string[] = ['falseMetric','conversion_date','conversions Default 7.5/7.5','conversions Sizmek 30/15'];
+    activeMetricsColumns : ITdDataTableColumn[];
 
     filteredData : Array<{}>;
 
@@ -58,8 +84,9 @@ export class MultiAttributionComponent implements OnInit {
                         "List of active columns : ",
                         this.activeDimensions
                     ]);
-                    this.activeDimensionWithIdColumns = this.generateDimensionColumnsListsObject(configData['available_dimensions'], this.activeDimensions).withIdColumns;
+                    this.activeDimensionsWithIdColumns = this.generateDimensionColumnsListsObject(configData['available_dimensions'], this.activeDimensions).withIdColumns;
                     this.activeDimensionsWithoutIdColumns = this.generateDimensionColumnsListsObject(configData['available_dimensions'], this.activeDimensions).withoutIdColumns;
+                    this.activeMetricsColumns = this.generateStaticMetricsColumnsListsObject(configData['available_metrics'], this.activeMetrics);
                 },
                 error : (err) => console.error(err),
             });
@@ -69,12 +96,12 @@ export class MultiAttributionComponent implements OnInit {
     }
 
     /**
-     * Generates 2 things : list of columns with id columns and list of columns withour id columns
+     * Generates 2 things : list of columns with id columns and list of columns without id columns
      * @method generateDimensionColumnsListsObject
      * @param  {[type]}                            availableDimensions [description]
      * @return {{withIdColumns:[],withoutIdColumns:[]}}     Object containing both with id and withoutIds columns
      */
-    private generateDimensionColumnsListsObject(availableDimensions,activeDimensions){
+    private generateDimensionColumnsListsObject(availableDimensions,activeDimensions):{withIdColumns:ITdDataTableColumn[], withoutIdColumns:ITdDataTableColumn[]}{
         //Creating empty arrays for column list
         let activeWithIdDimensionColumnsTemp = [];
         let activeWithoutIdDimensionColumnsTemp = [];
@@ -94,7 +121,7 @@ export class MultiAttributionComponent implements OnInit {
                     label : singleActiveDimension.id_label,
                     numeric : true
                 };
-                //Puushing element in temporary column list
+                //Pushing element in temporary column list
                 activeWithIdDimensionColumnsTemp.push(singleActiveDimensionIdColumn);
 
                 //Create name column if indicated in config file
@@ -116,7 +143,32 @@ export class MultiAttributionComponent implements OnInit {
             activeWithIdDimensionColumnsTemp,
             activeWithoutIdDimensionColumnsTemp
         ]);
-        return {withIdColumns:activeWithIdDimensionColumnsTemp, withoutIdColumns:activeWithoutIdDimensionColumnsTemp};
+        return { withIdColumns:activeWithIdDimensionColumnsTemp, withoutIdColumns:activeWithoutIdDimensionColumnsTemp };
     }
 
+    private generateStaticMetricsColumnsListsObject(availableMetrics,activeMetrics):ITdDataTableColumn[]{
+        //Creating empty arrays for column list
+        let activeMetricsColumnsTemp = [];
+        activeMetrics.map((metricName)=>{
+            let singleActiveMetric = availableMetrics.filter((e)=>{ return e.data_id_column_name == metricName});
+
+            if(singleActiveMetric.length==0){
+                //Error catch : if an unavailable metric was listed, skip it.
+                console.error('"'+metricName+'" is not an available metric. Metric ignored. See list of available dimensions : ',[availableMetrics[0]]);
+            }else{
+                //Filter first and only element returned by filter
+                singleActiveMetric = singleActiveMetric[0];
+                //Create column
+                let singleActiveMetricColumn = {
+                    name : singleActiveMetric.data_id_column_name,
+                    label : singleActiveMetric.label,
+                    numeric : true
+                };
+                //Pushing element in temporary column list
+                activeMetricsColumnsTemp.push(singleActiveMetricColumn);
+            }
+        });
+
+        return activeMetricsColumnsTemp;
+    }
 }

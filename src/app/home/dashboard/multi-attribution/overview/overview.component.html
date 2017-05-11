@@ -6,7 +6,9 @@
 <app-dataviz-chart></app-dataviz-chart>
 <app-dataviz-datatable
   [filteredData]="filteredData"
-  [dimensionColumnsWithId]="activeDimensionWithIdColumns"
-  [dimensionColumnsWithoutId]="activeDimensionddimensionsWithoutIdColumns"
+  [activeDimensionsWithIdColumns]="activeDimensionsWithIdColumns"
+  [activeDimensionsWithoutIdColumns]="activeDimensionsWithoutIdColumns"
+  [activeMetricsColumns]="activeMetricsColumns"
+  [sortBy]="conversion_date"
 ></app-dataviz-datatable>
 <app-dataviz-map></app-dataviz-map>

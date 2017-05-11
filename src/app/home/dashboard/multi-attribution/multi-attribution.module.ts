@@ -1,6 +1,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { InjectionToken } from '@angular/core';
+import { MaterialModule } from '@angular/material';
 
 import { MultiAttributionRoutingModule} from './multi-attribution-routing.module'
 
@@ -17,6 +18,7 @@ import { DataService } from '../services/data.service';
 import { ConfigService } from '../services/config.service';
 
 import viewConfig from './view.config.json';
+import { BykpiviewComponent } from './bykpiview/bykpiview.component';
 //Methode 5 :
 export const VIEW_CONFIG = new InjectionToken<any>('test');
 
@@ -25,10 +27,12 @@ export const VIEW_CONFIG = new InjectionToken<any>('test');
         CommonModule,
         MultiAttributionRoutingModule,
         DashboardAssetsModule,
+        MaterialModule,
     ],
     declarations: [
         MultiAttributionComponent,
         OverviewComponent,
+        BykpiviewComponent,
     ],
     providers: [
         DataRequestService,

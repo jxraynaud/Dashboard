@@ -1,9 +1,37 @@
-<p>
-  multi-attribution works!
-</p>
-<!--<router-outlet></router-outlet>-->
-<app-overview
-[filteredData]="filteredData"
-[activeDimensionWithIdColumns]="activeDimensionWithIdColumns"
-[activeDimensionsWithoutIdColumns]="activeDimensionddimensionsWithoutIdColumns"
-></app-overview>
+<md-sidenav-container>
+  <button *ngIf="!sidenav.opened" md-button id="sideNav_menu" (click)="sidenav.open()">
+  </button>
+  <md-sidenav #sidenav opened="openedNav" mode="side">
+    <div class="menuClose">
+    <button md-button (click)="sidenav.close()">X</button>
+    </div>
+    <md-nav-list td-sidenav-content (click)="!media.query('gt-sm') && navList.close()">
+      <div *ngFor="let navElem of viewsList">
+        <a [ngClass]="{'active': activeView==navElem.name}" md-list-item (click)="activeView=navElem.name">
+          <md-icon md-list-avatar>{{navElem.icon}}</md-icon>
+          <h3 md-line>{{navElem.menuText}}</h3>
+          <p md-line>{{navElem.description}}</p>
+        </a>
+        <md-divider md-inset></md-divider>
+      </div>
+    </md-nav-list>
+  </md-sidenav>
+
+  <md-card>
+
+    <p>
+    multi-attribution works!
+    </p>
+
+    <!--<router-outlet></router-outlet>-->
+    <app-overview *ngIf="activeView=='overview'"
+      [filteredData]="filteredData"
+      [activeDimensionsWithIdColumns]="activeDimensionsWithIdColumns"
+      [activeDimensionsWithoutIdColumns]="activeDimensionsWithoutIdColumns"
+      [activeMetricsColumns]="activeMetricsColumns"
+    ></app-overview>
+
+    <app-bykpiview *ngIf="activeView=='bykpiview'"></app-bykpiview>
+
+  </md-card>
+</md-sidenav-container>

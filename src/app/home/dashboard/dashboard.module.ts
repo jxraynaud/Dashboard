@@ -2,7 +2,7 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 import { MaterialModule } from '@angular/material';
-//import { CovalentCoreModule } from '@covalent/core';
+import { CovalentCoreModule } from '@covalent/core';
 import { CovalentHighlightModule } from '@covalent/highlight';
 import { CovalentDataTableModule } from '@covalent/core';
 
@@ -27,7 +27,7 @@ import { NgxChartsModule } from '@swimlane/ngx-charts';
 @NgModule({
     imports: [
         CommonModule,
-        //CovalentCoreModule,
+        CovalentCoreModule,
         CovalentHighlightModule,
         DashboardRoutingModule,
         //CovalentDataTableModule.forRoot(),

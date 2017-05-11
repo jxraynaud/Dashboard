@@ -61,7 +61,7 @@
       },
       {
         "data_id_column_name" : "conversions Default 7.5/7.5",
-        "label" : "Conversion Default 7.5/7.5",
+        "label" : "Conversions Default 7.5/7.5",
         "description" : "",
         "is_name_column_numeric": "true",
         "is_usable_as_request_parameter": "false",
