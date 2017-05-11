@@ -190,19 +190,30 @@ export class MultiAttributionComponent implements OnInit {
         let activeDynamicMetricsColumnsTemp = [];
         if(data){
             let singleData = data[0];
+            let columnsToSort = [];
+            //Create ordred list of columns depending on *ordernumber* in dataKey
             Object.keys(singleData).map((dataKey) => {
                 //If column name starts with "conversions "
                 if(dataKey.split(" ")[0]=="conversions"){
-                    //Create column
-                    let singleDynamicMetricColumn = {
-                        name : dataKey,
-                        //As label, use column name with  uppercase for first letter
-                        label : dataKey.charAt(0).toUpperCase() + dataKey.slice(1).toLowerCase(),
-                        numeric : true
-                    };
-                    //Pushing element in temporary column list
-                    activeDynamicMetricsColumnsTemp.push(singleDynamicMetricColumn);
+                    let colOrder = dataKey.split("*")[1];
+                    //Remove *number* used for ordering
+                    let dataKeyArray = dataKey.split("*");
+                    dataKeyArray.splice(1,1);
+                    //Join name without order number
+                    let dataKeyWithoutNumber = dataKeyArray.join("");
+                    columnsToSort[colOrder]={name:dataKey, label:dataKeyWithoutNumber};
                 }
+            });
+            columnsToSort.map((colInfos)=>{
+                //Create column
+                let singleDynamicMetricColumn = {
+                    name : colInfos.name,
+                    //As label, use column name with  uppercase for first letter
+                    label : colInfos.label.charAt(0).toUpperCase() + colInfos.label.slice(1).toLowerCase(),
+                    numeric : true
+                };
+                //Pushing element in temporary column list
+                activeDynamicMetricsColumnsTemp.push(singleDynamicMetricColumn);
             });
         }
         return activeDynamicMetricsColumnsTemp;
