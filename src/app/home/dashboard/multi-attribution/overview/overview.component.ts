@@ -24,7 +24,7 @@ export class OverviewComponent implements OnInit {
 
     @Input() activeDimensionsWithIdColumns : ITdDataTableColumn[];
     @Input() activeDimensionsWithoutIdColumns : ITdDataTableColumn[];
-    @Input() activeMetricsColumns : ITdDataTableColumn[];
+    @Input() activeStaticMetricsColumns : ITdDataTableColumn[];
     @Input() filteredData : Array<{}>;
 
     constructor(

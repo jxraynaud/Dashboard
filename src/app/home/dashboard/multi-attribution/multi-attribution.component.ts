@@ -44,12 +44,16 @@ export class MultiAttributionComponent implements OnInit {
     ]
 
 
-    activeDimensions : string[] = ['advertiser_id','partner_id','kpi_id','metacampaign_id','falseDimension'];
+    activeDimensions : string[] = ['advertiser_id','partner_id','kpi_id','metacampaign_id',/*'falseDimension'*/];
     activeDimensionsWithIdColumns : ITdDataTableColumn[];
     activeDimensionsWithoutIdColumns : ITdDataTableColumn[];
 
-    activeMetrics : string[] = ['falseMetric','conversion_date','conversions Default 7.5/7.5','conversions Sizmek 30/15'];
-    activeMetricsColumns : ITdDataTableColumn[];
+    activeStaticMetrics : string[] = [/*'falseMetric',*/'conversion_date'];
+    activeStaticMetricsColumns : ITdDataTableColumn[];
+    dynamicMetricsColumns : ITdDataTableColumn[];
+
+    //Concat of static and dynamic metrics to be passed to inputs
+    metricsColumns : ITdDataTableColumn[];
 
     filteredData : Array<{}>;
 
@@ -70,6 +74,8 @@ export class MultiAttributionComponent implements OnInit {
                             "Injected in filteredData attribute",
                             filteredData]);
                         this.filteredData = filteredData;
+                        this.dynamicMetricsColumns = this.generateDynamicMetricsColumnsListsObjects(filteredData);
+                        this.rebuildMetricsColumns();
                     }else{
                         debugWarn(this.DEBUG,"Overview Component : this.dataService.filteredDataBehaviorSubject subscription triggered. filteredData empty, not doing anything.");
                     }
@@ -86,7 +92,8 @@ export class MultiAttributionComponent implements OnInit {
                     ]);
                     this.activeDimensionsWithIdColumns = this.generateDimensionColumnsListsObject(configData['available_dimensions'], this.activeDimensions).withIdColumns;
                     this.activeDimensionsWithoutIdColumns = this.generateDimensionColumnsListsObject(configData['available_dimensions'], this.activeDimensions).withoutIdColumns;
-                    this.activeMetricsColumns = this.generateStaticMetricsColumnsListsObject(configData['available_metrics'], this.activeMetrics);
+                    this.activeStaticMetricsColumns = this.generateStaticMetricsColumnsListsObject(configData['available_static_metrics'], this.activeStaticMetrics);
+                    this.rebuildMetricsColumns();
                 },
                 error : (err) => console.error(err),
             });
@@ -146,10 +153,10 @@ export class MultiAttributionComponent implements OnInit {
         return { withIdColumns:activeWithIdDimensionColumnsTemp, withoutIdColumns:activeWithoutIdDimensionColumnsTemp };
     }
 
-    private generateStaticMetricsColumnsListsObject(availableMetrics,activeMetrics):ITdDataTableColumn[]{
+    private generateStaticMetricsColumnsListsObject(availableMetrics,activeStaticMetrics):ITdDataTableColumn[]{
         //Creating empty arrays for column list
-        let activeMetricsColumnsTemp = [];
-        activeMetrics.map((metricName)=>{
+        let activeStaticMetricsColumnsTemp = [];
+        activeStaticMetrics.map((metricName)=>{
             let singleActiveMetric = availableMetrics.filter((e)=>{ return e.data_id_column_name == metricName});
 
             if(singleActiveMetric.length==0){
@@ -165,10 +172,54 @@ export class MultiAttributionComponent implements OnInit {
                     numeric : true
                 };
                 //Pushing element in temporary column list
-                activeMetricsColumnsTemp.push(singleActiveMetricColumn);
+                activeStaticMetricsColumnsTemp.push(singleActiveMetricColumn);
             }
         });
 
-        return activeMetricsColumnsTemp;
+        return activeStaticMetricsColumnsTemp;
+    }
+
+    /* Infer dynamic columns from data : function specific to mult-attribution.
+     * [TODO] new function for new data report
+     * @method generateDynamicMetricsColumnsListsObjects
+     * @param  {[type]}                                  data : data output from the api
+     * @return {[type]}                                       array of columns for dynamic metrics
+     */
+    private generateDynamicMetricsColumnsListsObjects(data){
+        //Creating empty arrays for column list
+        let activeDynamicMetricsColumnsTemp = [];
+        if(data){
+            let singleData = data[0];
+            Object.keys(singleData).map((dataKey) => {
+                //If column name starts with "conversions "
+                if(dataKey.split(" ")[0]=="conversions"){
+                    //Create column
+                    let singleDynamicMetricColumn = {
+                        name : dataKey,
+                        //As label, use column name with  uppercase for first letter
+                        label : dataKey.charAt(0).toUpperCase() + dataKey.slice(1).toLowerCase(),
+                        numeric : true
+                    };
+                    //Pushing element in temporary column list
+                    activeDynamicMetricsColumnsTemp.push(singleDynamicMetricColumn);
+                }
+            });
+        }
+        return activeDynamicMetricsColumnsTemp;
+    }
+
+    /**
+     * Rebuild global metrics array from static (calculated from config) and dynamic (inferred from data by custom function)
+     * @method rebuildMetricsColumns
+     * @return {[type]}              [description]
+     */
+    private rebuildMetricsColumns(){
+        if(this.activeStaticMetricsColumns !== undefined && this.dynamicMetricsColumns !== undefined){
+            this.metricsColumns = this.activeStaticMetricsColumns.concat(this.dynamicMetricsColumns);
+            debugLogGroup(this.DEBUG,["Building metrics column set from static metrics and dynamic metrics, resulting in [this.metricColumns] :",this.metricsColumns]);
+        }else if(this.activeStaticMetricsColumns !== undefined){
+            debugLog(this.DEBUG, "Multi attribution dynamic metrics : no data, fallback to static columns only (normal at first pass)");
+            this.metricsColumns = this.activeStaticMetricsColumns;
+        }
     }
 }

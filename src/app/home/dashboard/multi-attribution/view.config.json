@@ -48,7 +48,7 @@
           "is_usable_as_request_parameter": "false"
         }
     ],
-    "available_metrics" : [
+    "available_static_metrics" : [
       {
         "data_id_column_name" : "conversion_date",
         "label" : "Conversion Date",
@@ -56,26 +56,6 @@
         "is_name_column_numeric": "false",
         "is_usable_as_request_parameter": "false",
         "is_additive": "false",
-        "is_usable_as_groupby": "true",
-        "specific_endpoint_url": ""
-      },
-      {
-        "data_id_column_name" : "conversions Default 7.5/7.5",
-        "label" : "Conversions Default 7.5/7.5",
-        "description" : "",
-        "is_name_column_numeric": "true",
-        "is_usable_as_request_parameter": "false",
-        "is_additive": "true",
-        "is_usable_as_groupby": "true",
-        "specific_endpoint_url": ""
-      },
-      {
-        "data_id_column_name" : "conversions Sizmek 30/15",
-        "label" : "Conversion Sizmek 30/15",
-        "description" : "",
-        "is_name_column_numeric": "true",
-        "is_usable_as_request_parameter": "false",
-        "is_additive": "true",
         "is_usable_as_groupby": "true",
         "specific_endpoint_url": ""
       }

@@ -8,7 +8,10 @@
   [filteredData]="filteredData"
   [activeDimensionsWithIdColumns]="activeDimensionsWithIdColumns"
   [activeDimensionsWithoutIdColumns]="activeDimensionsWithoutIdColumns"
-  [activeMetricsColumns]="activeMetricsColumns"
+  [activeStaticMetricsColumns]="activeStaticMetricsColumns"
   [sortBy]="conversion_date"
+  [pageSizes]="[10, 50, 100, 150, 200]"
+  [pageSize]="10"
+  [displayIdsInDatatable]="false"
 ></app-dataviz-datatable>
 <app-dataviz-map></app-dataviz-map>

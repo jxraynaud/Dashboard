@@ -22,14 +22,12 @@ export class DatavizDatatableComponent implements OnInit, OnChanges {
 
     @Input() activeDimensionsWithIdColumns : ITdDataTableColumn[] = [];
     @Input() activeDimensionsWithoutIdColumns : ITdDataTableColumn[] = [];
-    @Input() activeMetricsColumns : ITdDataTableColumn[] = [];
+    @Input() activeStaticMetricsColumns : ITdDataTableColumn[] = [];
 
     //Columns that represent an id. To be used by the "show ids" column
     private withIdColumns : ITdDataTableColumn[];
     private withoutIdColumns : ITdDataTableColumn[];
     public columns : ITdDataTableColumn[];
-
-    displayIdsInDatatable:boolean = true;
 
     public filteredByDataTableData: any[];
     public filteredTotal: number;
@@ -37,9 +35,14 @@ export class DatavizDatatableComponent implements OnInit, OnChanges {
     searchTerm: string = '';
     fromRow: number = 1;
     currentPage: number = 1;
-    pageSize: number = 10;
     @Input() sortBy: string;
     sortOrder: TdDataTableSortingOrder = TdDataTableSortingOrder.Descending;
+
+    //Facultative inputs
+    @Input() pageSizes = [10, 50, 100, 150, 200];
+    @Input() pageSize: number = 10;
+    @Input() displayIdsInDatatable:boolean = true;
+
     //
     //@Input() activeGroupByFields : string[]=[];
     //@Input() availableGroupByFields : string[];
@@ -57,19 +60,18 @@ export class DatavizDatatableComponent implements OnInit, OnChanges {
         //Initiate activegroupbyfields to default value given in input
         //this.activeGroupByFields=this.defaultGroupByFields;
         debugLogGroup(this.DEBUG,
-            ["Dataviz Datatable initialized with Inputs [activeDimensionsWithIdColumns,activeDimensionsWithoutIdColumns,activeMetricsColumns]",
-            this.activeDimensionsWithIdColumns, this.activeDimensionsWithoutIdColumns, this.activeMetricsColumns
+            ["Dataviz Datatable initialized with Inputs [activeDimensionsWithIdColumns,activeDimensionsWithoutIdColumns,activeStaticMetricsColumns]",
+            this.activeDimensionsWithIdColumns, this.activeDimensionsWithoutIdColumns, this.activeStaticMetricsColumns
             ]
         );
-        console.log(this.activeMetricsColumns);
         this.rebuildColumns();
     }
 
     ngOnChanges(changes: SimpleChanges){
         //if(changes.activeDimensionsWithIdColumns !== undefined){
             debugLogGroup(this.DEBUG,["Dataviz-datatable Component : changes detected on columns",
-            "New columns [activeDimensionsWithIdColumns,activeDimensionsWithoutIdColumns,activeMetricsColumns]:",
-            this.activeDimensionsWithIdColumns, this.activeDimensionsWithoutIdColumns, this.activeMetricsColumns
+            "New columns [activeDimensionsWithIdColumns,activeDimensionsWithoutIdColumns,activeStaticMetricsColumns]:",
+            this.activeDimensionsWithIdColumns, this.activeDimensionsWithoutIdColumns, this.activeStaticMetricsColumns
             ]);
             this.rebuildColumns();
             this.filter();
@@ -87,8 +89,8 @@ export class DatavizDatatableComponent implements OnInit, OnChanges {
 
     rebuildColumns(){
         //Concatenate constant columns (defined above) with dynamic columns
-        this.withIdColumns = this.activeDimensionsWithIdColumns.concat(this.activeMetricsColumns);
-        this.withoutIdColumns = this.activeDimensionsWithoutIdColumns.concat(this.activeMetricsColumns);
+        this.withIdColumns = this.activeDimensionsWithIdColumns.concat(this.activeStaticMetricsColumns);
+        this.withoutIdColumns = this.activeDimensionsWithoutIdColumns.concat(this.activeStaticMetricsColumns);
         //Put columns depending of "display ids" (displayIdsInDatatable) toggle option
         if(this.displayIdsInDatatable == true){
             this.columns = this.withIdColumns;

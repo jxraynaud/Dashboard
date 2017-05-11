@@ -46,7 +46,7 @@ requireMatch></td-chips>-->
 <div class="md-padding" *ngIf="!dataTable.hasData" layout="row" layout-align="center center">
   <h3>No results to display yet.</h3>
 </div>
-<td-paging-bar #pagingBar [pageSizes]="[10, 50, 100, 150, 200]" [total]="filteredTotal" (change)="page($event)">
+<td-paging-bar #pagingBar [pageSizes]="pageSizes" [total]="filteredTotal" (change)="page($event)">
 <span td-paging-bar-label hide-xs>Row per page:</span>
 {{pagingBar.range}} <span hide-xs>of {{pagingBar.total}}</span>
 </td-paging-bar>
