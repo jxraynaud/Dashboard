@@ -42,7 +42,10 @@ export class MultiAttributionComponent implements OnInit {
             icon: "business"
         }
     ]
-
+    //Unnamed filtered data
+    filteredData : Array<{}>;
+    filtersDimensionMapping;
+    config;
 
     activeDimensions : string[] = ['advertiser_id','partner_id','kpi_id','metacampaign_id',/*'falseDimension'*/];
     activeDimensionsWithIdColumns : ITdDataTableColumn[];
@@ -54,12 +57,17 @@ export class MultiAttributionComponent implements OnInit {
 
     //Concat of static and dynamic metrics to be passed to inputs
     metricsColumns : ITdDataTableColumn[];
-
-    filteredData : Array<{}>;
+    //List of additive metrics columns for groupby function by their key name (string) : intermediary values static and dynamic because static is calculated
+    // at reception of config BehaviorSubject, chereas dynamic is calculated in generateDynamicMetricsColumnsListsObjects.
+    // => the 2 are concat in rebuildColumns() to make additiveMetricsList
+    dynamicAdditiveMetricsList : Array<string>;
+    staticAdditiveMetricsList : Array<string>;
+    additiveMetricsList : Array<string>;
 
     //TODO : destroy subscription at the end
     filteredDataBehaviorSubjectSubscription : Subscription;
     configBehaviorSubjectSubscription : Subscription;
+    valuesToInputSubscription : Subscription;
 
     constructor(
         private configService : ConfigService,
@@ -67,13 +75,20 @@ export class MultiAttributionComponent implements OnInit {
         private dataFiltersService : DataFiltersService) {
             this.configService.setConfigFile(viewConfig);
 
+            /** Subscribe to dataService.filteredDataBehaviorSubject, to generate Dynamic Metrics Columns each time filteredData arrives
+             * Sets attributes :
+             *  - dynamicMetricsColumns : dynamic metrics inferred from data by funtion generateDynamicMetricsColumnsListsObjects [function specific to view multi-attribution]
+             *  Through rebuildMetricsColumns
+             *  - metricsColumns : obect containing columns for metrics (static and dynamic if any)
+             *  - additiveMetricsList : list of addivtive metrics (by string), dynamic coming from dynamicAdditiveMetricsList [generated in generateDynamicMetricsColumnsListsObjects],
+             *  and static coming from staticAdditiveMetricsList [set in configBehaviorSubjectSubscription (subscription to configService.configBehaviorSubject)]
+             */
             this.filteredDataBehaviorSubjectSubscription = this.dataService.filteredDataBehaviorSubject.subscribe({
                 next : (filteredData) => {
                     if(filteredData.length > 0){
                         debugLogGroup(this.DEBUG,["Overview Component : this.dataService.filteredDataBehaviorSubject subscription triggered with value [filteredData] :",
                             "Injected in filteredData attribute",
                             filteredData]);
-                        this.filteredData = filteredData;
                         this.dynamicMetricsColumns = this.generateDynamicMetricsColumnsListsObjects(filteredData);
                         this.rebuildMetricsColumns();
                     }else{
@@ -83,6 +98,13 @@ export class MultiAttributionComponent implements OnInit {
                 error : (err) => console.error(err),
             });
 
+            /** Subscribe to configService.configBehaviorSubject to generate dimensions columns and static metrics columns + define from config list of static additive metrics
+             * Sets attributes :
+             *  - activeDimensionsWithIdColumns : list of all dimensions columns without Id columns
+             *  - activeDimensionsWithoutIdColumns : list of all dimensions columns with Id columns (used to alternate on a toggle between with id and without id)
+             *  - activeStaticMetricsColumns : static metrics columns taken straight from config file
+             *  - staticAdditiveMetricsList : list of additive Metrics form the static ones, taken from the is_additive parameter in view.config.json
+             */
             this.configBehaviorSubjectSubscription = this.configService.configBehaviorSubject.subscribe({
                 next : (configData) => {
                     debugLogGroup(this.DEBUG,["Overview Component : this.configService.configBehaviorSubject subscription triggered with value [config] for generating list of columns in datatable :",
@@ -90,20 +112,53 @@ export class MultiAttributionComponent implements OnInit {
                         "List of active columns : ",
                         this.activeDimensions
                     ]);
-                    this.activeDimensionsWithIdColumns = this.generateDimensionColumnsListsObject(configData['available_dimensions'], this.activeDimensions).withIdColumns;
-                    this.activeDimensionsWithoutIdColumns = this.generateDimensionColumnsListsObject(configData['available_dimensions'], this.activeDimensions).withoutIdColumns;
+                    let dimensionColumnsListsObject = this.generateDimensionColumnsListsObject(configData['available_dimensions'], this.activeDimensions);
+                    this.activeDimensionsWithIdColumns = dimensionColumnsListsObject.withIdColumns;
+                    this.activeDimensionsWithoutIdColumns = dimensionColumnsListsObject.withoutIdColumns;
                     this.activeStaticMetricsColumns = this.generateStaticMetricsColumnsListsObject(configData['available_static_metrics'], this.activeStaticMetrics);
+                    //Define list of additive metrics
+                    this.staticAdditiveMetricsList = configData['available_static_metrics'].filter((e)=>{ return e.is_additive }).map((e)=>{ return e.data_id_column_name });
+                    console.log("ADDITIVE COLS");
+                    console.log(this.staticAdditiveMetricsList);
                     this.rebuildMetricsColumns();
                 },
                 error : (err) => console.error(err),
             });
+
+            /**    Subscribe to dataService.filteredDataBehaviorSubject, dataFiltersService.filtersDimensionMappingBehaviorSubject
+             *     and configService.configBehaviorSubject
+             */
+            this.valuesToInputSubscription = this.dataService.filteredDataBehaviorSubject.combineLatest(
+                this.dataFiltersService.filtersDimensionMappingBehaviorSubject,
+                this.configService.configBehaviorSubject
+            ).subscribe(
+                {
+                    next : (latestValues) => {
+                        let filteredData = latestValues[0];
+                        let filtersDimensionMapping = latestValues[1];
+                        let config = latestValues[2];
+
+                        debugLogGroup(this.DEBUG,["Multi-Attribution Component : combined subscription on (dataService.filteredDataBehaviorSubject, dataFiltersService.filtersDimensionMappingBehaviorSubject, configService.configBehaviorSubject) triggered :",
+                            "For pushing into inputs to allow name processing in dataviz",
+                            "with values [filteredData,  fitersDimensionMapping, config] :",
+                            filteredData,
+                            filtersDimensionMapping,
+                            config,
+                        ]);
+
+                        this.filteredData = filteredData;
+                        this.filtersDimensionMapping = filtersDimensionMapping;
+                        this.config = config;
+                    },
+                    error : (err) => console.error(err),
+                }
+            );
     }
 
     ngOnInit() {
     }
 
-    /**
-     * Generates 2 things : list of columns with id columns and list of columns without id columns
+    /** Generates 2 things : list of columns with id columns and list of columns without id columns
      * @method generateDimensionColumnsListsObject
      * @param  {[type]}                            availableDimensions [description]
      * @return {{withIdColumns:[],withoutIdColumns:[]}}     Object containing both with id and withoutIds columns
@@ -153,6 +208,12 @@ export class MultiAttributionComponent implements OnInit {
         return { withIdColumns:activeWithIdDimensionColumnsTemp, withoutIdColumns:activeWithoutIdDimensionColumnsTemp };
     }
 
+    /**   Generates columns for static metrics
+     *    @method generateStaticMetricsColumnsListsObject
+     *    @param  {[type]}                                availableMetrics    list of all available metrics (usually found in config file)
+     *    @param  {[type]}                                activeStaticMetrics list of active metrics (manually added to view file)
+     *    @return {ITdDataTableColumn[]}                  list of static metrics columns
+     */
     private generateStaticMetricsColumnsListsObject(availableMetrics,activeStaticMetrics):ITdDataTableColumn[]{
         //Creating empty arrays for column list
         let activeStaticMetricsColumnsTemp = [];
@@ -179,15 +240,19 @@ export class MultiAttributionComponent implements OnInit {
         return activeStaticMetricsColumnsTemp;
     }
 
-    /* Infer dynamic columns from data : function specific to mult-attribution.
+    /** Infer dynamic columns from data : function specific to mult-attribution.
      * [TODO] new function for new data report
      * @method generateDynamicMetricsColumnsListsObjects
      * @param  {[type]}                                  data : data output from the api
      * @return {[type]}                                       array of columns for dynamic metrics
-     */
-    private generateDynamicMetricsColumnsListsObjects(data){
+     **/
+    private generateDynamicMetricsColumnsListsObjects(data):ITdDataTableColumn[]{
+        //Reinitialize dynamic additive columns list
+        this.dynamicAdditiveMetricsList = []
+
         //Creating empty arrays for column list
         let activeDynamicMetricsColumnsTemp = [];
+
         if(data){
             let singleData = data[0];
             let columnsToSort = [];
@@ -214,23 +279,35 @@ export class MultiAttributionComponent implements OnInit {
                 };
                 //Pushing element in temporary column list
                 activeDynamicMetricsColumnsTemp.push(singleDynamicMetricColumn);
+                //TODO FOR NEW VIEW : define which columns are additive
+                this.dynamicAdditiveMetricsList.push(colInfos.name);
             });
         }
         return activeDynamicMetricsColumnsTemp;
     }
 
-    /**
-     * Rebuild global metrics array from static (calculated from config) and dynamic (inferred from data by custom function)
+    /** Rebuild global metrics array from static (calculated from config) and dynamic (inferred from data by custom function)
      * @method rebuildMetricsColumns
      * @return {[type]}              [description]
      */
     private rebuildMetricsColumns(){
         if(this.activeStaticMetricsColumns !== undefined && this.dynamicMetricsColumns !== undefined){
             this.metricsColumns = this.activeStaticMetricsColumns.concat(this.dynamicMetricsColumns);
-            debugLogGroup(this.DEBUG,["Building metrics column set from static metrics and dynamic metrics, resulting in [this.metricColumns] :",this.metricsColumns]);
+            debugLogGroup(this.DEBUG,["Multi attribution : Building metrics column set from static metrics and dynamic metrics, resulting in [this.metricColumns] :",
+            this.metricsColumns]);
         }else if(this.activeStaticMetricsColumns !== undefined){
             debugLog(this.DEBUG, "Multi attribution dynamic metrics : no data, fallback to static columns only (normal at first pass)");
             this.metricsColumns = this.activeStaticMetricsColumns;
         }
+        if(this.dynamicAdditiveMetricsList !== undefined){
+            this.additiveMetricsList = this.dynamicAdditiveMetricsList.concat(this.staticAdditiveMetricsList);
+        }else{
+            //Fallback on additive only if dynamic metrics not ready
+            this.additiveMetricsList = this.staticAdditiveMetricsList
+        }
+        debugLogGroup(this.DEBUG,[
+            "Multi-attribution Component : list of additive metrics for groupBy : ",
+            this.additiveMetricsList
+        ])
     }
 }

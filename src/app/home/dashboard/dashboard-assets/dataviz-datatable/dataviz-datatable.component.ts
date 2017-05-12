@@ -7,7 +7,8 @@ import {
     ITdDataTableColumn,
     IPageChangeEvent } from '@covalent/core';
 
-import {debugLog, debugLogGroup} from '../../../../utils';
+import { debugLog, debugLogGroup } from '../../../../utils';
+import { groupBy } from '../../libs/groupby';
 
 @Component({
   selector: 'app-dataviz-datatable',
@@ -23,6 +24,8 @@ export class DatavizDatatableComponent implements OnInit, OnChanges {
     @Input() activeDimensionsWithIdColumns : ITdDataTableColumn[] = [];
     @Input() activeDimensionsWithoutIdColumns : ITdDataTableColumn[] = [];
     @Input() activeStaticMetricsColumns : ITdDataTableColumn[] = [];
+    @Input() additiveMetricsList : Array<string>;
+    @Input() availableGroupByFields = [];
 
     //Columns that represent an id. To be used by the "show ids" column
     private withIdColumns : ITdDataTableColumn[];
@@ -42,6 +45,9 @@ export class DatavizDatatableComponent implements OnInit, OnChanges {
     @Input() pageSizes = [10, 50, 100, 150, 200];
     @Input() pageSize: number = 10;
     @Input() displayIdsInDatatable:boolean = true;
+    @Input() aggregateCriterias: string[];
+    @Input() filtersDimensionMapping;
+    @Input() config;
 
     //
     //@Input() activeGroupByFields : string[]=[];
@@ -73,9 +79,14 @@ export class DatavizDatatableComponent implements OnInit, OnChanges {
             "New columns [activeDimensionsWithIdColumns,activeDimensionsWithoutIdColumns,activeStaticMetricsColumns]:",
             this.activeDimensionsWithIdColumns, this.activeDimensionsWithoutIdColumns, this.activeStaticMetricsColumns
             ]);
+            this.aggregateData();
             this.rebuildColumns();
             this.filter();
         //}
+    }
+
+    aggregateData(): void {
+        this.aggregatedFilteredData = groupBy(this.filteredData, this.aggregateCriterias, this.additiveMetricsList, function(){}, this.filtersDimensionMapping, this.config);
     }
 
     toggleIdColumns(){
@@ -87,15 +98,34 @@ export class DatavizDatatableComponent implements OnInit, OnChanges {
         }
     }
 
+    /**
+     *    Rebuilds columns :
+     *    1-Concatenates dimensions and metrics columns
+     *    2-Filters columns to data present in the data (mapped from row 0 of data)
+     *    3-Sets columns to with or without id depending on displayIdsInDatatable parameter
+     *    @method rebuildColumns
+     *    @return {[type]}       [description]
+     */
     rebuildColumns(){
         //Concatenate constant columns (defined above) with dynamic columns
         this.withIdColumns = this.activeDimensionsWithIdColumns.concat(this.activeStaticMetricsColumns);
         this.withoutIdColumns = this.activeDimensionsWithoutIdColumns.concat(this.activeStaticMetricsColumns);
-        //Put columns depending of "display ids" (displayIdsInDatatable) toggle option
-        if(this.displayIdsInDatatable == true){
-            this.columns = this.withIdColumns;
-        }else{
-            this.columns = this.withoutIdColumns;
+
+        //Filter to keep only columns present in data (changes dependign on groupBy)
+        if(this.aggregatedFilteredData[0]){
+            //Keys present in the data
+            let dataKeys = Object.keys(this.aggregatedFilteredData[0]);
+            //Filter to keep only columns that have an index in dataKeys (list of keys present in data)
+            this.withIdColumns = this.withIdColumns.filter((col)=>{ return dataKeys.indexOf(col.name)!=-1 });
+            this.withoutIdColumns = this.withoutIdColumns.filter((col)=>{ return dataKeys.indexOf(col.name)!=-1 });
+
+            //Put columns depending of "display ids" (displayIdsInDatatable) toggle option
+            //(Inside aggegatedFiltredData test to avoid columns flash before/after groupby)
+            if(this.displayIdsInDatatable == true){
+                this.columns = this.withIdColumns;
+            }else{
+                this.columns = this.withoutIdColumns;
+            }
         }
     }
 
@@ -120,14 +150,20 @@ export class DatavizDatatableComponent implements OnInit, OnChanges {
 
     filter(): void {
         //First input of filtereddata is empty, then filter is triggered in ngonchange
-        if(this.filteredData){
-            let newData: any[] = this.filteredData;
+        if(this.aggregatedFilteredData){
+            let newData: any[] = this.aggregatedFilteredData;
             newData = this._dataTableService.filterData(newData, this.searchTerm, true);
             this.filteredTotal = newData.length;
             newData = this._dataTableService.sortData(newData, this.sortBy, this.sortOrder);
             newData = this._dataTableService.pageData(newData, this.fromRow, this.currentPage * this.pageSize);
             this.filteredByDataTableData = newData;
         }
+    }
+
+    changeGroupByCriteria(){
+        this.aggregateData();
+        this.rebuildColumns();
+        this.filter();
     }
 
 }

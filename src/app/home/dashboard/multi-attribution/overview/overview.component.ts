@@ -22,10 +22,14 @@ import {debugLog, debugWarn, debugLogGroup} from '../../../../utils';
 export class OverviewComponent implements OnInit {
     DEBUG : boolean = true;
 
+    //Unnamed yet filtered data (to be named by dataviz)
+    @Input() filteredData : Array<{}>;
     @Input() activeDimensionsWithIdColumns : ITdDataTableColumn[];
     @Input() activeDimensionsWithoutIdColumns : ITdDataTableColumn[];
     @Input() activeStaticMetricsColumns : ITdDataTableColumn[];
-    @Input() filteredData : Array<{}>;
+    @Input() additiveMetricsList : Array<string>;
+    @Input() filtersDimensionMapping;
+    @Input() config;
 
     constructor(
         private dataService : DataService,

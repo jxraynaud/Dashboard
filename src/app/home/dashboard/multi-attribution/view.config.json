@@ -53,10 +53,10 @@
         "data_id_column_name" : "conversion_date",
         "label" : "Conversion Date",
         "description" : "",
-        "is_name_column_numeric": "false",
-        "is_usable_as_request_parameter": "false",
-        "is_additive": "false",
-        "is_usable_as_groupby": "true",
+        "is_name_column_numeric": false,
+        "is_usable_as_request_parameter": false,
+        "is_additive": false,
+        "is_usable_as_groupby": true,
         "specific_endpoint_url": ""
       }
     ]
