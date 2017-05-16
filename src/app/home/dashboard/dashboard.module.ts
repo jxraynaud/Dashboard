@@ -12,6 +12,7 @@ import { DashboardComponent } from './dashboard.component';
 import { DefaultComponent } from './default/default.component';
 import { DashboardAssetsModule } from './dashboard-assets/dashboard-assets.module';
 
+import { Daterangepicker } from 'ng2-daterangepicker';
 /*
 import { DatePickerModule } from 'ng2-datepicker';
 import { NgDateRangePickerModule } from 'ng-daterangepicker';
@@ -33,6 +34,7 @@ import { NgxChartsModule } from '@swimlane/ngx-charts';
         //CovalentDataTableModule.forRoot(),
         MaterialModule,
         DashboardAssetsModule,
+        Daterangepicker,
     ],
     declarations: [
         DashboardComponent,

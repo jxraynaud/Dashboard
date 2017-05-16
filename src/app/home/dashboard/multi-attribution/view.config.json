@@ -2,6 +2,7 @@
     "name" : "MULTI ATTRIBUTION CONFIG",
     "api_url" : "http://localhost:8000/api/",
     "api_endpoint" : "aggregated_multi_attribution_data/",
+    "is_attribution_model_multiple" : true,
     "available_dimensions" : [
         {
           "data_id_column_name" : "kpi_id",

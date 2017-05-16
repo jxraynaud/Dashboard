@@ -30,6 +30,9 @@ export class OverviewComponent implements OnInit {
     @Input() additiveMetricsList : Array<string>;
     @Input() filtersDimensionMapping;
     @Input() config;
+    //Setting to pipe to the views to define if the attribution model parameter of the api is simple (number) or multiple (array)
+    @Input() isAttributionModelMultiple : boolean;
+
 
     constructor(
         private dataService : DataService,

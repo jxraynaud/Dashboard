@@ -5,7 +5,8 @@
     <div class="menuClose">
     <button md-button (click)="sidenav.close()">X</button>
     </div>
-    <md-nav-list td-sidenav-content (click)="!media.query('gt-sm') && navList.close()">
+    <!--<md-nav-list td-sidenav-content (click)="!media.query('gt-sm') && navList.close()">-->
+    <md-nav-list td-sidenav-content>
       <div *ngFor="let navElem of viewsList">
         <a [ngClass]="{'active': activeView==navElem.name}" md-list-item (click)="activeView=navElem.name">
           <md-icon md-list-avatar>{{navElem.icon}}</md-icon>
@@ -32,9 +33,19 @@
       [additiveMetricsList]="additiveMetricsList"
       [filtersDimensionMapping]="filtersDimensionMapping"
       [config]="config"
+      [isAttributionModelMultiple]="isAttributionModelMultiple"
     ></app-overview>
 
-    <app-bykpiview *ngIf="activeView=='bykpiview'"></app-bykpiview>
+    <app-bykpiview *ngIf="activeView=='bykpiview'"
+      [filteredData]="filteredData"
+      [activeDimensionsWithIdColumns]="activeDimensionsWithIdColumns"
+      [activeDimensionsWithoutIdColumns]="activeDimensionsWithoutIdColumns"
+      [activeStaticMetricsColumns]="metricsColumns"
+      [additiveMetricsList]="additiveMetricsList"
+      [filtersDimensionMapping]="filtersDimensionMapping"
+      [config]="config"
+      [isAttributionModelMultiple]="isAttributionModelMultiple"
+    ></app-bykpiview>
 
   </md-card>
 </md-sidenav-container>

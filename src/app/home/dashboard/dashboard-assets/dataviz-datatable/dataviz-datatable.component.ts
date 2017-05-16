@@ -150,7 +150,7 @@ export class DatavizDatatableComponent implements OnInit, OnChanges {
 
     filter(): void {
         //First input of filtereddata is empty, then filter is triggered in ngonchange
-        if(this.aggregatedFilteredData){
+        if(this.aggregatedFilteredData.length>0){
             let newData: any[] = this.aggregatedFilteredData;
             newData = this._dataTableService.filterData(newData, this.searchTerm, true);
             this.filteredTotal = newData.length;

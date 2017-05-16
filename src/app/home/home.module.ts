@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 
 import { CovalentCoreModule } from '@covalent/core';
 
-
 import { HomeComponent } from './home.component';
 import { DefaultComponent } from './default/default.component';
 import { DashboardModule } from './dashboard/dashboard.module';

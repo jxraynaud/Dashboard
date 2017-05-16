@@ -39,6 +39,8 @@ export class DataRequestService {
             this.configService.configBehaviorSubject,
         ).subscribe({
             next : (latestValues) => {
+                console.log("BLAH");
+                console.log(latestValues);
                 let dataRequestParams = latestValues[0];
                 let config = latestValues[1];
                 debugLogGroup(this.DEBUG,[
@@ -80,7 +82,9 @@ export class DataRequestService {
                 return response.json();
             })
             .catch(error => {
-                console.error("PROMISE REJECTED : could not get data from api in dataRequest");
+                console.error("PROMISE REJECTED : could not get data from api in dataRequest with "+config.api_url + config.api_endpoint);
+                console.error("Params in error :");
+                console.error(dataRequestParams);
                 console.log("error : "+error.json().detail);
                 console.log(error.json());
             //    this.router.navigate(['/login'], { queryParams: { returnUrl : window.location.pathname }});

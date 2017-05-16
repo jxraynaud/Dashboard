@@ -64,6 +64,9 @@ export class MultiAttributionComponent implements OnInit {
     staticAdditiveMetricsList : Array<string>;
     additiveMetricsList : Array<string>;
 
+    //Setting to pipe from config to the views to define if the attribution model parameter of the api is simple (number) or multiple (array)
+    isAttributionModelMultiple : boolean;
+
     //TODO : destroy subscription at the end
     filteredDataBehaviorSubjectSubscription : Subscription;
     configBehaviorSubjectSubscription : Subscription;
@@ -104,6 +107,7 @@ export class MultiAttributionComponent implements OnInit {
              *  - activeDimensionsWithoutIdColumns : list of all dimensions columns with Id columns (used to alternate on a toggle between with id and without id)
              *  - activeStaticMetricsColumns : static metrics columns taken straight from config file
              *  - staticAdditiveMetricsList : list of additive Metrics form the static ones, taken from the is_additive parameter in view.config.json
+             *  - isAttributionModelMultiple : defines if atribution model is multiple ( [1,3] ) or simple (number) for the api endpoint
              */
             this.configBehaviorSubjectSubscription = this.configService.configBehaviorSubject.subscribe({
                 next : (configData) => {
@@ -118,9 +122,8 @@ export class MultiAttributionComponent implements OnInit {
                     this.activeStaticMetricsColumns = this.generateStaticMetricsColumnsListsObject(configData['available_static_metrics'], this.activeStaticMetrics);
                     //Define list of additive metrics
                     this.staticAdditiveMetricsList = configData['available_static_metrics'].filter((e)=>{ return e.is_additive }).map((e)=>{ return e.data_id_column_name });
-                    console.log("ADDITIVE COLS");
-                    console.log(this.staticAdditiveMetricsList);
                     this.rebuildMetricsColumns();
+                    this.isAttributionModelMultiple = configData['is_attribution_model_multiple'];
                 },
                 error : (err) => console.error(err),
             });

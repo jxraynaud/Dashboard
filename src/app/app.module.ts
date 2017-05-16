@@ -10,7 +10,6 @@ import { CovalentCoreModule } from '@covalent/core';
 import { AppComponent } from './app.component';
 import { MaterialModule } from '@angular/material';
 
-
 import { HomeModule } from './home/home.module';
 import { AppRoutingModule } from './app-routing.module';
 

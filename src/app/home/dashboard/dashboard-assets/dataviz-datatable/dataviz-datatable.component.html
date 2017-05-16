@@ -1,7 +1,7 @@
 <p>
   dataviz-datatable works!
 </p>
-
+<div *ngIf="filteredData.length==0">No data yet</div>
 <md-card>
 <div layout="row" layout-align="start center" class="pad-left-sm pad-right-sm">
 <span *ngIf="!searchBox.searchVisible" class="push-left-sm">
@@ -26,26 +26,32 @@ placeholder="Enter new group by criteria"
 (remove)="changeGroupByCriteria()"
 requireMatch></td-chips>
 
-<td-data-table
-  #dataTable
-  [data]="filteredByDataTableData"
-  [columns]="columns"
-  [sortable]="true"
-  [sortBy]="sortBy"
-  [sortOrder]="sortOrder"
-  (sortChange)="sort($event)"
-  >
-  <ng-template tdDataTableTemplate="type" let-value="value" let-row="row" let-column="column">
-    <div layout="row">
-      <span flex>{{value}}</span> // or <span flex>{{row[column]}}</span>
-      <md-icon>star</md-icon>
-    </div>
-  </ng-template>
-</td-data-table>
-
-<div class="md-padding" *ngIf="!dataTable.hasData" layout="row" layout-align="center center">
-  <h3>No results to display yet.</h3>
+<div class="loadingDiv" *ngIf="filteredData.length==0">
+  <img src="assets/loading.gif" />
 </div>
+<div *ngIf="filteredData.length>0">
+  <td-data-table
+    #dataTable
+    [data]="filteredByDataTableData"
+    [columns]="columns"
+    [sortable]="true"
+    [sortBy]="sortBy"
+    [sortOrder]="sortOrder"
+    (sortChange)="sort($event)"
+    >
+    <ng-template tdDataTableTemplate="type" let-value="value" let-row="row" let-column="column">
+      <div layout="row">
+        <span flex>{{value}}</span> // or <span flex>{{row[column]}}</span>
+        <md-icon>star</md-icon>
+      </div>
+    </ng-template>
+  </td-data-table>
+
+  <div class="md-padding" *ngIf="!dataTable.hasData" layout="row" layout-align="center center">
+    <h3>No results to display yet.</h3>
+  </div>
+</div>
+
 <td-paging-bar #pagingBar [pageSizes]="pageSizes" [total]="filteredTotal" (change)="page($event)">
 <span td-paging-bar-label hide-xs>Row per page:</span>
 {{pagingBar.range}} <span hide-xs>of {{pagingBar.total}}</span>
