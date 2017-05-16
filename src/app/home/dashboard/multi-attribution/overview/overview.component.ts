@@ -20,7 +20,7 @@ import {debugLog, debugWarn, debugLogGroup} from '../../../../utils';
   styleUrls: ['./overview.component.css']
 })
 export class OverviewComponent implements OnInit {
-    DEBUG : boolean = true;
+    DEBUG : boolean = false;
 
     //Unnamed yet filtered data (to be named by dataviz)
     @Input() filteredData : Array<{}>;

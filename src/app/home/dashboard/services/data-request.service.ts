@@ -3,6 +3,7 @@ import { Http, Headers, RequestOptions, Response } from '@angular/http';
 import { Router} from '@angular/router';
 
 import { BehaviorSubject }    from 'rxjs/BehaviorSubject';
+import { Subject }    from 'rxjs/Subject';
 import { Subscription }   from 'rxjs/Subscription';
 import 'rxjs/add/operator/combineLatest'
 import 'rxjs/add/operator/toPromise';
@@ -13,17 +14,18 @@ import {debugLog, debugLogGroup} from '../../../utils';
 
 @Injectable()
 export class DataRequestService {
-    DEBUG: boolean = false;
+    DEBUG: boolean = true;
     //private debugLog(str){ this.DEBUG && console.log(str); }
 
-    defaultRequestParams = [{
+    /*defaultRequestParams = [{
         "start_date": new Date(Date.now() - 31*24*3600*1000),
         "end_date":  new Date(Date.now() - 1*24*3600*1000),
         "attribution_model" : [2,5]
-    }];
+    }];*/
 
     //TODO : typer
-    dataRequestParamsBehaviorSubject = new BehaviorSubject(this.defaultRequestParams);
+    //dataRequestParamsBehaviorSubject = new BehaviorSubject(this.defaultRequestParams);
+    dataRequestParamsBehaviorSubject = new Subject();
     rawDataBehaviorSubject = new BehaviorSubject([]);
     requestDimensionMappingBehaviorSubject = new BehaviorSubject([]);
 
@@ -39,8 +41,6 @@ export class DataRequestService {
             this.configService.configBehaviorSubject,
         ).subscribe({
             next : (latestValues) => {
-                console.log("BLAH");
-                console.log(latestValues);
                 let dataRequestParams = latestValues[0];
                 let config = latestValues[1];
                 debugLogGroup(this.DEBUG,[
@@ -53,13 +53,13 @@ export class DataRequestService {
                     this.rawDataBehaviorSubject.next([]);
                     console.warn("---!!!--- Config empty");
                 }else{
-                    debugLogGroup(this.DEBUG, ["DataRequestService : Trying to get data from API with params [config, dataRequestParams]:",
-                        config,
-                        dataRequestParams]);
-                    this.getAll(config, dataRequestParams).then(response => {
-                        this.requestDimensionMappingBehaviorSubject.next(this.mapDimensionFromRawData(response, config));
-                        this.rawDataBehaviorSubject.next(response);
-                    });
+                        debugLogGroup(this.DEBUG, ["DataRequestService : Trying to get data from API with params [config, dataRequestParams]:",
+                            config,
+                            dataRequestParams]);
+                        this.getAll(config, dataRequestParams).then(response => {
+                            this.requestDimensionMappingBehaviorSubject.next(this.mapDimensionFromRawData(response, config));
+                            this.rawDataBehaviorSubject.next(response);
+                        });
                 }
             },
             error : (err) => console.error(err),
@@ -85,6 +85,7 @@ export class DataRequestService {
                 console.error("PROMISE REJECTED : could not get data from api in dataRequest with "+config.api_url + config.api_endpoint);
                 console.error("Params in error :");
                 console.error(dataRequestParams);
+                console.error(config.api_url);
                 console.log("error : "+error.json().detail);
                 console.log(error.json());
             //    this.router.navigate(['/login'], { queryParams: { returnUrl : window.location.pathname }});

@@ -13,7 +13,9 @@ import {debugLog, debugWarn, debugLogGroup} from '../../../../utils';
 })
 export class FormDataRequestComponent implements OnInit {
     DEBUG: boolean = true;
+    @Input() defaultSelectedAttributionModel_s : number | number[];
     @Input() isAttributionModelMultiple : boolean;
+    lessThan2Selectedmodels:boolean;
 
     // Define the needed attributes
     private _dateRange : {startDate, endDate};
@@ -23,41 +25,33 @@ export class FormDataRequestComponent implements OnInit {
     set dateRange(newDateRange){
         this._dateRange = newDateRange;
         debugLog(this.DEBUG,"Setter from dateRange attributes triggers data recalculation");
-        //if(this.selectedAttributionModelId){
-            this.dataRequestService.dataRequestParamsBehaviorSubject.next(
-                [{
-                    "start_date" : this.dateRange.startDate,
-                    "end_date" : this.dateRange.endDate,
-                    "attribution_model" : this.selectedAttributionModel_s
-                }]
-            );
-        //}
+        this.sendDataRequestParams(this.dateRange.startDate,this.dateRange.endDate,this.selectedAttributionModel_s)
     }
-
-    private _attributionModels;
+    //TODO : rendre dynamique
+    private _attributionModels = [2,5,11];
     // Associated getter and setters
     get attributionModels(){ return this._attributionModels}
     set attributionModels(val){ debugLog(this.DEBUG, "SETTER ATTRIBUTION MODEL"); this._attributionModels = val; }
 
     private _selectedAttributionModel_s : any; // TODO get default from api
-    set selectedAttributionModel_s(val){
+    set selectedAttributionModel_s(newAttribModel){
         console.log("SETTER ATTRIBUTION MODEL ID SERVICE");
-        //Attribute
+        this._selectedAttributionModel_s = newAttribModel;
+        //If multiple attribution models needed : check there's more than one selected
         if(this.isAttributionModelMultiple){
-            //TODO : virer le 5
-            this._selectedAttributionModel_s = val;
-        }else{
-            this._selectedAttributionModel_s = [val,11];
-        }
+            //Trigger recalculation only if 2 or more models
+            if(this.selectedAttributionModel_s.length > 1){
+                this.lessThan2Selectedmodels = false;
+                debugLog(this.DEBUG, "Setter from attribution model triggers data recalculation");
+                this.sendDataRequestParams(this.dateRange.startDate,this.dateRange.endDate,this.selectedAttributionModel_s)
 
-        debugLog(this.DEBUG, "Setter from attribution model triggers data recalculation");
-        this.dataRequestService.dataRequestParamsBehaviorSubject.next(
-            [{
-                "start_date" : new Date(this.dateRange.startDate),
-                "end_date" : new Date(this.dateRange.endDate),
-                "attribution_model" : [this.selectedAttributionModel_s,11]
-            }]
-        );
+            }else{
+                this.lessThan2Selectedmodels = true;
+            }
+        }else{
+            debugLog(this.DEBUG, "Setter from attribution model triggers data recalculation");
+            this.sendDataRequestParams(this.dateRange.startDate,this.dateRange.endDate,this.selectedAttributionModel_s)
+        }
     }
     get selectedAttributionModel_s(){
         //console.log("GETTER ATTRIBUTION MODEL ID SERVICE");
@@ -68,7 +62,8 @@ export class FormDataRequestComponent implements OnInit {
     constructor(private dataRequestService : DataRequestService, private options: DaterangepickerConfig) { }
 
     ngOnInit() {
-        this.dateRange = this.initDefaultDateRange()
+        this.dateRange = this.initDefaultDateRange();
+        this.selectedAttributionModel_s = this.defaultSelectedAttributionModel_s;
         let today = new Date();
         this.options.settings = {
             locale: { format: 'DD-MM-YYYY' },
@@ -131,5 +126,45 @@ export class FormDataRequestComponent implements OnInit {
         debugLog(this.DEBUG, "New model : "+parseInt(value));
     }
 
+/**
+ *    Adds or removes element from selectedAttributionModel_s
+ *    tempoModelsArray is needed because deep modification of object won't trigger setter
+ *    @method changeModelsMultiple
+ *    @param  {[type]}             event [description]
+ *    @param  {[type]}             model [description]
+ */
+    public changeModelsMultiple(event,model):void{
+        if(event.checked == true){
+            //Create array if it doesn't exist
+            if(this.selectedAttributionModel_s){
+                let tempoModelsArray = this.selectedAttributionModel_s;
+                tempoModelsArray.push(model);
+                this.selectedAttributionModel_s = tempoModelsArray;
+            }else{
+                this.selectedAttributionModel_s = [model];
+            }
+        }else{
+            let toRemoveIndex = this.selectedAttributionModel_s.indexOf(model);
+            if (toRemoveIndex > -1) {
+                let tempoModelsArray = this.selectedAttributionModel_s;
+                tempoModelsArray.splice(toRemoveIndex, 1);
+                this.selectedAttributionModel_s = tempoModelsArray;
+            }
+        }
+            console.log(event);
+            console.log(model);
+            console.log(this.selectedAttributionModel_s);
+    }
 
+    private sendDataRequestParams(startDate,endDate,selectedAttributionModel_s){
+        if(startDate && endDate && selectedAttributionModel_s){
+            this.dataRequestService.dataRequestParamsBehaviorSubject.next(
+                [{
+                    "start_date" : new Date(startDate),
+                    "end_date" : new Date(endDate),
+                    "attribution_model" : selectedAttributionModel_s
+                }]
+            );
+        }
+    }
 }

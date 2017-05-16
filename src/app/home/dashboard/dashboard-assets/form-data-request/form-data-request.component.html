@@ -22,16 +22,18 @@
 </md-select>
 
 <section *ngIf="isAttributionModelMultiple" class="example-section">
-  lll
   <md-list>
     <md-list-item *ngFor="let model of attributionModels">
-      <md-checkbox>
-         {{ model }} )
+      <md-checkbox  [checked]="selectedAttributionModel_s && selectedAttributionModel_s.length>0 && selectedAttributionModel_s.indexOf( model )!=-1"
+        (change)="changeModelsMultiple($event,model)">
+         {{ model }}
       </md-checkbox>
     </md-list-item>
   </md-list>
-</section>
+  <md-chip *ngIf="lessThan2Selectedmodels"
+      [selected]="true"
+      color="warn">
+      Please choose at least 2 models
+  </md-chip>
 
-Selected model :
-{{selectedAttributionModelId}}<br />
-<br />
+</section>

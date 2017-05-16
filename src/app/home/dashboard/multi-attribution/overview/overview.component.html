@@ -1,7 +1,10 @@
 <p>
   overview works!
 </p>
-<app-form-data-request [isAttributionModelMultiple]="isAttributionModelMultiple" ></app-form-data-request>
+<app-form-data-request
+  [isAttributionModelMultiple]="isAttributionModelMultiple"
+  [defaultSelectedAttributionModel_s]="[2,5]"
+  ></app-form-data-request>
 <app-form-data-filters></app-form-data-filters>
 <app-dataviz-chart></app-dataviz-chart>
 <app-dataviz-datatable
