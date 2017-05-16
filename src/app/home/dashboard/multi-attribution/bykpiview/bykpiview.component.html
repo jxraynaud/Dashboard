@@ -1,3 +1,21 @@
-<p>
-  bykpiview works!
-</p>
+<div>
+    <div flex-gt-xs="100">
+        <md-card>
+            <md-card-title>{{viewTitle}}</md-card-title>
+        </md-card>
+        <md-card>
+            <app-dataviz-chart
+                [filteredData]="filteredData"
+                [activeDimensionsWithIdColumns]="activeDimensionsWithIdColumns"
+                [activeDimensionsWithoutIdColumns]="activeDimensionsWithoutIdColumns"
+                [activeStaticMetricsColumns]="activeStaticMetricsColumns"
+                [additiveMetricsList]="additiveMetricsList"
+                [filtersDimensionMapping]="filtersDimensionMapping"
+                [config]="config"
+                [aggregateCriterias] = "['kpi_id']"
+                [histogramChart]="true"
+                [chartTitle]="'Multi Attribution Models Histogram by KPI'"
+            ></app-dataviz-chart>
+        </md-card>
+    </div>
+</div>

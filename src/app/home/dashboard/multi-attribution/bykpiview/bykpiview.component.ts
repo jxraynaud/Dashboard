@@ -1,11 +1,15 @@
 import { Component, OnInit, Input } from '@angular/core';
 
+import { NumberCardComponent } from '@swimlane/ngx-charts';
 import {
     TdDataTableService,
     TdDataTableSortingOrder,
     ITdDataTableSortChangeEvent,
     ITdDataTableColumn,
     IPageChangeEvent } from '@covalent/core';
+
+import {debugLog, debugWarn, debugLogGroup} from '../../../../utils';
+
 
 @Component({
   selector: 'app-bykpiview',
@@ -14,6 +18,8 @@ import {
 })
 export class BykpiviewComponent implements OnInit {
     DEBUG : boolean = true;
+
+    viewTitle : string = "Multi Attributions Models by KPI"
 
     //Unnamed yet filtered data (to be named by dataviz)
     @Input() filteredData : Array<{}>;
