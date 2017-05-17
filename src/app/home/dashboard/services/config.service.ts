@@ -4,7 +4,7 @@ import { BehaviorSubject }    from 'rxjs/BehaviorSubject';
 
 @Injectable()
 export class ConfigService {
-    DEBUG: boolean = true;
+    DEBUG: boolean = false;
     private debugLog(str){ this.DEBUG && console.log(str); }
 
     configBehaviorSubject = new BehaviorSubject<{}>({});

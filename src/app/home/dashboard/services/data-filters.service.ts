@@ -161,10 +161,8 @@ export class DataFiltersService {
         //Filter data for each filter criteria:
         for(let attributeColName in filtersDimension){
             let checked = filtersDimension[attributeColName].checked;
-            console.log(checked);
             //TODO : DELETE IN PROD
             //checked = filtersDimension[attributeColName].active.slice(2,10);
-            console.log(checked);
             //Do not filter if nothing checked
             if(checked.length > 0){
                 filteredData = filteredData.filter((dataLine)=>{;
