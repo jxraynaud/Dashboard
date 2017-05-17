@@ -12,6 +12,7 @@ import { DatavizDatatableComponent } from './dataviz-datatable/dataviz-datatable
 import { DatavizMapComponent } from './dataviz-map/dataviz-map.component';
 import { FormDataFiltersComponent } from './form-data-filters/form-data-filters.component';
 import { FormDataRequestComponent } from './form-data-request/form-data-request.component';
+import { NgxChartsModule } from '@swimlane/ngx-charts';
 
 
 @NgModule({
@@ -21,6 +22,7 @@ import { FormDataRequestComponent } from './form-data-request/form-data-request.
     CovalentDataTableModule,
     MaterialModule,
     Daterangepicker,
+    NgxChartsModule,
   ],
   declarations: [
       DatavizChartComponent,

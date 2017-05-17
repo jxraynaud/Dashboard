@@ -2,8 +2,6 @@ import { Component, OnInit, Input, OnChanges, SimpleChange } from '@angular/core
 import { DataService } from '../../services/data.service'
 
 import {
-    TdDataTableService,
-    TdDataTableSortingOrder,
     ITdDataTableSortChangeEvent,
     ITdDataTableColumn,
     IPageChangeEvent } from '@covalent/core';
@@ -29,7 +27,7 @@ export class DatavizChartComponent implements OnInit {
     @Input() activeStaticMetricsColumns : ITdDataTableColumn[] = [];
     @Input() additiveMetricsList : Array<string>;
     @Input() availableGroupByFields = [];
-    @Input() aggregateCriterias: string[];
+    @Input() aggregateCriteria: string;
     @Input() chartTitle: string;
 
     //Columns that represent an id. To be used by the "show ids" column
@@ -43,15 +41,17 @@ export class DatavizChartComponent implements OnInit {
     // config and dimension mapping
     @Input() filtersDimensionMapping;
     @Input() config;
+    @Input() requestParams : {};
 
     // graph data:
     single: any[] = [];
     multi: any[] = [];
 
     // type of chart:
-    @Input() timeSerieChart: boolean = false;
-    @Input() numberCardChart: boolean = false;
-    @Input() histogramChart: boolean = false;
+    @Input() chartType:string;
+    timeSerieChart: boolean = false;
+    numberCardChart: boolean = false;
+    histogramChart: boolean = false;
 
     // graph options:
     showXAxis: boolean = true;
@@ -89,9 +89,11 @@ export class DatavizChartComponent implements OnInit {
     }
 
     aggregateData(): void {
+        console.log("Charts: filteredData");
+        console.log(this.filteredData);
         this.aggregatedFilteredData = groupBy(
             this.filteredData,
-            this.aggregateCriterias,
+            [this.aggregateCriteria],
             this.additiveMetricsList,
             function(){},
             this.filtersDimensionMapping,
@@ -101,7 +103,108 @@ export class DatavizChartComponent implements OnInit {
     }
 
     buildChart(): void {
+        if(this.aggregatedFilteredData.length > 0
+            && this.config.available_dimensions.length > 0
+            && this.activeStaticMetricsColumns.length >  0
+        ) {
+            // First we need to get the list of the metrics to use.
+            // We don't include metrics used in criteria
+            let current_metrics = this.activeStaticMetricsColumns.filter(metric => {
+                if(metric.name !== this.aggregateCriteria) {
+                    return Object.keys(this.aggregatedFilteredData[0]).indexOf(metric.name) != -1
+                } else {
+                    return false;
+                }
 
+            });
+            switch(this.chartType) {
+                case 'timeserie':
+                    // first we need to complete the data for any missing date.
+                    console.log("building time series")
+                    console.log("aggregatedFilteredData")
+                    console.log(this.aggregatedFilteredData)
+                    console.log("request params")
+                    console.log(this.requestParams)
+                    // to achaive this objective, we need to get an array with all the dates:
+                    let completeDateArray = this.getDates(
+                        this.requestParams[0].start_date,
+                        this.requestParams[0].end_date);
+                    // then we want to have the list of the date in the dataset.
+                    let dataDateArray = this.getUniqueList(
+                        this.aggregatedFilteredData,
+                        this.aggregateCriteria)
+                    // we complete the data with the missing dates, adding 0 value for each metric
+                    completeDateArray.map(date => {
+                        if (dataDateArray.indexOf(date) === -1) {
+                            let missing_date_row = {};
+                            missing_date_row[this.aggregateCriteria]=date;
+                            current_metrics.map(metric => {
+                                missing_date_row[metric.name] = 0;
+                            })
+                            this.aggregatedFilteredData.push(missing_date_row);
+                        }
+                    });
+                    // Now we can transform the data into the proper form to get plotted.
+                    let timeData = [];
+                    current_metrics.map(metric => {
+                        let obj = {
+                            "name": metric.label,
+                        };
+                        obj["series"] = this.aggregatedFilteredData.map(row => {
+                            return({
+                                "name": new Date(row[this.aggregateCriteria]),
+                                "value": row[metric.name],
+                            })
+                        });
+                        timeData.push(obj);
+                    })
+                    // update the data and draw the graph.
+                    console.log("timeData");
+                    console.log(timeData);
+                    this.multi = timeData;
+                    this.timeSerieChart = true;
+                break;
+                case 'number-card':
+                    this.numberCardChart = true;
+                break;
+                case 'histogram':
+                    // Then we need to get the dimension name
+                    let dimension_name = this.config.available_dimensions.filter(dimension => {
+                        return dimension.data_id_column_name === this.aggregateCriteria
+                    })[0].data_name_column_name
+                    // Now we map reformat the new data Object
+                    let chartData = this.aggregatedFilteredData.map(row => {
+                        let obj = {
+                            "name": row[dimension_name]
+                        }
+                        obj["series"] = current_metrics.map(metric => {
+                            return({
+                                "name": metric.label,
+                                "value": row[metric.name]
+                            })
+                        })
+                        return obj;
+                    });
+                    this.multi = chartData;
+                    this.histogramChart = true;
+                break;
+            }
+        }
     }
 
+    getUniqueList(objectsArray, property){
+        return objectsArray.map(function(e){ return e[property]; })
+        .filter(function(elem, index, array){
+            return array.indexOf(elem) === index
+        });
+    }
+
+    getDates(start_date, stop_date) : Date[] {
+        start_date.setTime(start_date.getTime() + 60*60*1000);
+        let dateArray = [];
+        for (var d = new Date(start_date); d <= stop_date; d.setDate(d.getDate() + 1)) {
+            dateArray.push(new Date(d));
+        }
+        return dateArray.map((date) => { return date.toISOString().slice(0, 10);});
+    }
 }

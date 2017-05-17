@@ -1,44 +1,56 @@
 <md-sidenav-container>
-  <button *ngIf="!sidenav.opened" md-button id="sideNav_menu" (click)="sidenav.open()">
-  </button>
-  <md-sidenav #sidenav opened="openedNav" mode="side">
-    <div class="menuClose">
-    <button md-button (click)="sidenav.close()">X</button>
-    </div>
-    <!--<md-nav-list td-sidenav-content (click)="!media.query('gt-sm') && navList.close()">-->
-    <md-nav-list td-sidenav-content>
-      <div *ngFor="let navElem of viewsList">
-        <a [ngClass]="{'active': activeView==navElem.name}" md-list-item (click)="activeView=navElem.name">
-          <md-icon md-list-avatar>{{navElem.icon}}</md-icon>
-          <h3 md-line>{{navElem.menuText}}</h3>
-          <p md-line>{{navElem.description}}</p>
-        </a>
-        <md-divider md-inset></md-divider>
-      </div>
-    </md-nav-list>
-  </md-sidenav>
+    <button *ngIf="!sidenav.opened" md-button id="sideNav_menu" (click)="sidenav.open()">
+    </button>
+    <md-sidenav #sidenav opened="openedNav" mode="side">
+        <div class="menuClose">
+            <button md-button (click)="sidenav.close()">X</button>
+        </div>
+        <!--<md-nav-list td-sidenav-content (click)="!media.query('gt-sm') && navList.close()">-->
+        <md-nav-list td-sidenav-content>
+            <div *ngFor="let navElem of viewsList">
+                <a [ngClass]="{'active': activeView==navElem.name}" md-list-item (click)="activeView=navElem.name">
+                    <md-icon md-list-avatar>{{navElem.icon}}</md-icon>
+                    <h3 md-line>{{navElem.menuText}}</h3>
+                    <p md-line>{{navElem.description}}</p>
+                </a>
+                <md-divider md-inset></md-divider>
+            </div>
+        </md-nav-list>
+    </md-sidenav>
 
-  <md-card>
-
-    <p>
-    multi-attribution works!
-    </p>
-
+    <md-card>
+        <div flex-gt-xs="100">
+            <md-card>
+            <app-form-data-request
+              [isAttributionModelMultiple]="isAttributionModelMultiple"
+              [defaultSelectedAttributionModel_s]="[2,5]"
+              ></app-form-data-request>
+            <app-form-data-filters></app-form-data-filters>
+            </md-card>
+        </div>
     <!--<router-outlet></router-outlet>-->
-    <app-overview *ngIf="activeView=='overview'"
-      [filteredData]="filteredData"
-      [activeDimensionsWithIdColumns]="activeDimensionsWithIdColumns"
-      [activeDimensionsWithoutIdColumns]="activeDimensionsWithoutIdColumns"
-      [activeStaticMetricsColumns]="metricsColumns"
-      [additiveMetricsList]="additiveMetricsList"
-      [filtersDimensionMapping]="filtersDimensionMapping"
-      [config]="config"
-      [isAttributionModelMultiple]="isAttributionModelMultiple"
-    ></app-overview>
+        <app-overview *ngIf="activeView=='overview'"
+          [filteredData]="filteredData"
+          [requestParams]="requestParams"
+          [activeDimensionsWithIdColumns]="activeDimensionsWithIdColumns"
+          [activeDimensionsWithoutIdColumns]="activeDimensionsWithoutIdColumns"
+          [activeStaticMetricsColumns]="metricsColumns"
+          [additiveMetricsList]="additiveMetricsList"
+          [filtersDimensionMapping]="filtersDimensionMapping"
+          [config]="config"
+          [isAttributionModelMultiple]="isAttributionModelMultiple"
+        ></app-overview>
 
-    <app-bykpiview *ngIf="activeView=='bykpiview'"
+        <app-bykpiview *ngIf="activeView=='bykpiview'"
+            [filteredData]="filteredData"
+            [activeDimensionsWithIdColumns]="activeDimensionsWithIdColumns"
+            [activeDimensionsWithoutIdColumns]="activeDimensionsWithoutIdColumns"
+            [activeStaticMetricsColumns]="metricsColumns"
+            [additiveMetricsList]="additiveMetricsList"
+            [filtersDimensionMapping]="filtersDimensionMapping"
+            [config]="config"
+            [isAttributionModelMultiple]="isAttributionModelMultiple"
+        ></app-bykpiview>
 
-    ></app-bykpiview>
-
-  </md-card>
+    </md-card>
 </md-sidenav-container>

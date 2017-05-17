@@ -12,6 +12,7 @@ import { Subscription } from 'rxjs/Subscription';
 import { DataService } from '../services/data.service'
 import { DataFiltersService } from '../services/data-filters.service'
 import { ConfigService } from '../services/config.service';
+import { DataRequestService } from '../services/data-request.service'
 
 import {debugLog, debugWarn, debugLogGroup} from '../../../utils';
 
@@ -47,6 +48,7 @@ export class MultiAttributionComponent implements OnInit {
     filtersDimensionMapping;
     config;
 
+    requestParams : {};
     activeDimensions : string[] = ['advertiser_id','partner_id','kpi_id','metacampaign_id',/*'falseDimension'*/];
     activeDimensionsWithIdColumns : ITdDataTableColumn[];
     activeDimensionsWithoutIdColumns : ITdDataTableColumn[];
@@ -75,8 +77,18 @@ export class MultiAttributionComponent implements OnInit {
     constructor(
         private configService : ConfigService,
         private dataService : DataService,
-        private dataFiltersService : DataFiltersService) {
+        private dataFiltersService : DataFiltersService,
+        private dataRequestService : DataRequestService) {
             this.configService.setConfigFile(viewConfig);
+
+            /*
+            * Subscribe to dataRequestService to get the request parameters
+            */
+            this.dataRequestService.dataRequestParamsBehaviorSubject.subscribe({
+                next : (requestParams) => {
+                    this.requestParams = requestParams
+                }
+            });
 
             /** Subscribe to dataService.filteredDataBehaviorSubject, to generate Dynamic Metrics Columns each time filteredData arrives
              * Sets attributes :

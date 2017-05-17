@@ -2,8 +2,43 @@
     <p> number Card Chart </p>
 </div>
 <div *ngIf="timeSerieChart">
-    <p> time serie Chart </p>
+    <md-card-title> {{chartTitle}} </md-card-title>
+    <md-divider></md-divider>
+    <div style="height:400px; ">
+        <ngx-charts-line-chart
+            [scheme]="colorScheme"
+            [results]="multi"
+            [gradient]="gradient"
+            [xAxis]="showXAxis"
+            [yAxis]="showYAxis"
+            [legend]="showLegend"
+            [showXAxisLabel]="showXAxisLabel"
+            [showYAxisLabel]="showYAxisLabel"
+            [xAxisLabel]="xAxisLabel"
+            [yAxisLabel]="yAxisLabel"
+            [autoScale]="autoScale"
+            [yAxisTickFormatting]="axisDigits">
+        </ngx-charts-line-chart>
+    </div>
 </div>
 <div *ngIf="histogramChart">
-    <p> histogram Chart </p>
+    <md-card-title> {{chartTitle}} </md-card-title>
+    <md-divider></md-divider>
+    <div style="height:400px; ">
+        <ngx-charts-bar-vertical-2d
+          [scheme]="colorScheme"
+          [results]="multi"
+          [gradient]="gradient"
+          [xAxis]="showXAxis"
+          [yAxis]="showYAxis"
+          [legend]="showLegend"
+          [showXAxisLabel]="showXAxisLabel"
+          [showYAxisLabel]="showYAxisLabel"
+          [xAxisLabel]="xAxisLabel"
+          [yAxisLabel]="yAxisLabel"
+          [yAxisTickFormatting]="axisDigits"
+          [barPadding]="2"
+          [groupPadding]="8">
+        </ngx-charts-bar-vertical-2d>
+    </div>
 </div>
