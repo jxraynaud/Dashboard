@@ -1,11 +1,45 @@
 <div *ngIf="numberCardChart">
-    <p> number Card Chart </p>
+  <div class="loadingDiv" *ngIf="filteredData.length==0">
+      <img src="assets/loading.gif" />
+  </div>
+  <div *ngIf="filteredData.length>0">
+      <p> number Card Chart </p>
+  </div>
 </div>
 <div *ngIf="timeSerieChart">
     <md-card-title> {{chartTitle}} </md-card-title>
     <md-divider></md-divider>
-    <div style="height:400px; ">
-        <ngx-charts-line-chart
+    <div class="loadingDiv" *ngIf="filteredData.length==0">
+        <img src="assets/loading.gif" />
+    </div>
+    <div *ngIf="filteredData.length>0">
+      <div style="height:400px; ">
+          <ngx-charts-line-chart
+              [scheme]="colorScheme"
+              [results]="multi"
+              [gradient]="gradient"
+              [xAxis]="showXAxis"
+              [yAxis]="showYAxis"
+              [legend]="showLegend"
+              [showXAxisLabel]="showXAxisLabel"
+              [showYAxisLabel]="showYAxisLabel"
+              [xAxisLabel]="xAxisLabel"
+              [yAxisLabel]="yAxisLabel"
+              [autoScale]="autoScale"
+              [yAxisTickFormatting]="axisDigits">
+          </ngx-charts-line-chart>
+      </div>
+    </div>
+</div>
+<div *ngIf="histogramChart">
+    <md-card-title> {{chartTitle}} </md-card-title>
+    <md-divider></md-divider>
+    <div class="loadingDiv" *ngIf="filteredData.length==0">
+        <img src="assets/loading.gif" />
+    </div>
+    <div *ngIf="filteredData.length>0">
+      <div style="height:400px; ">
+          <ngx-charts-bar-vertical-2d
             [scheme]="colorScheme"
             [results]="multi"
             [gradient]="gradient"
@@ -16,29 +50,10 @@
             [showYAxisLabel]="showYAxisLabel"
             [xAxisLabel]="xAxisLabel"
             [yAxisLabel]="yAxisLabel"
-            [autoScale]="autoScale"
-            [yAxisTickFormatting]="axisDigits">
-        </ngx-charts-line-chart>
-    </div>
-</div>
-<div *ngIf="histogramChart">
-    <md-card-title> {{chartTitle}} </md-card-title>
-    <md-divider></md-divider>
-    <div style="height:400px; ">
-        <ngx-charts-bar-vertical-2d
-          [scheme]="colorScheme"
-          [results]="multi"
-          [gradient]="gradient"
-          [xAxis]="showXAxis"
-          [yAxis]="showYAxis"
-          [legend]="showLegend"
-          [showXAxisLabel]="showXAxisLabel"
-          [showYAxisLabel]="showYAxisLabel"
-          [xAxisLabel]="xAxisLabel"
-          [yAxisLabel]="yAxisLabel"
-          [yAxisTickFormatting]="axisDigits"
-          [barPadding]="2"
-          [groupPadding]="8">
-        </ngx-charts-bar-vertical-2d>
+            [yAxisTickFormatting]="axisDigits"
+            [barPadding]="2"
+            [groupPadding]="8">
+          </ngx-charts-bar-vertical-2d>
+      </div>
     </div>
 </div>

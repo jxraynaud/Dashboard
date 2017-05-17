@@ -162,7 +162,7 @@ export class DataFiltersService {
         for(let attributeColName in filtersDimension){
             let checked = filtersDimension[attributeColName].checked;
             //TODO : DELETE IN PROD
-            checked = filtersDimension[attributeColName].active.slice(2,10);
+            //checked = filtersDimension[attributeColName].active.slice(2,10);
             //Do not filter if nothing checked
             if(checked.length > 0){
                 filteredData = filteredData.filter((dataLine)=>{;

@@ -56,6 +56,8 @@ export class DataRequestService {
                         debugLogGroup(this.DEBUG, ["DataRequestService : Trying to get data from API with params [config, dataRequestParams]:",
                             config,
                             dataRequestParams]);
+                        //Send empty data to trigger loading gif
+                        this.rawDataBehaviorSubject.next([]);
                         this.getAll(config, dataRequestParams).then(response => {
                             this.requestDimensionMappingBehaviorSubject.next(this.mapDimensionFromRawData(response, config));
                             this.rawDataBehaviorSubject.next(response);

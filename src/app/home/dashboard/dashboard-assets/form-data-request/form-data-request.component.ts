@@ -1,4 +1,4 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, ViewChild } from '@angular/core';
 import { DataRequestService } from '../../services/data-request.service';
 
 import { DaterangepickerConfig } from 'ng2-daterangepicker';
@@ -16,6 +16,7 @@ export class FormDataRequestComponent implements OnInit {
     @Input() defaultSelectedAttributionModel_s : number | number[];
     @Input() isAttributionModelMultiple : boolean;
     lessThan2Selectedmodels:boolean;
+    @ViewChild('expansion') expansion
 
     // Define the needed attributes
     private _dateRange : {startDate, endDate};
@@ -58,14 +59,19 @@ export class FormDataRequestComponent implements OnInit {
         return this._selectedAttributionModel_s;
     }
 
+    public options;
+
     private
-    constructor(private dataRequestService : DataRequestService, private options: DaterangepickerConfig) { }
+    constructor(private dataRequestService : DataRequestService/*, private options: DaterangepickerConfig*/) { }
 
     ngOnInit() {
+        console.log("--------------");
+        let a = this.expansion.close();
+        console.log(a);
         this.dateRange = this.initDefaultDateRange();
         this.selectedAttributionModel_s = this.defaultSelectedAttributionModel_s;
         let today = new Date();
-        this.options.settings = {
+        this.options = {
             locale: { format: 'DD-MM-YYYY' },
             alwaysShowCalendars: true,
             startDate : this.dateRange.startDate,

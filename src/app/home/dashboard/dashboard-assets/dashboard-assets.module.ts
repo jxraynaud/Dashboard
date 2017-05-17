@@ -4,6 +4,7 @@ import { MaterialModule } from '@angular/material';
 
 import { CovalentCoreModule } from '@covalent/core';
 import { CovalentDataTableModule } from '@covalent/core';
+import { CovalentExpansionPanelModule } from '@covalent/core';
 
 import { Daterangepicker } from 'ng2-daterangepicker';
 
@@ -20,6 +21,7 @@ import { NgxChartsModule } from '@swimlane/ngx-charts';
     CommonModule,
     CovalentCoreModule,
     CovalentDataTableModule,
+    CovalentExpansionPanelModule,
     MaterialModule,
     Daterangepicker,
     NgxChartsModule,
