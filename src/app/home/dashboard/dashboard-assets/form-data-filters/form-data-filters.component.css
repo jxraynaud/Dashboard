@@ -7,3 +7,67 @@ td-expansion-panel h3{
 td-expansion-panel section{
   padding : 15px;
 }
+
+.filter_box{
+  padding-top:50px;
+  padding-bottom:50px;
+}
+
+ul{
+     -webkit-column-count: 6; /* Chrome, Safari, Opera */
+     -moz-column-count: 6; /* Firefox */
+     column-count: 6;
+ }
+
+@media screen and (max-width: 2200px) {
+ ul{
+     -webkit-column-count: 3; /* Chrome, Safari, Opera */
+     -moz-column-count: 3; /* Firefox */
+     column-count: 3;
+ }
+}
+
+@media screen and (max-width: 1400px) {
+ ul{
+     -webkit-column-count: 2; /* Chrome, Safari, Opera */
+     -moz-column-count: 2; /* Firefox */
+     column-count: 2;
+ }
+}
+
+@media screen and (max-width: 1000px) {
+  ul{
+     -webkit-column-count: 1; /* Chrome, Safari, Opera */
+     -moz-column-count: 1; /* Firefox */
+     column-count: 1;
+ }
+}
+
+ul li{
+    list-style-type: none;
+}
+
+md-chip{
+  margin : 5px;
+}
+
+.remove_chip{
+  display:inline-block;
+  font-size:19px;
+  position:relative;
+  top:5px;
+  left:5px;
+  right:auto;
+  height:18px;
+  width:18px;
+  color:rgba(0, 0, 0, 0.38);
+}
+
+.remove_chip:hover{
+  cursor:pointer;
+  color:rgba(0, 0, 0, 0.54);
+}
+
+.filter_choice{
+  cursor:pointer;
+}

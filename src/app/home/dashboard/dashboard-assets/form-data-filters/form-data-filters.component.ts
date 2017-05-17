@@ -35,8 +35,8 @@ export class FormDataFiltersComponent implements OnInit {
     ngOnInit() {
     }
 
-    updateFilters(event,filterElemId,filterType){
-        if(event.checked == true){
+    updateFilters(toCheck,filterElemId,filterType){
+        if(toCheck == true){
             if(this.dimensionFilters[filterType].checked.indexOf(parseInt(filterElemId))==-1){
                 debugLog(this.DEBUG,"Form-data-filters Component : Adding "+filterType+" of id "+filterElemId);
                 this.dimensionFilters[filterType].checked.push(parseInt(filterElemId));
@@ -49,7 +49,16 @@ export class FormDataFiltersComponent implements OnInit {
             }
         }
         this.dataFiltersService.filtersDimensionBehaviorSubject.next(this.dimensionFilters);
+        console.log("Searching for "+filterElemId+" in");
+        console.log(this.dimensionFilters[filterType].checked.indexOf(parseInt(filterElemId)));
+    }
 
+    isChecked(filterElemId,filterType){
+        return this.dimensionFilters[filterType]['checked'].indexOf(parseInt(filterElemId)) != -1;
+    }
+
+    isNoFilterChecked(filterType){
+        return this.dimensionFilters[filterType].checked && this.dimensionFilters[filterType].checked.length > 0
     }
 
 }

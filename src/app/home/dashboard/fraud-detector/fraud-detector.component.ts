@@ -24,7 +24,7 @@ import viewConfig from './view.config.json';
     styleUrls: ['./fraud-detector.component.css']
 })
 export class FraudDetectorComponent implements OnInit {
-    DEBUG : boolean = true;
+    DEBUG : boolean = false;
 
     //Attributes used for template structure
     openedNav = true;
@@ -134,12 +134,12 @@ export class FraudDetectorComponent implements OnInit {
                 this.activeDimensionsWithoutIdColumns = dimensionColumnsListsObject.withoutIdColumns;
                 this.activeStaticMetricsColumns = this.generateStaticMetricsColumnsListsObject(configData['available_static_metrics'], this.activeStaticMetrics);
                 //Define list of additive metrics*
-                console.warn('pre filter')
-                console.warn(this.staticAdditiveMetricsList)
-                console.warn(configData['available_static_metrics'])
+                //console.warn('pre filter')
+                //console.warn(this.staticAdditiveMetricsList)
+                //console.warn(configData['available_static_metrics'])
                 this.staticAdditiveMetricsList = configData['available_static_metrics'].filter((e)=>{ return e.is_additive }).map((e)=>{ return e.data_id_column_name });
-                console.warn("post filter")
-                console.warn(this.staticAdditiveMetricsList)
+                //console.warn("post filter")
+                //console.warn(this.staticAdditiveMetricsList)
                 this.rebuildMetricsColumns();
                 this.isAttributionModelMultiple = configData['is_attribution_model_multiple'];
             },
@@ -314,26 +314,26 @@ export class FraudDetectorComponent implements OnInit {
       * @return {[type]}              [description]
       */
      private rebuildMetricsColumns(){
-         console.warn("static metrics");
-         console.warn(this.activeStaticMetricsColumns);
-         console.warn("dyn metrics");
-         console.warn(this.dynamicMetricsColumns);
+         debugLogGroup(this.DEBUG,["static metrics",
+         this.activeStaticMetricsColumns,
+        "dyn metrics",
+         this.dynamicMetricsColumns]);
          if(this.activeStaticMetricsColumns !== undefined && this.dynamicMetricsColumns !== undefined && this.dynamicMetricsColumns.length > 0){
-             console.warn("don't go 1");
+             //console.warn("don't go 1");
              this.metricsColumns = this.activeStaticMetricsColumns.concat(this.dynamicMetricsColumns);
              debugLogGroup(this.DEBUG,["Fraud Detector: Building metrics column set from static metrics and dynamic metrics, resulting in [this.metricColumns] :",
              this.metricsColumns]);
          }else if(this.activeStaticMetricsColumns !== undefined){
-             console.warn("should be here 1")
+             //console.warn("should be here 1")
              debugLog(this.DEBUG, "Fraud Detector dynamic metrics : no data, fallback to static columns only (normal at first pass)");
              this.metricsColumns = this.activeStaticMetricsColumns;
          }
          if(this.dynamicAdditiveMetricsList !== undefined  && this.dynamicMetricsColumns.length > 0){
-             console.warn("don't go 2");
+             //console.warn("don't go 2");
              this.additiveMetricsList = this.dynamicAdditiveMetricsList.concat(this.staticAdditiveMetricsList);
          }else{
-             console.warn("should be here 2")
-             console.warn(this.staticAdditiveMetricsList)
+            // console.warn("should be here 2")
+             //console.warn(this.staticAdditiveMetricsList)
              //Fallback on additive only if dynamic metrics not ready
              this.additiveMetricsList = this.staticAdditiveMetricsList
          }

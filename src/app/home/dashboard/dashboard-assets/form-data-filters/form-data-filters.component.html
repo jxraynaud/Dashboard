@@ -7,28 +7,52 @@
           </md-card-title>
       </ng-template>
       <td-expansion-summary>
-          <section>
-          Filtering by checked {{filterType}}
-          <span *ngFor="let filterElemId of dimensionfiltersMapping[filterType] | keys">
-            <div
-                *ngIf="dimensionFilters[filterType]['checked'].indexOf(filterElemId) != -1"
-                >
-                 {{dimensionfiltersMapping[filterType][filterElemId]}} - {{filterElemId}}
-            </div>
-          </span>
-          </section>
-      </td-expansion-summary>
 
-      <md-list>
-        <md-list-item *ngFor="let filterElemId of dimensionfiltersMapping[filterType] | keys">
-          <md-checkbox
-              [checked]="dimensionFilters[filterType]['checked'].indexOf(filterElemId) != -1"
-              (change)="updateFilters($event,filterElemId,filterType)"
-              >
-               {{dimensionfiltersMapping[filterType][filterElemId]}} - {{filterElemId}}
-          </md-checkbox>
-        </md-list-item>
-      </md-list>
+          <section>
+            <div *ngIf="isNoFilterChecked(filterType)">
+              Filtered by {{filterType}}, selected :
+              <span *ngFor="let filterElemId of dimensionfiltersMapping[filterType] | keys">
+                <md-chip selected="false" *ngIf="isChecked(filterElemId,filterType)">
+                     {{dimensionfiltersMapping[filterType][filterElemId]}} - {{filterElemId}}
+                     <md-icon class="remove_chip" (click)="updateFilters(false,filterElemId,filterType)">cancel</md-icon>
+                </md-chip>
+              </span>
+            </div>
+
+            <!--No checked-->
+            <div *ngIf="!isNoFilterChecked(filterType)">
+              No {{filterType}} selected, unfiltered for {{filterType}}
+            </div>
+          </section>
+
+
+      </td-expansion-summary>
+      <div class="filter_box">
+        <ul>
+            <li *ngFor="let filterElemId of dimensionfiltersMapping[filterType] | keys">
+              <!--<md-checkbox
+                  [checked]="dimensionFilters[filterType]['checked'].indexOf(filterElemId) != -1"
+                  (change)="updateFilters($event,filterElemId,filterType)"
+                  >
+                   {{dimensionfiltersMapping[filterType][filterElemId]}} ({{filterElemId}})
+              </md-checkbox>-->
+
+              <md-chip class="filter_choice" *ngIf="isChecked(filterElemId,filterType)"
+                  selected="true"
+                  color="primary"
+                  (click)="updateFilters(false,filterElemId,filterType)">
+                {{dimensionfiltersMapping[filterType][filterElemId]}} ({{filterElemId}})
+              </md-chip>
+              <md-chip *ngIf="!isChecked(filterElemId,filterType)"
+                  selected="false"
+                  color=""
+                  (click)="updateFilters(true,filterElemId,filterType)">
+                {{dimensionfiltersMapping[filterType][filterElemId]}} ({{filterElemId}})
+              </md-chip>
+
+            </li>
+        </ul>
+      </div>
 
     </td-expansion-panel>
   </md-card>
