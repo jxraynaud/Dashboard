@@ -16,7 +16,7 @@ export class FormDataRequestComponent implements OnInit {
     @Input() defaultSelectedAttributionModel_s : number | number[];
     @Input() isAttributionModelMultiple : boolean;
     lessThan2Selectedmodels:boolean;
-    @ViewChild('expansion') expansion
+    @ViewChild('expansionRequestParams') expansionRequestParams
 
     // Define the needed attributes
     private _dateRange : {startDate, endDate};
@@ -66,7 +66,7 @@ export class FormDataRequestComponent implements OnInit {
 
     ngOnInit() {
         console.log("--------------");
-        let a = this.expansion.close();
+        let a = this.expansionRequestParams.close();
         console.log(a);
         this.dateRange = this.initDefaultDateRange();
         this.selectedAttributionModel_s = this.defaultSelectedAttributionModel_s;

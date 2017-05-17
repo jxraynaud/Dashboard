@@ -15,6 +15,7 @@ import { FormDataFiltersComponent } from './form-data-filters/form-data-filters.
 import { FormDataRequestComponent } from './form-data-request/form-data-request.component';
 import { NgxChartsModule } from '@swimlane/ngx-charts';
 
+import { KeysPipe } from './libs/keysPipe.pipe';
 
 @NgModule({
   imports: [
@@ -32,6 +33,7 @@ import { NgxChartsModule } from '@swimlane/ngx-charts';
       DatavizMapComponent,
       FormDataFiltersComponent,
       FormDataRequestComponent,
+      KeysPipe,
   ],
   exports:[
       DatavizChartComponent,

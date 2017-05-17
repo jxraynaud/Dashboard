@@ -50,7 +50,7 @@ export class DataService {
                         ]);
 
                             let filteredData = this.dataFiltersService.filterDataByMultipleDimensions(rawData,filtersDimension);
-
+                            debugLogGroup(this.DEBUG,["DataService : New filtered data to be sent : ",filteredData]);
                             this.filteredDataBehaviorSubject.next(filteredData);
                     },
                     error : (err) => console.error(err),

@@ -1,3 +1,36 @@
-<p>
-  form-data-filters works!
-</p>
+<div *ngFor="let filterType of dimensionfiltersMapping | keys">
+  <md-card>
+    <td-expansion-panel>
+      <ng-template td-expansion-panel-header>
+          <md-card-title>
+            Filters for {{filterType}}
+          </md-card-title>
+      </ng-template>
+      <td-expansion-summary>
+          <section>
+          Filtering by checked {{filterType}}
+          <span *ngFor="let filterElemId of dimensionfiltersMapping[filterType] | keys">
+            <div
+                *ngIf="dimensionFilters[filterType]['checked'].indexOf(filterElemId) != -1"
+                >
+                 {{dimensionfiltersMapping[filterType][filterElemId]}} - {{filterElemId}}
+            </div>
+          </span>
+          </section>
+      </td-expansion-summary>
+
+      <md-list>
+        <md-list-item *ngFor="let filterElemId of dimensionfiltersMapping[filterType] | keys">
+          <md-checkbox
+              [checked]="dimensionFilters[filterType]['checked'].indexOf(filterElemId) != -1"
+              (change)="updateFilters($event,filterElemId,filterType)"
+              >
+               {{dimensionfiltersMapping[filterType][filterElemId]}} - {{filterElemId}}
+          </md-checkbox>
+        </md-list-item>
+      </md-list>
+
+    </td-expansion-panel>
+  </md-card>
+
+</div>

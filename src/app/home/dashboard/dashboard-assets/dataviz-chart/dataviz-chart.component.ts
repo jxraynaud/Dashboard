@@ -17,7 +17,7 @@ import { groupBy } from '../../libs/groupby';
 })
 export class DatavizChartComponent implements OnInit {
 
-    DEBUG: boolean = true;
+    DEBUG: boolean = false;
 
     @Input() filteredData : Array<{}>;
     private aggregatedFilteredData : Array<{}>;
@@ -89,8 +89,8 @@ export class DatavizChartComponent implements OnInit {
     }
 
     aggregateData(): void {
-        console.log("Charts: filteredData");
-        console.log(this.filteredData);
+        debugLogGroup(this.DEBUG,["Charts: filteredData",
+        this.filteredData]);
         this.aggregatedFilteredData = groupBy(
             this.filteredData,
             [this.aggregateCriteria],
@@ -120,11 +120,11 @@ export class DatavizChartComponent implements OnInit {
             switch(this.chartType) {
                 case 'timeserie':
                     // first we need to complete the data for any missing date.
-                    console.log("building time series")
-                    console.log("aggregatedFilteredData")
-                    console.log(this.aggregatedFilteredData)
-                    console.log("request params")
-                    console.log(this.requestParams)
+                    debugLogGroup(this.DEBUG,["building time series",
+                    "aggregatedFilteredData",
+                    this.aggregatedFilteredData,
+                    "request params",
+                    this.requestParams]);
                     // to achaive this objective, we need to get an array with all the dates:
                     let completeDateArray = this.getDates(
                         this.requestParams[0].start_date,
@@ -159,8 +159,8 @@ export class DatavizChartComponent implements OnInit {
                         timeData.push(obj);
                     })
                     // update the data and draw the graph.
-                    console.log("timeData");
-                    console.log(timeData);
+                    debugLogGroup(this.DEBUG,["timeData",
+                    timeData]);
                     this.multi = timeData;
                     this.timeSerieChart = true;
                 break;

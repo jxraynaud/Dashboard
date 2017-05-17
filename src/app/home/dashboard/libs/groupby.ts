@@ -1,5 +1,9 @@
 import { oneRowMapDataNames } from './mapDataNames';
 
+import {debugLog, debugLogGroup} from '../../../utils';
+
+const DEBUG: boolean = false;
+
 export function groupBy(
     rawData,
     groupByCriterias:Array<string>,
@@ -63,10 +67,10 @@ export function groupBy(
             // push into the aggregated_and_filtered_data array of objects
             //aggregated_and_filtered_data.push(mapped_reduced_data[row])
         }
-        console.log("Mapped data")
-        console.log(mapped_reduced_data)
-        console.log("Aggregated data")
-        console.log(aggregated_and_filtered_data)
+        debugLogGroup(DEBUG,["Mapped data",
+        mapped_reduced_data,
+        "Aggregated data",
+        aggregated_and_filtered_data]);
         //return [rawData[0]];
         return aggregated_and_filtered_data;
     }else{
