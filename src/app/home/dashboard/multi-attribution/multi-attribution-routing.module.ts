@@ -2,7 +2,6 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 
 import { MultiAttributionComponent } from './multi-attribution.component';
-import { OverviewComponent} from './overview/overview.component';
 
 const multiAttributionRoutes: Routes = [
   {

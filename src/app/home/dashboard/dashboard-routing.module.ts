@@ -1,7 +1,7 @@
 import { NgModule }             from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 
-//import { MultiAttributionModule } from 
+//import { MultiAttributionModule } from
 
 import { DashboardComponent } from './dashboard.component';
 import { DefaultComponent } from './default/default.component'
@@ -27,6 +27,11 @@ const dashboardRoutes: Routes = [
                 path: 'multi-attribution',
                 canActivateChild: [AuthGuard],
                 loadChildren: './multi-attribution/multi-attribution.module#MultiAttributionModule'
+            },
+            {
+                path: 'fraud-detector',
+                canActivateChild: [AuthGuard],
+                loadChildren: './fraud-detector/fraud-detector.module#FraudDetectorModule'
             },
         ]
     }

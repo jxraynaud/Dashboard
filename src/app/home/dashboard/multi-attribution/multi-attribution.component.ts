@@ -33,13 +33,13 @@ export class MultiAttributionComponent implements OnInit {
         {
             name : "overview",
             menuText : "Overview view",
-            description: "Overview blabla",
+            description: "Daily conversions",
             icon: "view_compact"
         },
         {
             name : "bykpiview",
-            menuText : "View 2 - by KPI",
-            description: "By KPI View example",
+            menuText : "by KPI",
+            description: "By KPI and Campaigns",
             icon: "business"
         }
     ]
@@ -78,7 +78,8 @@ export class MultiAttributionComponent implements OnInit {
         private configService : ConfigService,
         private dataService : DataService,
         private dataFiltersService : DataFiltersService,
-        private dataRequestService : DataRequestService) {
+        private dataRequestService : DataRequestService
+    ) {
             this.configService.setConfigFile(viewConfig);
 
             /*

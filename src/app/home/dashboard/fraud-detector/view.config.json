@@ -1,0 +1,84 @@
+{
+    "name" : "FRAUD DETECTOR CONFIG",
+    "api_url" : "http://37.59.31.134:8001/api/",
+    "api_endpoint" : "aggregated_suspicious_data/",
+    "is_attribution_model_multiple" : false,
+    "available_dimensions" : [
+        {
+          "data_id_column_name" : "kpi_id",
+          "data_name_column_name" : "kpi_name",
+          "label" : "KPI",
+          "id_label" : "KPI id",
+          "description" : "",
+          "api_endpoint" : "kpis/",
+          "is_name_unique": "true",
+          "is_name_column_numeric": "false",
+          "is_usable_as_request_parameter": "false"
+        },
+        {
+          "data_id_column_name" : "partner_id",
+          "data_name_column_name" : "partner_name",
+          "label" : "Partner",
+          "id_label" : "Partner id",
+          "description" : "",
+          "api_endpoint" : "partners/",
+          "is_name_unique": "true",
+          "is_name_column_numeric": "false",
+          "is_usable_as_request_parameter": "false"
+        },
+        {
+          "data_id_column_name" : "advertiser_id",
+          "data_name_column_name" : "advertiser_name",
+          "id_label" : "Advertiser sizmek id",
+          "label" : "Advertiser",
+          "description" : "",
+          "api_endpoint" : "countries/",
+          "is_name_unique": "true",
+          "is_name_column_numeric": "false",
+          "is_usable_as_request_parameter": "false"
+        },
+        {
+          "data_id_column_name" : "metacampaign_id",
+          "data_name_column_name" : "metacampaign_name",
+          "label" : "Meta Campaign",
+          "id_label" : "Metacampaign id",
+          "description" : "",
+          "api_endpoint" : "metacampaigns/",
+          "is_name_unique": "true",
+          "is_name_column_numeric": "false",
+          "is_usable_as_request_parameter": "false"
+        }
+    ],
+    "available_static_metrics" : [
+        {
+            "data_id_column_name" : "conversion_date",
+            "label" : "Conversion Date",
+            "description" : "",
+            "is_name_column_numeric": false,
+            "is_usable_as_request_parameter": false,
+            "is_additive": false,
+            "is_usable_as_groupby": true,
+            "specific_endpoint_url": ""
+        },
+        {
+            "data_id_column_name" : "conversions",
+            "label" : "Conversions",
+            "description" : "",
+            "is_name_column_numeric": false,
+            "is_usable_as_request_parameter": false,
+            "is_additive": true,
+            "is_usable_as_groupby": true,
+            "specific_endpoint_url": ""
+        },
+        {
+            "data_id_column_name" : "certified_conversions",
+            "label" : "Certified conversions",
+            "description" : "",
+            "is_name_column_numeric": false,
+            "is_usable_as_request_parameter": false,
+            "is_additive": true,
+            "is_usable_as_groupby": true,
+            "specific_endpoint_url": ""
+        }
+    ]
+}
