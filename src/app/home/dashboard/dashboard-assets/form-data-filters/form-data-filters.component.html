@@ -1,3 +1,28 @@
-<p>
-  form-data-filters works!
-</p>
+<md-card>
+  <p>
+    form-data-filters works!
+  </p>
+  <div *ngFor="let filterType of dimensionfiltersMapping | keys">
+    {{ filterType }}
+    <md-list>
+      <md-list-item *ngFor="let filterElemId of dimensionfiltersMapping[filterType] | keys">
+        <md-checkbox
+            [checked]="dimensionFilters[filterType]['checked'].indexOf(filterElemId) != -1"
+            (change)="updateFilters($event,filterElemId,filterType)"
+            >
+             {{dimensionfiltersMapping[filterType][filterElemId]}} - {{filterElemId}}
+        </md-checkbox>
+      </md-list-item>
+    </md-list>
+  </div>
+
+  CHECKED
+  <md-list>
+    <md-list-item *ngFor="let filterElemId of dimensionfiltersMapping[filterType] | keys">
+      <md-checkbox *ngIf="dimensionFilters[filterType]['checked'].indexOf(filterElemId) != -1">
+           {{dimensionfiltersMapping[filterType][filterElemId]}}
+      </md-checkbox>
+    </md-list-item>
+  </md-list>
+
+<md-card>

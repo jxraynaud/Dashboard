@@ -24,7 +24,7 @@ import viewConfig from './view.config.json';
   styleUrls: ['./multi-attribution.component.css']
 })
 export class MultiAttributionComponent implements OnInit {
-    DEBUG : boolean = false;
+    DEBUG : boolean = true;
 
     //Attributes used for template structure
     openedNav = true;

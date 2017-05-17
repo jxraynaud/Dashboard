@@ -1,50 +1,60 @@
-<td-expansion-panel #expansion label="label" sublabel="sublabel">
-<ng-template td-expansion-panel-header>
-  <h3>Data request parameters</h3>
-</ng-template>
-<td-expansion-summary>
-Displaying data from {{ dateRange.startDate | date:'M/dd/y' }} to {{ dateRange.endDate | date:'M/dd/y' }}, for models
-<span *ngFor="let model of attributionModels">
-  <span *ngIf="selectedAttributionModel_s && selectedAttributionModel_s.length>0 && selectedAttributionModel_s.indexOf( model )!=-1">
-    {{model}},
-  </span>
-</span>
+<md-card>
+  <td-expansion-panel #expansionRequestParams label="label" sublabel="sublabel">
+    <ng-template td-expansion-panel-header>
+        <md-card-title>
+          <md-icon *ngIf="expansionRequestParams.expand">expand_more</md-icon>
+          <md-icon *ngIf="!expansionRequestParams.expand">chevron_right</md-icon>
+          Data request parameter
+        </md-card-title>
+    </ng-template>
+    <td-expansion-summary>
+        <section>
+          Displaying data from {{ dateRange.startDate | date:'M/dd/y' }} to {{ dateRange.endDate | date:'M/dd/y' }}, for models
+          <span *ngFor="let model of attributionModels">
+            <span *ngIf="selectedAttributionModel_s && selectedAttributionModel_s.length>0 && selectedAttributionModel_s.indexOf( model )!=-1">
+              {{model}},
+            </span>
+          </span>
+        </section>
+    </td-expansion-summary>
 
-</td-expansion-summary>
     <section>
-      <div class="input-group" daterangepicker [options]="options" (selected)="selectedDate($event)" >
-          <span class="form-control uneditable-input"  name="daterange" >
-              {{ dateRange.startDate | date:'M/dd/y' }} - {{ dateRange.endDate | date:'M/dd/y' }}
-          </span>
-          <span class="input-group-btn">
-              <a type="button" class="btn btn-default"><i class="glyphicon glyphicon-calendar"></i></a>
-          </span>
-      </div>
+        <h4>Date</h4>
+        <div class="input-group" daterangepicker [options]="options" (selected)="selectedDate($event)" >
+            <span class="form-control uneditable-input"  name="daterange" >
+                {{ dateRange.startDate | date:'M/dd/y' }} - {{ dateRange.endDate | date:'M/dd/y' }}
+            </span>
+            <span class="input-group-btn">
+                <a type="button" class="btn btn-default"><i class="glyphicon glyphicon-calendar"></i></a>
+            </span>
+        </div>
     </section>
 
     <section *ngIf="!isAttributionModelMultiple">
-      <md-select placeholder="Attribution model" #modelChoice (change)="changeModel($event.value)" name="attributionModel" [(ngModel)]="selectedAttributionModelId" >
-        <!-- <md-option  *ngFor="let model of attributionModels"
-                   [value]="model.id">{{ model.name }} ( {{ model.id }} ) </md-option>-->
-                   <md-option [value]="2">Modlee par défaut</md-option>
-                   <md-option [value]="5">Modlee 5</md-option>
-      </md-select>
+        <h4>Attribution model</h4>
+        <md-select placeholder="Attribution model" #modelChoice (change)="changeModel($event.value)" name="attributionModel" [(ngModel)]="selectedAttributionModelId" >
+          <!-- <md-option  *ngFor="let model of attributionModels"
+                     [value]="model.id">{{ model.name }} ( {{ model.id }} ) </md-option>-->
+                     <md-option [value]="2">Modlee par défaut</md-option>
+                     <md-option [value]="5">Modlee 5</md-option>
+        </md-select>
     </section>
 
     <section *ngIf="isAttributionModelMultiple" class="example-section">
-      <md-list>
-        <md-list-item *ngFor="let model of attributionModels">
-          <md-checkbox  [checked]="selectedAttributionModel_s && selectedAttributionModel_s.length>0 && selectedAttributionModel_s.indexOf( model )!=-1"
-            (change)="changeModelsMultiple($event,model)">
-             {{ model }}
-          </md-checkbox>
-        </md-list-item>
-      </md-list>
-      <md-chip *ngIf="lessThan2Selectedmodels"
-          [selected]="true"
-          color="warn">
-          Please choose at least 2 models
-      </md-chip>
-
+        <h4>Attribution models</h4>
+        <md-list>
+          <md-list-item *ngFor="let model of attributionModels">
+            <md-checkbox  [checked]="selectedAttributionModel_s && selectedAttributionModel_s.length>0 && selectedAttributionModel_s.indexOf( model )!=-1"
+              (change)="changeModelsMultiple($event,model)">
+               {{ model }}
+            </md-checkbox>
+          </md-list-item>
+        </md-list>
+        <md-chip *ngIf="lessThan2Selectedmodels"
+            [selected]="true"
+            color="warn">
+            Please choose at least 2 models
+        </md-chip>
     </section>
 </td-expansion-panel>
+<md-card>

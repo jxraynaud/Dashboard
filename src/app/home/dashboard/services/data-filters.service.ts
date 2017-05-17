@@ -11,7 +11,7 @@ import {debugLog, debugLogGroup} from '../../../utils';
 
 @Injectable()
 export class DataFiltersService {
-    DEBUG: boolean = false;
+    DEBUG: boolean = true;
     //private debugLog(str){ this.DEBUG && console.log(str); }
     //private debugLogGroup(strArray){ if(this.DEBUG){ for(let e in strArray){ e == '0' ? console.groupCollapsed(strArray[e]):console.log(strArray[e]) ;} console.groupEnd() } }
 
@@ -161,8 +161,10 @@ export class DataFiltersService {
         //Filter data for each filter criteria:
         for(let attributeColName in filtersDimension){
             let checked = filtersDimension[attributeColName].checked;
+            console.log(checked);
             //TODO : DELETE IN PROD
             //checked = filtersDimension[attributeColName].active.slice(2,10);
+            console.log(checked);
             //Do not filter if nothing checked
             if(checked.length > 0){
                 filteredData = filteredData.filter((dataLine)=>{;
