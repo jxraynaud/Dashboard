@@ -29,10 +29,11 @@ export class FormDataRequestComponent implements OnInit {
         this.sendDataRequestParams(this.dateRange.startDate,this.dateRange.endDate,this.selectedAttributionModel_s)
     }
     //TODO : rendre dynamique
-    private _attributionModels = [2,5,11];
+    @Input() attributionModels : number[];
+    /*private _attributionModels : number[];
     // Associated getter and setters
     get attributionModels(){ return this._attributionModels}
-    set attributionModels(val){ debugLog(this.DEBUG, "SETTER ATTRIBUTION MODEL"); this._attributionModels = val; }
+    set attributionModels(val){ debugLog(this.DEBUG, "SETTER ATTRIBUTION MODEL"); this._attributionModels = val; }*/
 
     private _selectedAttributionModel_s : any; // TODO get default from api
     set selectedAttributionModel_s(newAttribModel){
