@@ -43,7 +43,7 @@
                   (click)="updateFilters(false,filterElemId,filterType)">
                 {{dimensionfiltersMapping[filterType][filterElemId]}} ({{filterElemId}})
               </md-chip>
-              <md-chip *ngIf="!isChecked(filterElemId,filterType)"
+              <md-chip class="filter_choice" *ngIf="!isChecked(filterElemId,filterType)"
                   selected="false"
                   color=""
                   (click)="updateFilters(true,filterElemId,filterType)">
