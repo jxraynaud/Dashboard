@@ -24,7 +24,10 @@
           [defaultSelectedAttributionModel_s]="[2,5]"
           [attributionModelsMapping] = "attributionModelsMapping"
           ></app-form-data-request>
-        <app-form-data-filters></app-form-data-filters>
+        <app-form-data-filters
+          [dimensionFilters]="filtersDimensions"
+          [dimensionfiltersMapping]="filtersDimensionMapping"
+          (filtersUpdated)="filtersUpdated($event)"></app-form-data-filters>
     </div>
 <!--<router-outlet></router-outlet>-->
     <app-overview *ngIf="activeView=='overview'"

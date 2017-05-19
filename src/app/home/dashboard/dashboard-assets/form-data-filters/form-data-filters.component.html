@@ -30,12 +30,6 @@
       <div class="filter_box">
         <ul>
             <li *ngFor="let filterElemId of dimensionfiltersMapping[filterType] | keys">
-              <!--<md-checkbox
-                  [checked]="dimensionFilters[filterType]['checked'].indexOf(filterElemId) != -1"
-                  (change)="updateFilters($event,filterElemId,filterType)"
-                  >
-                   {{dimensionfiltersMapping[filterType][filterElemId]}} ({{filterElemId}})
-              </md-checkbox>-->
 
               <md-chip class="filter_choice" *ngIf="isChecked(filterElemId,filterType)"
                   selected="true"
@@ -52,6 +46,12 @@
 
             </li>
         </ul>
+      <!--  <md-chip
+            selected="true"
+            color="primary"
+            (click)="filterType">
+          Check all
+        </md-chip>-->
       </div>
 
     </td-expansion-panel>

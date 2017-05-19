@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { DataFiltersService } from '../../services/data-filters.service';
 
 import { Subscription } from 'rxjs/Subscription';
@@ -13,24 +13,14 @@ import {debugLog, debugLogGroup} from '../../../../utils';
 export class FormDataFiltersComponent implements OnInit {
     DEBUG: boolean = true;
 
-    dimensionFilters : Object;
-    dimensionfiltersMapping : Object;
+    @Input() dimensionFilters : Object;
+    @Input() dimensionfiltersMapping : Object;
+
+    @Output() filtersUpdated = new EventEmitter();
 
     filtersCombinedSubscription : Subscription;
 
-    constructor(private dataFiltersService : DataFiltersService) {
-        this.filtersCombinedSubscription = this.dataFiltersService.filtersDimensionBehaviorSubject
-            .combineLatest(this.dataFiltersService.filtersDimensionMappingBehaviorSubject)
-            .subscribe(
-                {
-                    next : (latestValues) => {
-                        this.dimensionFilters = latestValues[0];
-                        this.dimensionfiltersMapping = latestValues[1];
-                    },
-                    error : (err) => console.error(err),
-                }
-            );
-    }
+    constructor() {}
 
     ngOnInit() {
     }
@@ -48,7 +38,8 @@ export class FormDataFiltersComponent implements OnInit {
                 this.dimensionFilters[filterType].checked.splice(toRemoveIndex, 1);
             }
         }
-        this.dataFiltersService.filtersDimensionBehaviorSubject.next(this.dimensionFilters);
+        //Send the event for updating filters
+        this.filtersUpdated.emit(this.dimensionFilters);
         console.log("Searching for "+filterElemId+" in");
         console.log(this.dimensionFilters[filterType].checked.indexOf(parseInt(filterElemId)));
     }
@@ -60,5 +51,13 @@ export class FormDataFiltersComponent implements OnInit {
     isNoFilterChecked(filterType){
         return this.dimensionFilters[filterType].checked && this.dimensionFilters[filterType].checked.length > 0
     }
+
+    /*checkAllForType(filterType){
+        console.warn(filterType);
+        console.warn(this.dimensionFilters[filterType].checked);
+        //console.warn(Object.keys(filterTypeArray));
+        //this.dimensionFilters[filterType].checked
+
+    }*/
 
 }

@@ -25,7 +25,7 @@ import viewConfig from './view.config.json';
     styleUrls: ['./fraud-detector.component.css']
 })
 export class FraudDetectorComponent implements OnInit {
-    DEBUG : boolean = false;
+    DEBUG : boolean = true;
 
     //Attributes used for template structure
     openedNav = true;
@@ -46,6 +46,7 @@ export class FraudDetectorComponent implements OnInit {
     ]
     //Unnamed filtered data
     filteredData : Array<{}>;
+    filtersDimensions : Object;
     filtersDimensionMapping;
     config;
     attributionModelsMapping : Array<{}>;
@@ -153,6 +154,7 @@ export class FraudDetectorComponent implements OnInit {
          *     and configService.configBehaviorSubject
          */
         this.valuesToInputSubscription = this.dataService.filteredDataBehaviorSubject.combineLatest(
+            this.dataFiltersService.filtersDimensionBehaviorSubject,
             this.dataFiltersService.filtersDimensionMappingBehaviorSubject,
             this.configService.configBehaviorSubject,
             this.attributionModelsService.attributionModelsMappingBehaviorSubject,
@@ -160,9 +162,10 @@ export class FraudDetectorComponent implements OnInit {
             {
                 next : (latestValues) => {
                     let filteredData = latestValues[0];
-                    let filtersDimensionMapping = latestValues[1];
-                    let config = latestValues[2];
-                    let attributionModelsMapping = latestValues[3]
+                    let filtersDimensions = latestValues[1];
+                    let filtersDimensionMapping = latestValues[2];
+                    let config = latestValues[3];
+                    let attributionModelsMapping = latestValues[4]
 
                     debugLogGroup(this.DEBUG,["Fraud Detector : combined subscription on (dataService.filteredDataBehaviorSubject, dataFiltersService.filtersDimensionMappingBehaviorSubject, configService.configBehaviorSubject) triggered :",
                         "For pushing into inputs to allow name processing in dataviz",
@@ -173,6 +176,7 @@ export class FraudDetectorComponent implements OnInit {
                     ]);
 
                     this.filteredData = filteredData;
+                    this.filtersDimensions = filtersDimensions;
                     this.filtersDimensionMapping = filtersDimensionMapping;
                     this.config = config;
                     this.attributionModelsMapping = attributionModelsMapping
@@ -347,5 +351,11 @@ export class FraudDetectorComponent implements OnInit {
              "Fraud Detector Component : list of additive metrics for groupBy : ",
              this.additiveMetricsList
          ])
+     }
+
+     //Output devents manaement functions
+     filtersUpdated(filters){
+         debugLogGroup(this.DEBUG, ["FraudDetecor Component : triggering output event updatedfilters from filter component with value [filters]",filters]);
+         this.dataFiltersService.filtersDimensionBehaviorSubject.next(filters);
      }
 }
