@@ -13,9 +13,8 @@ import { OverviewComponent } from './overview/overview.component';
 import { DataRequestService } from '../services/data-request.service';
 import { DataFiltersService } from '../services/data-filters.service';
 import { DataService } from '../services/data.service';
-//import { dataServiceFactory } from '../services/data.service';
-//import { dataServiceProvider } from '../services/data.service.provider';
 import { ConfigService } from '../services/config.service';
+import { AttributionModelsService } from '../services/attribution-models.service';
 
 import viewConfig from './view.config.json';
 import { BykpiviewComponent } from './bykpiview/bykpiview.component';
@@ -39,6 +38,7 @@ import { BykpiviewComponent } from './bykpiview/bykpiview.component';
         DataFiltersService,
         ConfigService,
         DataService,
+        AttributionModelsService,
 //Methode 5 : factory from service class
         //{ provide: VIEW_CONFIG, useValue: viewConfig },
         //{ provide : DataService, useFactory: dataServiceFactory, deps : [VIEW_CONFIG], multi: true },

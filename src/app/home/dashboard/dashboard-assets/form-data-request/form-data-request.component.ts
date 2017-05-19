@@ -15,6 +15,7 @@ export class FormDataRequestComponent implements OnInit {
     DEBUG: boolean = true;
     @Input() defaultSelectedAttributionModel_s : number | number[];
     @Input() isAttributionModelMultiple : boolean;
+    @Input() attributionModelsMapping : boolean;
     lessThan2Selectedmodels:boolean;
     @ViewChild('expansionRequestParams') expansionRequestParams
 
@@ -28,12 +29,6 @@ export class FormDataRequestComponent implements OnInit {
         debugLog(this.DEBUG,"Setter from dateRange attributes triggers data recalculation");
         this.sendDataRequestParams(this.dateRange.startDate,this.dateRange.endDate,this.selectedAttributionModel_s)
     }
-    //TODO : rendre dynamique
-    @Input() attributionModels : number[];
-    /*private _attributionModels : number[];
-    // Associated getter and setters
-    get attributionModels(){ return this._attributionModels}
-    set attributionModels(val){ debugLog(this.DEBUG, "SETTER ATTRIBUTION MODEL"); this._attributionModels = val; }*/
 
     private _selectedAttributionModel_s : any; // TODO get default from api
     set selectedAttributionModel_s(newAttribModel){
@@ -67,6 +62,8 @@ export class FormDataRequestComponent implements OnInit {
 
     ngOnInit() {
         console.log("--------------");
+        console.log("Attribution models mapping");
+        console.log(this.attributionModelsMapping);
         let a = this.expansionRequestParams.close();
         console.log(a);
         this.dateRange = this.initDefaultDateRange();
@@ -174,4 +171,5 @@ export class FormDataRequestComponent implements OnInit {
             );
         }
     }
+
 }

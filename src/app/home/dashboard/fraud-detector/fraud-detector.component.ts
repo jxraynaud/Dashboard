@@ -9,10 +9,11 @@ import {
 
 import { Subscription } from 'rxjs/Subscription';
 
-import { DataService } from '../services/data.service'
-import { DataFiltersService } from '../services/data-filters.service'
+import { DataService } from '../services/data.service';
+import { DataFiltersService } from '../services/data-filters.service';
 import { ConfigService } from '../services/config.service';
-import { DataRequestService } from '../services/data-request.service'
+import { DataRequestService } from '../services/data-request.service';
+import { AttributionModelsService } from '../services/attribution-models.service';
 
 import {debugLog, debugWarn, debugLogGroup} from '../../../utils';
 
@@ -47,6 +48,7 @@ export class FraudDetectorComponent implements OnInit {
     filteredData : Array<{}>;
     filtersDimensionMapping;
     config;
+    attributionModelsMapping : Array<{}>;
 
     requestParams : {};
     activeDimensions : string[] = ['advertiser_id','partner_id','kpi_id','metacampaign_id',/*'falseDimension'*/];
@@ -78,7 +80,8 @@ export class FraudDetectorComponent implements OnInit {
         private configService : ConfigService,
         private dataService : DataService,
         private dataFiltersService : DataFiltersService,
-        private dataRequestService : DataRequestService
+        private dataRequestService : DataRequestService,
+        private attributionModelsService : AttributionModelsService,
     ) {
         this.configService.setConfigFile(viewConfig);
 
@@ -151,13 +154,15 @@ export class FraudDetectorComponent implements OnInit {
          */
         this.valuesToInputSubscription = this.dataService.filteredDataBehaviorSubject.combineLatest(
             this.dataFiltersService.filtersDimensionMappingBehaviorSubject,
-            this.configService.configBehaviorSubject
+            this.configService.configBehaviorSubject,
+            this.attributionModelsService.attributionModelsMappingBehaviorSubject,
         ).subscribe(
             {
                 next : (latestValues) => {
                     let filteredData = latestValues[0];
                     let filtersDimensionMapping = latestValues[1];
                     let config = latestValues[2];
+                    let attributionModelsMapping = latestValues[3]
 
                     debugLogGroup(this.DEBUG,["Fraud Detector : combined subscription on (dataService.filteredDataBehaviorSubject, dataFiltersService.filtersDimensionMappingBehaviorSubject, configService.configBehaviorSubject) triggered :",
                         "For pushing into inputs to allow name processing in dataviz",
@@ -170,6 +175,7 @@ export class FraudDetectorComponent implements OnInit {
                     this.filteredData = filteredData;
                     this.filtersDimensionMapping = filtersDimensionMapping;
                     this.config = config;
+                    this.attributionModelsMapping = attributionModelsMapping
                 },
                 error : (err) => console.error(err),
             }

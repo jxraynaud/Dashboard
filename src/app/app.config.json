@@ -1,6 +1,6 @@
 {
     "authentication": {
-        "url" : "http://37.59.31.134:8005/",
+        "url" : "http://37.59.31.134:8001/",
         "endpoint" : "api-token-auth/"
     }
 }

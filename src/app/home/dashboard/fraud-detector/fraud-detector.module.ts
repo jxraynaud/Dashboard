@@ -10,6 +10,7 @@ import { DataRequestService } from '../services/data-request.service';
 import { DataFiltersService } from '../services/data-filters.service';
 import { DataService } from '../services/data.service';
 import { ConfigService } from '../services/config.service';
+import { AttributionModelsService } from '../services/attribution-models.service';
 
 import viewConfig from './view.config.json';
 import { OverviewComponent } from './overview/overview.component';
@@ -32,6 +33,7 @@ import { BykpiviewComponent } from './bykpiview/bykpiview.component';
       DataFiltersService,
       ConfigService,
       DataService,
+      AttributionModelsService,
   ]
 })
 export class FraudDetectorModule { }

@@ -10,9 +10,9 @@
     <td-expansion-summary>
         <section>
           Displaying data from {{ dateRange.startDate | date:'M/dd/y' }} to {{ dateRange.endDate | date:'M/dd/y' }}, for models
-          <span *ngFor="let model of attributionModels">
-            <span *ngIf="selectedAttributionModel_s && selectedAttributionModel_s.length>0 && selectedAttributionModel_s.indexOf( model )!=-1">
-              {{model}},
+          <span *ngFor="let modelObject of attributionModelsMapping">
+            <span *ngIf="selectedAttributionModel_s && selectedAttributionModel_s.length>0 && selectedAttributionModel_s.indexOf( modelObject.id )!=-1">
+              {{ modelObject.name }},
             </span>
           </span>
         </section>
@@ -31,24 +31,34 @@
     </section>
 
     <section *ngIf="!isAttributionModelMultiple">
-        <h4>Attribution model</h4>
-        <md-select placeholder="Attribution model" #modelChoice (change)="changeModel($event.value)" name="attributionModel" [(ngModel)]="selectedAttributionModelId" >
+        <md-select placeholder="Attribution model" #modelChoice (change)="changeModel($event.value)" name="attributionModel" [(ngModel)]="selectedAttributionModel_s" >
           <!-- <md-option  *ngFor="let model of attributionModels"
-                     [value]="model.id">{{ model.name }} ( {{ model.id }} ) </md-option>-->
+                     [value]="model.id">{{ model.name }} ( {{ model.id }} ) </md-option>
                      <md-option [value]="2">Modlee par défaut</md-option>
-                     <md-option [value]="5">Modlee 5</md-option>
+                     <md-option [value]="5">Modlee 5</md-option>-->
+
+                     <ng-template ngFor let-modelObject [ngForOf]="attributionModelsMapping">
+                       <md-option
+                          *ngIf="modelObject.is_active" [value]="modelObject.id"
+                          [attr.selected]="selectedAttributionModel_s==modelObject.id">
+                       >
+                            {{ modelObject.name }} - {{ modelObject.id }}
+                       </md-option>
+                    </ng-template>
         </md-select>
     </section>
 
     <section *ngIf="isAttributionModelMultiple" class="example-section">
         <h4>Attribution models</h4>
         <md-list>
-          <md-list-item *ngFor="let model of attributionModels">
-            <md-checkbox  [checked]="selectedAttributionModel_s && selectedAttributionModel_s.length>0 && selectedAttributionModel_s.indexOf( model )!=-1"
-              (change)="changeModelsMultiple($event,model)">
-               {{ model }}
-            </md-checkbox>
-          </md-list-item>
+          <ng-template ngFor let-modelObject [ngForOf]="attributionModelsMapping">
+            <md-list-item *ngIf="modelObject.is_active">
+                <md-checkbox [checked]="selectedAttributionModel_s && selectedAttributionModel_s.length>0 && selectedAttributionModel_s.indexOf( modelObject.id )!=-1"
+                  (change)="changeModelsMultiple($event,modelObject.id)">
+                   {{ modelObject.name }} - {{ modelObject.id }}
+                </md-checkbox>
+            </md-list-item>
+          </ng-template>
         </md-list>
         <md-chip *ngIf="lessThan2Selectedmodels"
             [selected]="true"
