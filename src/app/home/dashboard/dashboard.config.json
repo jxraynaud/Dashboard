@@ -1,0 +1,48 @@
+{
+  "nav" : [
+      {
+          "name" : "frauddetector",
+          "menuText" : "Fraud Detector",
+          "description": "Your tool to monitor suspicious conversions activity!",
+          "icon": "report_problem",
+          "route" : "fraud-detector",
+          "childViews" :
+          [
+              {
+                  "name" : "overview",
+                  "menuText" : "Overview view",
+                  "description" : "Daily conversions",
+                  "icon" : "timeline"
+              },
+              {
+                  "name" : "bykpiview",
+                  "menuText" : "by KPI",
+                  "description" : "By KPI and Campaigns",
+                  "icon" : "gps_fixed"
+              }
+          ]
+      },
+      {
+          "name" : "multiattribution",
+          "menuText" : "Multi Attribution",
+          "description" : "Compare campaigns results using multiple attribution models!",
+          "icon" : "call_split",
+          "route" : "multi-attribution",
+          "childViews" :
+          [
+              {
+                  "name" : "overview",
+                  "menuText" : "Overview view",
+                  "description" : "Daily conversions",
+                  "icon" : "timeline"
+              },
+              {
+                  "name" : "bykpiview",
+                  "menuText" : "by KPI",
+                  "description" : "By KPI and Campaigns",
+                  "icon" : "gps_fixed"
+              }
+          ]
+      }
+  ]
+}

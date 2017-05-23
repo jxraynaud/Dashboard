@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 
 import {
     TdDataTableService,
@@ -9,6 +10,7 @@ import {
 
 import { Subscription } from 'rxjs/Subscription';
 
+import { NavService } from '../../../services/nav.service';
 import { DataService } from '../services/data.service';
 import { DataFiltersService } from '../services/data-filters.service';
 import { ConfigService } from '../services/config.service';
@@ -25,12 +27,12 @@ import viewConfig from './view.config.json';
   styleUrls: ['./multi-attribution.component.css']
 })
 export class MultiAttributionComponent implements OnInit {
-    DEBUG: boolean = false;
+    DEBUG : boolean = false;
 
     //Attributes used for template structure
     openedNav = true;
-    activeView = "overview";
-    viewsList=[
+    //activeView = "overview";
+    /*viewsList=[
         {
             name : "overview",
             menuText : "Overview view",
@@ -43,7 +45,7 @@ export class MultiAttributionComponent implements OnInit {
             description: "By KPI and Campaigns",
             icon: "business"
         }
-    ]
+    ]*/
     //Unnamed filtered data
     //Data for Inputs
     filteredData : Array<{}>;
@@ -79,12 +81,16 @@ export class MultiAttributionComponent implements OnInit {
     valuesToInputSubscription : Subscription;
 
     constructor(
+        private activatedRoute : ActivatedRoute,
+        private navService : NavService,
         private configService : ConfigService,
         private dataService : DataService,
         private dataFiltersService : DataFiltersService,
         private dataRequestService : DataRequestService,
         private attributionModelsService : AttributionModelsService,
     ) {
+            this.navService.opened = true;
+
             this.configService.setConfigFile(viewConfig);
 
             /*
@@ -184,6 +190,11 @@ export class MultiAttributionComponent implements OnInit {
     }
 
     ngOnInit() {
+        if(this.activatedRoute.snapshot.queryParams["view"]){
+            let viewParam = this.activatedRoute.snapshot.queryParams["view"];
+            debugWarn(this.DEBUG, "Multi attribution : Switching by query parameters to view "+viewParam);
+            this.navService.activeViews.multiattribution = viewParam;
+        }
     }
 
     /** Generates 2 things : list of columns with id columns and list of columns without id columns

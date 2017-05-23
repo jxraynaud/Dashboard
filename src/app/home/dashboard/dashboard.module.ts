@@ -6,6 +6,10 @@ import { CovalentCoreModule } from '@covalent/core';
 import { CovalentHighlightModule } from '@covalent/highlight';
 import { CovalentDataTableModule } from '@covalent/core';
 
+import { SidebarModule } from 'ng-sidebar';
+
+import { ConfigService } from './services/config.service';
+
 import { DashboardRoutingModule } from './dashboard-routing.module';
 
 import { DashboardComponent } from './dashboard.component';
@@ -36,12 +40,14 @@ import { NgxChartsModule } from '@swimlane/ngx-charts';
         MaterialModule,
         DashboardAssetsModule,
         Daterangepicker,
+        SidebarModule,
     ],
     declarations: [
         DashboardComponent,
         DefaultComponent,
     ],
     providers: [
+        ConfigService,
     ]
 })
 export class DashboardModule {

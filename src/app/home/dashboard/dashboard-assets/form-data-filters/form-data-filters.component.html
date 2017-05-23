@@ -1,6 +1,8 @@
-<div *ngFor="let filterType of dimensionfiltersMapping | keys">
   <md-card>
-    <td-expansion-panel>
+    <md-tab-group>
+      <div *ngFor="let filterType of dimensionfiltersMapping | keys">
+
+    <!--<td-expansion-panel>
       <ng-template td-expansion-panel-header>
           <md-card-title>
             Filters for {{filterType}}
@@ -18,9 +20,9 @@
                 </md-chip>
               </span>
             </div>
-
+-->
             <!--No checked-->
-            <div *ngIf="!isNoFilterChecked(filterType)">
+<!--            <div *ngIf="!isNoFilterChecked(filterType)">
               No {{filterType}} selected, unfiltered for {{filterType}}
             </div>
           </section>
@@ -46,15 +48,74 @@
 
             </li>
         </ul>
-      <!--  <md-chip
+       <md-chip
             selected="true"
             color="primary"
             (click)="filterType">
           Check all
-        </md-chip>-->
+        </md-chip>
       </div>
 
-    </td-expansion-panel>
-  </md-card>
+    </td-expansion-panel>-->
+
+
+      <md-tab>
+        <ng-template md-tab-label>
+          Filters for {{filterType}}
+        </ng-template>
+        <td-expansion-panel>
+          <ng-template td-expansion-panel-header>
+            <section>
+              <div *ngIf="isNoFilterChecked(filterType)">
+                Filtered by {{filterType}}, selected :
+                <span *ngFor="let filterElemId of dimensionfiltersMapping[filterType] | keys">
+                  <md-chip selected="false" *ngIf="isChecked(filterElemId,filterType)">
+                       {{dimensionfiltersMapping[filterType][filterElemId]}} - {{filterElemId}}
+                       <md-icon class="remove_chip" (click)="updateFilters(false,filterElemId,filterType)">cancel</md-icon>
+                  </md-chip>
+                </span>
+                 - Click for more
+              </div>
+
+              <!--No checked-->
+              <div *ngIf="!isNoFilterChecked(filterType)">
+                No {{filterType}} selected, unfiltered for {{filterType}} - Click for more
+              </div>
+            </section>
+
+          </ng-template>
+
+          <div class="filter_box">
+            <ul>
+                <li *ngFor="let filterElemId of dimensionfiltersMapping[filterType] | keys">
+
+                  <md-chip class="filter_choice" *ngIf="isChecked(filterElemId,filterType)"
+                      selected="true"
+                      color="primary"
+                      (click)="updateFilters(false,filterElemId,filterType)">
+                    {{dimensionfiltersMapping[filterType][filterElemId]}} ({{filterElemId}})
+                  </md-chip>
+                  <md-chip class="filter_choice" *ngIf="!isChecked(filterElemId,filterType)"
+                      selected="false"
+                      color=""
+                      (click)="updateFilters(true,filterElemId,filterType)">
+                    {{dimensionfiltersMapping[filterType][filterElemId]}} ({{filterElemId}})
+                  </md-chip>
+
+                </li>
+            </ul>
+           <md-chip
+                selected="true"
+                color="primary"
+                (click)="filterType">
+              Check all
+            </md-chip>
+          </div>
+
+        </td-expansion-panel>
+      </md-tab>
 
 </div>
+
+</md-tab-group>
+</md-card>

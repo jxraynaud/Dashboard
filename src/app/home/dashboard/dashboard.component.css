@@ -1,0 +1,15 @@
+:host >>> .ng-sidebar {
+  width:300px;
+  /*position:fixed;*/
+  z-index:0;
+  padding : 20px;
+  padding-top:80px;
+}
+
+.subMenu{
+  padding-left:30px;
+}
+
+.dashboard-body{
+    background-color:#e0e0e0;
+}

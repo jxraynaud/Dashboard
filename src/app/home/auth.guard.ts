@@ -11,7 +11,7 @@ import { Observable } from 'rxjs/Observable';
 
 @Injectable()
 export class AuthGuard implements CanActivate, CanActivateChild, CanLoad {
-    DEBUG: boolean = false;
+    DEBUG : boolean = false;
     private debugLog(str){ this.DEBUG && console.log(str); }
 
     constructor(

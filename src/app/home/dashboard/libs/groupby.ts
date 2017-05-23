@@ -2,7 +2,7 @@ import { oneRowMapDataNames } from './mapDataNames';
 
 import {debugLog, debugLogGroup} from '../../../utils';
 
-const DEBUG: boolean = false;
+const DEBUG : boolean = false;
 
 export function groupBy(
     rawData,

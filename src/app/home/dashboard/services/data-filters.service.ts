@@ -11,7 +11,7 @@ import {debugLog, debugLogGroup} from '../../../utils';
 
 @Injectable()
 export class DataFiltersService {
-    DEBUG: boolean = true;
+    DEBUG : boolean = false;
     //private debugLog(str){ this.DEBUG && console.log(str); }
     //private debugLogGroup(strArray){ if(this.DEBUG){ for(let e in strArray){ e == '0' ? console.groupCollapsed(strArray[e]):console.log(strArray[e]) ;} console.groupEnd() } }
 

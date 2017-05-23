@@ -12,7 +12,7 @@ import {debugLog, debugWarn, debugLogGroup} from '../../../../utils';
   styleUrls: ['./form-data-request.component.css']
 })
 export class FormDataRequestComponent implements OnInit {
-    DEBUG: boolean = true;
+    DEBUG : boolean = false;
     @Input() defaultSelectedAttributionModel_s : number | number[];
     @Input() isAttributionModelMultiple : boolean;
     @Input() attributionModelsMapping : boolean;

@@ -17,7 +17,7 @@ import {debugLog, debugWarn, debugLogGroup} from '../../../../utils';
   styleUrls: ['./bykpiview.component.css']
 })
 export class BykpiviewComponent implements OnInit {
-    DEBUG : boolean = true;
+    DEBUG : boolean = false;
 
     viewTitle : string = "Multi Attributions Models by KPI"
 

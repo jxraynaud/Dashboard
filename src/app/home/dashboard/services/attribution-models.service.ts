@@ -14,7 +14,7 @@ import {debugLog, debugLogGroup} from '../../../utils';
 
 @Injectable()
 export class AttributionModelsService {
-    DEBUG: boolean = true;
+    DEBUG : boolean = false;
     //private debugLog(str){ this.DEBUG && console.log(str); }
 
     /*defaultRequestParams = [{

@@ -16,7 +16,7 @@ import { groupBy } from '../../libs/groupby';
   styleUrls: ['./dataviz-datatable.component.css']
 })
 export class DatavizDatatableComponent implements OnInit, OnChanges {
-    DEBUG: boolean = false;
+    DEBUG : boolean = false;
 
     @Input() filteredData : Array<{}>;
     private aggregatedFilteredData : Array<{}>;

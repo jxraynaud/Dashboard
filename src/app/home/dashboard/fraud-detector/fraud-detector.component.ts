@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 
 import {
     TdDataTableService,
@@ -8,6 +9,8 @@ import {
     IPageChangeEvent } from '@covalent/core';
 
 import { Subscription } from 'rxjs/Subscription';
+
+import { NavService } from '../../../services/nav.service'
 
 import { DataService } from '../services/data.service';
 import { DataFiltersService } from '../services/data-filters.service';
@@ -29,8 +32,8 @@ export class FraudDetectorComponent implements OnInit {
 
     //Attributes used for template structure
     openedNav = true;
-    activeView = "overview";
-    viewsList=[
+    //activeView:string = "overview";
+    /*viewsList=[
         {
             name : "overview",
             menuText : "Overview view",
@@ -43,7 +46,7 @@ export class FraudDetectorComponent implements OnInit {
             description: "By KPI and Campaigns",
             icon: "business"
         }
-    ]
+    ]*/
     //Unnamed filtered data
     filteredData : Array<{}>;
     filtersDimensions : Object;
@@ -78,12 +81,16 @@ export class FraudDetectorComponent implements OnInit {
     valuesToInputSubscription : Subscription;
 
     constructor(
+        private activatedRoute : ActivatedRoute,
+        private navService : NavService,
         private configService : ConfigService,
         private dataService : DataService,
         private dataFiltersService : DataFiltersService,
         private dataRequestService : DataRequestService,
         private attributionModelsService : AttributionModelsService,
     ) {
+        this.navService.opened = true;
+
         this.configService.setConfigFile(viewConfig);
 
         /*
@@ -187,7 +194,13 @@ export class FraudDetectorComponent implements OnInit {
     }
 
     ngOnInit() {
+        if(this.activatedRoute.snapshot.queryParams["view"]){
+            let viewParam = this.activatedRoute.snapshot.queryParams["view"];
+            debugWarn(this.DEBUG, "Fraud detector : Switching by query parameters to view "+viewParam);
+            this.navService.activeViews.frauddetector = viewParam;
+        }
     }
+
 
 
     /** Generates 2 things : list of columns with id columns and list of columns without id columns
@@ -355,7 +368,7 @@ export class FraudDetectorComponent implements OnInit {
 
      //Output devents manaement functions
      filtersUpdated(filters){
-         debugLogGroup(this.DEBUG, ["FraudDetecor Component : triggering output event updatedfilters from filter component with value [filters]",filters]);
+         debugLogGroup(this.DEBUG, ["Fraud Detecor Component : triggering output event updatedfilters from filter component with value [filters]",filters]);
          this.dataFiltersService.filtersDimensionBehaviorSubject.next(filters);
      }
 }

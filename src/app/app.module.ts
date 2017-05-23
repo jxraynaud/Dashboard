@@ -6,6 +6,7 @@ import { RouterModule }   from '@angular/router';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations'
 
 import { CovalentCoreModule } from '@covalent/core';
+import { NavService } from './services/nav.service';
 
 import { AppComponent } from './app.component';
 import { MaterialModule } from '@angular/material';
@@ -41,6 +42,7 @@ import { AlertComponent } from './alert/alert.component'
   providers: [
       AuthenticationService,
       AlertService,
+      NavService,
   ],
   bootstrap: [AppComponent]
 })

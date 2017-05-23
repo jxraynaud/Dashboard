@@ -1,12 +1,23 @@
-<td-layout-nav logo="assets:teradata" toolbarTitle="Covalent">
+<td-layout-nav class="teradata-top-menu" toolbarTitle="">
   <div td-toolbar-content layout="row" layout-align="center center" flex>
-    <span flex></span>
-    <button md-icon-button [mdMenuTriggerFor]="notificationsMenu">
-      <td-notification-count color="accent" [notifications]="updates.length + 1">
-        <md-icon>notifications</md-icon>
-      </td-notification-count>
-    </button>
-    <md-menu #notificationsMenu="mdMenu">
+    <span flex=5>
+      <md-icon *ngIf="!navService.opened" (click)="navService.toggleSidebar()">menu</md-icon>
+      <md-icon *ngIf="navService.opened"  (click)="navService.toggleSidebar()">close</md-icon>
+    </span>
+    <span flex=90 style="text-align:center;">
+      <img height=50 src="assets/mec_logo.png" />
+      <img height=50 src="assets/blizzard.svg" />
+    </span>
+
+<!----------------------Menu des notifications à réactiver quand actif------------------------>
+    <span flex=5>
+      <!--<button md-icon-button [mdMenuTriggerFor]="notificationsMenu">
+        <td-notification-count color="accent" [notifications]="updates.length + 1">
+          <md-icon>notifications</md-icon>
+        </td-notification-count>
+      </button>-->
+    </span>
+  <!--  <md-menu #notificationsMenu="mdMenu">
       <td-menu>
         <div td-menu-header class="md-subhead">Updates</div>
         <md-nav-list dense>
@@ -20,15 +31,13 @@
           </ng-template>
         </md-nav-list>
       </td-menu>
-    </md-menu>
+    </md-menu>-->
   </div>
   <router-outlet></router-outlet>
 
   <td-layout-footer>
-    <div layout="row" layout-align="start center">
+    <div layout="row" layout-align="end center">
       <span class="md-caption">Copyright &copy; 2017 Mec Global. All rights reserved</span>
-      <span flex></span>
-      <md-icon class="md-icon-ux" svgIcon="assets:teradata-ux"></md-icon>
     </div>
   </td-layout-footer>
 </td-layout-nav>

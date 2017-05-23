@@ -1,11 +1,10 @@
-<md-sidenav-container>
-    <button *ngIf="!sidenav.opened" md-button id="sideNav_menu" (click)="sidenav.open()">
+<!--<md-sidenav-container>-->
+  <!--  <button *ngIf="!sidenav.opened" md-button id="sideNav_menu" (click)="sidenav.toggle()">
     </button>
     <md-sidenav #sidenav opened="openedNav" mode="side">
         <div class="menuClose">
-            <button md-button (click)="sidenav.close()">X</button>
+            <button md-button (click)="sidenav.toggle()">X</button>
         </div>
-        <!--<md-nav-list td-sidenav-content (click)="!media.query('gt-sm') && navList.close()">-->
         <md-nav-list td-sidenav-content>
             <div *ngFor="let navElem of viewsList">
                 <a [ngClass]="{'active': activeView==navElem.name}" md-list-item (click)="activeView=navElem.name">
@@ -16,11 +15,11 @@
                 <md-divider md-inset></md-divider>
             </div>
         </md-nav-list>
-    </md-sidenav>
+    </md-sidenav>-->
 
-    <md-card>
+  <!--  <md-card>-->
         <div flex-gt-xs="100">
-            <md-card>
+            <!--<md-card>-->
             <app-form-data-request
               [isAttributionModelMultiple]="isAttributionModelMultiple"
               [defaultSelectedAttributionModel_s]="5"
@@ -31,10 +30,10 @@
               [dimensionfiltersMapping]="filtersDimensionMapping"
               (filtersUpdated)="filtersUpdated($event)"
             ></app-form-data-filters>
-            </md-card>
+            <!--</md-card>-->
         </div>
-    <!--<router-outlet></router-outlet>-->
-        <app-overview *ngIf="activeView=='overview'"
+
+        <app-overview *ngIf="navService.activeViews.frauddetector=='overview'"
           [filteredData]="filteredData"
           [requestParams]="requestParams"
           [activeDimensionsWithIdColumns]="activeDimensionsWithIdColumns"
@@ -46,8 +45,9 @@
           [isAttributionModelMultiple]="isAttributionModelMultiple"
         ></app-overview>
 
-        <app-bykpiview *ngIf="activeView=='bykpiview'"
+        <app-bykpiview *ngIf="navService.activeViews.frauddetector=='bykpiview'"
             [filteredData]="filteredData"
+            [requestParams]="requestParams"
             [activeDimensionsWithIdColumns]="activeDimensionsWithIdColumns"
             [activeDimensionsWithoutIdColumns]="activeDimensionsWithoutIdColumns"
             [activeStaticMetricsColumns]="metricsColumns"
@@ -57,5 +57,5 @@
             [isAttributionModelMultiple]="isAttributionModelMultiple"
         ></app-bykpiview>
 
-    </md-card>
-</md-sidenav-container>
+  <!--  </md-card>-->
+<!--</md-sidenav-container>-->

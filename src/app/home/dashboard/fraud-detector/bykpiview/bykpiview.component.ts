@@ -16,7 +16,7 @@ import {debugLog, debugWarn, debugLogGroup} from '../../../../utils';
     styleUrls: ['./bykpiview.component.css']
 })
 export class BykpiviewComponent implements OnInit {
-    DEBUG : boolean = true;
+    DEBUG : boolean = false;
 
     viewTitle : string = "Multi Attributions Models by KPI"
 
@@ -28,6 +28,7 @@ export class BykpiviewComponent implements OnInit {
     @Input() additiveMetricsList : Array<string>;
     @Input() filtersDimensionMapping;
     @Input() config;
+    @Input() requestParams : {};
     //Setting to pipe to the views to define if the attribution model parameter of the api is simple (number) or multiple (array)
     @Input() isAttributionModelMultiple : boolean;
 

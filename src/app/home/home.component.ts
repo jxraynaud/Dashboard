@@ -1,5 +1,7 @@
 import { Component, HostBinding, OnInit } from '@angular/core';
 
+import { NavService } from '../services/nav.service';
+
 import { fadeAnimation } from '../app.animations';
 
 import { DashboardComponent } from './dashboard/dashboard.component';
@@ -23,9 +25,7 @@ export class HomeComponent implements OnInit {
         },
     ];
 
-
-
-    constructor() {
+    constructor(private navService : NavService) {
     }
 
     ngOnInit(): void {

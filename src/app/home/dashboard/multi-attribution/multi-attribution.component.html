@@ -1,11 +1,10 @@
-<md-sidenav-container>
-    <button *ngIf="!sidenav.opened" md-button id="sideNav_menu" (click)="sidenav.open()">
+<!--<md-sidenav-container>-->
+  <!--  <button *ngIf="!sidenav.opened" md-button id="sideNav_menu" (click)="sidenav.open()">
     </button>
     <md-sidenav #sidenav opened="openedNav" mode="side">
         <div class="menuClose">
             <button md-button (click)="sidenav.close()">X</button>
         </div>
-        <!--<md-nav-list td-sidenav-content (click)="!media.query('gt-sm') && navList.close()">-->
         <md-nav-list td-sidenav-content>
             <div *ngFor="let navElem of viewsList">
                 <a [ngClass]="{'active': activeView==navElem.name}" md-list-item (click)="activeView=navElem.name">
@@ -16,7 +15,7 @@
                 <md-divider md-inset></md-divider>
             </div>
         </md-nav-list>
-    </md-sidenav>
+    </md-sidenav>-->
 
     <div flex-gt-xs="100">
         <app-form-data-request
@@ -30,7 +29,7 @@
           (filtersUpdated)="filtersUpdated($event)"></app-form-data-filters>
     </div>
 <!--<router-outlet></router-outlet>-->
-    <app-overview *ngIf="activeView=='overview'"
+    <app-overview *ngIf="navService.activeViews.multiattribution=='overview'"
       [filteredData]="filteredData"
       [requestParams]="requestParams"
       [activeDimensionsWithIdColumns]="activeDimensionsWithIdColumns"
@@ -42,7 +41,7 @@
       [isAttributionModelMultiple]="isAttributionModelMultiple"
     ></app-overview>
 
-    <app-bykpiview *ngIf="activeView=='bykpiview'"
+    <app-bykpiview *ngIf="navService.activeViews.multiattribution=='bykpiview'"
         [filteredData]="filteredData"
         [activeDimensionsWithIdColumns]="activeDimensionsWithIdColumns"
         [activeDimensionsWithoutIdColumns]="activeDimensionsWithoutIdColumns"
@@ -53,4 +52,4 @@
         [isAttributionModelMultiple]="isAttributionModelMultiple"
     ></app-bykpiview>
 
-</md-sidenav-container>
+<!--</md-sidenav-container>-->

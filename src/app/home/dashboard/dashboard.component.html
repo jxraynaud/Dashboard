@@ -1,1 +1,36 @@
-<router-outlet></router-outlet>
+
+<ng-sidebar-container class="dashboard-body">
+  <ng-sidebar #dashboardSidebar
+    [(opened)]="navService.opened"
+    [mode]="navService.navMode"
+    [position]="navService.navPosition"
+    [autoCollapseWidth]="'1000'"
+    (onOpened)="navService.onNavToggle($event)"
+    (onClosed)="navService.onNavToggle($event)">
+    <md-nav-list td-sidenav-content>
+        <div *ngFor="let navElem of config.nav">
+          <a md-list-item [routerLink]="[navElem.route]" [routerLinkActive]="['active']" #rla="routerLinkActive">
+              <md-icon md-list-avatar>{{navElem.icon}}</md-icon>
+              <h3 md-line>{{navElem.menuText}}</h3>
+              <p md-line>{{navElem.description}}</p>
+          </a>
+          <md-divider md-inset></md-divider>
+          <md-nav-list class="subMenu" td-sidenav-content>
+              <div *ngFor="let navSubElem of navElem.childViews">
+                  <a [routerLink]="[navElem.route]" [queryParams]="{ view:navSubElem.name }" [ngClass]="{'active': navService.activeViews[navElem.name]==navSubElem.name && rla.isActive}" md-list-item
+                    (click)="navService.activeViews[navElem.name]=navSubElem.name">
+                      <md-icon md-list-avatar>{{navSubElem.icon}}</md-icon>
+                      <h3 md-line>{{navSubElem.menuText}}</h3>
+                      <p md-line>{{navSubElem.description}}</p>
+                  </a>
+                  <md-divider md-inset></md-divider>
+              </div>
+          </md-nav-list>
+        </div>
+      </md-nav-list>
+  </ng-sidebar>
+
+  <!--<md-card>-->
+    <router-outlet></router-outlet>
+  <!--</md-card>-->
+</ng-sidebar-container>
