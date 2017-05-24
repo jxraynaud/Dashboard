@@ -106,6 +106,7 @@ export class DatavizChartComponent implements OnInit {
         if(this.aggregatedFilteredData.length > 0
             && this.config.available_dimensions.length > 0
             && this.activeStaticMetricsColumns.length >  0
+            && this.aggregatedFilteredData[0][this.config.available_dimensions[0].data_name_column_name]
         ) {
             // First we need to get the list of the metrics to use.
             // We don't include metrics used in criteria
@@ -173,7 +174,7 @@ export class DatavizChartComponent implements OnInit {
                         return dimension.data_id_column_name === this.aggregateCriteria
                     })[0].data_name_column_name
                     // Now we map reformat the new data Object
-                    let chartData = this.aggregatedFilteredData.map(row => {
+                    let chartData = this.aggregatedFilteredData.map((row,index) => {
                         let obj = {
                             "name": row[dimension_name]
                         }
@@ -185,6 +186,8 @@ export class DatavizChartComponent implements OnInit {
                         })
                         return obj;
                     });
+                    console.warn("***************")
+                    console.log(chartData);
                     this.multi = chartData;
                     this.histogramChart = true;
                 break;

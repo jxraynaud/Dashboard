@@ -21,11 +21,11 @@ export class BykpiviewComponent implements OnInit {
     viewTitle : string = "Multi Attributions Models by KPI"
 
     //Unnamed yet filtered data (to be named by dataviz)
-    @Input() filteredData : Array<{}>;
-    @Input() activeDimensionsWithIdColumns : ITdDataTableColumn[];
-    @Input() activeDimensionsWithoutIdColumns : ITdDataTableColumn[];
-    @Input() activeStaticMetricsColumns : ITdDataTableColumn[];
-    @Input() additiveMetricsList : Array<string>;
+    @Input() filteredData : Array<{}> = [];
+    @Input() activeDimensionsWithIdColumns : ITdDataTableColumn[] = [];
+    @Input() activeDimensionsWithoutIdColumns : ITdDataTableColumn[] = [];
+    @Input() activeStaticMetricsColumns : ITdDataTableColumn[] = [];
+    @Input() additiveMetricsList : Array<string> = [];
     @Input() filtersDimensionMapping;
     @Input() config;
     @Input() requestParams : {};
@@ -35,6 +35,7 @@ export class BykpiviewComponent implements OnInit {
     constructor() { }
 
     ngOnInit() {
+        console.warn("-----------------");
+        console.warn(this.filtersDimensionMapping);
     }
-
 }

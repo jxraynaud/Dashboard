@@ -7,7 +7,7 @@ import { Subscription } from 'rxjs/Subscription';
 import { ConfigService } from './config.service';
 import { DataRequestService } from './data-request.service';
 
-import {debugLog, debugLogGroup} from '../../../utils';
+import {debugLog, debugWarn, debugLogGroup} from '../../../utils';
 
 @Injectable()
 export class DataFiltersService {
@@ -67,24 +67,27 @@ export class DataFiltersService {
                     "filtersDimensionBehaviorSubject",
                     "with value :",
                     data]);
+                    if(data.length > 0){
+                        //Map on the dimensions (lis tof used dimensions) to find for each dimension a list of unique id from the data
+                        let dimensionsFilters = {};
+                        dimensions.map((dim)=>{
+                            let singleDimension = [];
+                            data.map((e)=>{
+                                if(singleDimension.indexOf(e[dim.data_id_column_name]) == -1){
+                                    singleDimension.push(e[dim.data_id_column_name]);
+                                }
+                            });
+                            let singleDimensionCheckedList = this.checkedDimensions[dim.data_id_column_name] ? this.checkedDimensions[dim.data_id_column_name] : []
+                            dimensionsFilters[dim.data_id_column_name] = { "active" : singleDimension, "checked" : singleDimensionCheckedList };
+                        });
 
-                //Map on the dimensions (lis tof used dimensions) to find for each dimension a list of unique id from the data
-                let dimensionsFilters = {};
-                dimensions.map((dim)=>{
-                    let singleDimension = [];
-                    data.map((e)=>{
-                        if(singleDimension.indexOf(e[dim.data_id_column_name]) == -1){
-                            singleDimension.push(e[dim.data_id_column_name]);
-                        }
-                    });
-                    let singleDimensionCheckedList = this.checkedDimensions[dim.data_id_column_name] ? this.checkedDimensions[dim.data_id_column_name] : []
-                    dimensionsFilters[dim.data_id_column_name] = { "active" : singleDimension, "checked" : singleDimensionCheckedList };
-                });
-
-                debugLogGroup(this.DEBUG,["DataFiltersService :  Calculated list of available / checked filters to be pushed to this.filtersDimensionBehaviorSubject : ",
-                    dimensionsFilters
-                ]);
-                this.filtersDimensionBehaviorSubject.next(dimensionsFilters);
+                        debugLogGroup(this.DEBUG,["DataFiltersService :  Calculated list of available / checked filters to be pushed to this.filtersDimensionBehaviorSubject : ",
+                            dimensionsFilters
+                        ]);
+                        this.filtersDimensionBehaviorSubject.next(dimensionsFilters);
+                    }else{
+                        debugWarn(this.DEBUG,"Data Filters : data empty when this.rawDataBehaviorSubjectSubscription triggered. Normal at first pass.")
+                    }
             },
             error : (err) => console.error(err),
         });

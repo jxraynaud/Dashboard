@@ -28,7 +28,7 @@ import viewConfig from './view.config.json';
     styleUrls: ['./fraud-detector.component.css']
 })
 export class FraudDetectorComponent implements OnInit {
-    DEBUG : boolean = true;
+    DEBUG : boolean = false;
 
     //Attributes used for template structure
     openedNav = true;
@@ -174,12 +174,14 @@ export class FraudDetectorComponent implements OnInit {
                     let config = latestValues[3];
                     let attributionModelsMapping = latestValues[4]
 
-                    debugLogGroup(this.DEBUG,["Fraud Detector : combined subscription on (dataService.filteredDataBehaviorSubject, dataFiltersService.filtersDimensionMappingBehaviorSubject, configService.configBehaviorSubject) triggered :",
+                    debugLogGroup(this.DEBUG,["Fraud Detector : combined subscription on (dataService.filteredDataBehaviorSubject, dataFiltersService.filtersDimensionBehaviorSubject, dataFiltersService.filtersDimensionMappingBehaviorSubject, configService.configBehaviorSubject, this.attributionModelsService.attributionModelsMappingBehaviorSubject) triggered :",
                         "For pushing into inputs to allow name processing in dataviz",
-                        "with values [filteredData,  fitersDimensionMapping, config] :",
+                        "with values [filteredData, filtersDimensionMapping, filtersDimensionMapping, config, attributionModelsMapping] :",
                         filteredData,
+                        filtersDimensions,
                         filtersDimensionMapping,
                         config,
+                        attributionModelsMapping,
                     ]);
 
                     this.filteredData = filteredData;
@@ -194,6 +196,7 @@ export class FraudDetectorComponent implements OnInit {
     }
 
     ngOnInit() {
+        debugLog(this.DEBUG,"Fruad Detector Component : calling ngOnInit");
         if(this.activatedRoute.snapshot.queryParams["view"]){
             let viewParam = this.activatedRoute.snapshot.queryParams["view"];
             debugWarn(this.DEBUG, "Fraud detector : Switching by query parameters to view "+viewParam);
@@ -210,6 +213,7 @@ export class FraudDetectorComponent implements OnInit {
      */
 
      private generateDimensionColumnsListsObject(availableDimensions,activeDimensions):{withIdColumns:ITdDataTableColumn[], withoutIdColumns:ITdDataTableColumn[]}{
+         debugLog(this.DEBUG,"Fruad Detector Component : calling generateDimensionColumnsListsObject")
          //Creating empty arrays for column list
          let activeWithIdDimensionColumnsTemp = [];
          let activeWithoutIdDimensionColumnsTemp = [];
@@ -261,6 +265,7 @@ export class FraudDetectorComponent implements OnInit {
       *    @return {ITdDataTableColumn[]}                  list of static metrics columns
       */
      private generateStaticMetricsColumnsListsObject(availableMetrics,activeStaticMetrics):ITdDataTableColumn[]{
+         debugLog(this.DEBUG,"Fruad Detector Component : calling generateStaticMetricsColumnsListsObject")
          //Creating empty arrays for column list
          let activeStaticMetricsColumnsTemp = [];
          activeStaticMetrics.map((metricName)=>{
@@ -293,6 +298,7 @@ export class FraudDetectorComponent implements OnInit {
       * @return {[type]}                                       array of columns for dynamic metrics
       **/
      private generateDynamicMetricsColumnsListsObjects(data):ITdDataTableColumn[]{
+         debugLog(this.DEBUG,"Fruad Detector Component : calling generateDynamicMetricsColumnsListsObjects")
          //Reinitialize dynamic additive columns list
          this.dynamicAdditiveMetricsList = []
 
@@ -337,6 +343,7 @@ export class FraudDetectorComponent implements OnInit {
       * @return {[type]}              [description]
       */
      private rebuildMetricsColumns(){
+         debugLog(this.DEBUG,"Fruad Detector Component : calling rebuildMetricsColumns");
          debugLogGroup(this.DEBUG,["static metrics",
          this.activeStaticMetricsColumns,
         "dyn metrics",
@@ -368,6 +375,7 @@ export class FraudDetectorComponent implements OnInit {
 
      //Output devents manaement functions
      filtersUpdated(filters){
+         debugLog(this.DEBUG,"Fruad Detector Component : calling filtersUpdated")
          debugLogGroup(this.DEBUG, ["Fraud Detecor Component : triggering output event updatedfilters from filter component with value [filters]",filters]);
          this.dataFiltersService.filtersDimensionBehaviorSubject.next(filters);
      }

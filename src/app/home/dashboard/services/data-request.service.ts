@@ -111,6 +111,7 @@ export class DataRequestService {
     }
 
     mapDimensionFromRawData(rawData, config){
+        debugLogGroup(this.DEBUG,["Data Request Service : Calling mapDimensionFromRawData with (rawData, config)", rawData, config])
         let dimensions = config.available_dimensions.map(dimension => {
             if(Object.keys(rawData[0]).indexOf(dimension.data_id_column_name) != -1){
                 return(dimension)
