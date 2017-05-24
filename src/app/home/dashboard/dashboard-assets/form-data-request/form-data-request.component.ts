@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, ViewChild } from '@angular/core';
+import { Component, OnInit, Input, ViewChild, OnChanges, SimpleChanges } from '@angular/core';
 import { DataRequestService } from '../../services/data-request.service';
 
 import { DaterangepickerConfig } from 'ng2-daterangepicker';
@@ -11,13 +11,17 @@ import {debugLog, debugWarn, debugLogGroup} from '../../../../utils';
   templateUrl: './form-data-request.component.html',
   styleUrls: ['./form-data-request.component.css']
 })
-export class FormDataRequestComponent implements OnInit {
-    DEBUG : boolean = false;
-    @Input() defaultSelectedAttributionModel_s : number | number[];
+export class FormDataRequestComponent implements OnInit, OnChanges {
+    DEBUG : boolean = true;
+    @Input() defaultSelectedAttributionModel_s; /*: /*number | number[];*/
     @Input() isAttributionModelMultiple : boolean;
-    @Input() attributionModelsMapping : boolean;
+    @Input() attributionModelsMapping : Array<Object>;
     lessThan2Selectedmodels:boolean;
     @ViewChild('expansionRequestParams') expansionRequestParams
+
+    //For multiple models
+    attributionModelsChipList=[];
+    activeAttributionModelsChipList=[];
 
     // Define the needed attributes
     private _dateRange : {startDate, endDate};
@@ -97,6 +101,46 @@ export class FormDataRequestComponent implements OnInit {
         debugLog(this.DEBUG, "----FILTERS COMPONENT INITIALIZED----");
     }
 
+    ngOnChanges(changes: SimpleChanges){
+        console.log(changes)
+        //Update models mapping
+        if(changes.attributionModelsMapping && changes.attributionModelsMapping.currentValue.length>0){
+                this.attributionModelsChipList = changes.attributionModelsMapping.currentValue.map((e)=>{ return e.name });
+        }
+
+        //TOCHECK : changes checked for the 3 possibilities (both change together, default value changes and mapping already set, mapping changes and default values already set)
+        //If both models mapping and default models in change simultaneously change using the new values
+        if( changes.defaultSelectedAttributionModel_s && changes.defaultSelectedAttributionModel_s.currentValue.length>0
+            && changes.attributionModelsMapping && changes.attributionModelsMapping.currentValue.length>0
+        ){
+                this.activeAttributionModelsChipList = changes.attributionModelsMapping.currentValue
+                    .filter((e)=>{ return changes.defaultSelectedAttributionModel_s.currentValue.indexOf(e.id) != -1 })
+                    .map((f)=>{ return f.name });
+                console.log(changes.defaultSelectedAttributionModel_s)
+                console.log(changes)
+        }else
+        //If default values changes and attribution models mapping already set
+        if( changes.defaultSelectedAttributionModel_s && changes.defaultSelectedAttributionModel_s.currentValue.length>0
+            && this.attributionModelsMapping && this.attributionModelsMapping.length>0
+        ){
+                this.activeAttributionModelsChipList = this.attributionModelsMapping
+                    .filter((e)=>{ return changes.defaultSelectedAttributionModel_s.currentValue.indexOf(e['id']) != -1 })
+                    .map((f)=>{ return f['name'] });
+                console.log(changes.defaultSelectedAttributionModel_s)
+                console.log(changes)
+        }else
+        //if attributionModelsMapping changes and default values already set
+        if( this.defaultSelectedAttributionModel_s && this.defaultSelectedAttributionModel_s.length>0
+            && changes.attributionModelsMapping && changes.attributionModelsMapping.currentValue.length>0
+        ){
+                this.activeAttributionModelsChipList = changes.attributionModelsMapping.currentValue
+                    .filter((e)=>{ return this.defaultSelectedAttributionModel_s.indexOf(e.id) != -1 })
+                    .map((f)=>{ return f.name });
+                console.log(this.defaultSelectedAttributionModel_s)
+                console.log(changes)
+        }
+    }
+
     // Associated methods
     initDefaultDateRange():any{
         let days = 86400000;
@@ -119,6 +163,17 @@ export class FormDataRequestComponent implements OnInit {
         debugLog(this.DEBUG, "New daterange : "+this.dateRange.startDate+" - "+this.dateRange.endDate);
     }
 
+    /**
+     *    [updateActiveModelsOnChipsChange description]
+     *    TOCHECK : !! selectedAttributionModel_s can't be edited in place otherwise setter won't be triggered
+     *    @method updateActiveModelsOnChipsChange
+     *    @param  {[type]}                        modelName [description]
+     *    @return {[type]}                        [description]
+     */
+    public updateActiveModelsOnChipsChange(modelName){
+        this.selectedAttributionModel_s = this.attributionModelsMapping.filter((e)=>{ return this.activeAttributionModelsChipList.indexOf(e["name"]) != -1 }).map((f)=>{return f["id"]});
+    }
+
     public changeModel(value):void {
         console.log("MODEL");
         console.log(parseInt(value));
@@ -134,7 +189,7 @@ export class FormDataRequestComponent implements OnInit {
  *    @param  {[type]}             event [description]
  *    @param  {[type]}             model [description]
  */
-    public changeModelsMultiple(event,model):void{
+/*    public changeModelsMultiple(event,model):void{
         if(event.checked == true){
             //Create array if it doesn't exist
             if(this.selectedAttributionModel_s){
@@ -155,7 +210,7 @@ export class FormDataRequestComponent implements OnInit {
             console.log(event);
             console.log(model);
             console.log(this.selectedAttributionModel_s);
-    }
+    }*/
 
     private sendDataRequestParams(startDate,endDate,selectedAttributionModel_s){
         if(startDate && endDate && selectedAttributionModel_s){

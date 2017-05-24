@@ -1,5 +1,5 @@
 <md-card>
-  <td-expansion-panel #expansionRequestParams label="label" sublabel="sublabel">
+  <!--<td-expansion-panel #expansionRequestParams label="label" sublabel="sublabel">
     <ng-template td-expansion-panel-header>
         <md-card-title>
           <md-icon *ngIf="expansionRequestParams.expand">expand_more</md-icon>
@@ -16,55 +16,60 @@
             </span>
           </span>
         </section>
-    </td-expansion-summary>
+    </td-expansion-summary>-->
+    <md-card-title>
+      Data request parameters
+    </md-card-title>
 
-    <section>
-        <h4>Date</h4>
-        <div class="input-group" daterangepicker [options]="options" (selected)="selectedDate($event)" >
-            <span class="form-control uneditable-input"  name="daterange" >
-                {{ dateRange.startDate | date:'M/dd/y' }} - {{ dateRange.endDate | date:'M/dd/y' }}
-            </span>
-            <span class="input-group-btn">
-                <a type="button" class="btn btn-default"><i class="glyphicon glyphicon-calendar"></i></a>
-            </span>
+    <md-card-content class="row">
+
+        <div class="col-md-6 col-xs-12" *ngIf="!isAttributionModelMultiple">
+            <h4>Attribution model</h4>
+            <md-select class="attrib-model-select" placeholder="" #modelChoice (change)="changeModel($event.value)" name="attributionModel" [(ngModel)]="selectedAttributionModel_s" >
+                         <ng-template ngFor let-modelObject [ngForOf]="attributionModelsMapping">
+                           <md-option
+                              *ngIf="modelObject.is_active" [value]="modelObject.id"
+                              [attr.selected]="selectedAttributionModel_s==modelObject.id">
+                           >
+                                {{ modelObject.name }} - {{ modelObject.id }}
+                           </md-option>
+                        </ng-template>
+            </md-select>
         </div>
-    </section>
 
-    <section *ngIf="!isAttributionModelMultiple">
-        <md-select placeholder="Attribution model" #modelChoice (change)="changeModel($event.value)" name="attributionModel" [(ngModel)]="selectedAttributionModel_s" >
-          <!-- <md-option  *ngFor="let model of attributionModels"
-                     [value]="model.id">{{ model.name }} ( {{ model.id }} ) </md-option>
-                     <md-option [value]="2">Modlee par défaut</md-option>
-                     <md-option [value]="5">Modlee 5</md-option>-->
+        <div class="col-md-6 col-xs-12 attrib-model-form" *ngIf="isAttributionModelMultiple">
+            <h4 class="inline-title">Attribution models</h4>
+            <md-chip *ngIf="lessThan2Selectedmodels"
+                [selected]="true"
+                color="warn">
+                Please choose at least 2 models
+            </md-chip>
+            <!--<md-list>
+              <ng-template ngFor let-modelObject [ngForOf]="attributionModelsMapping">
+                <md-list-item *ngIf="modelObject.is_active">
+                    <md-checkbox [checked]="selectedAttributionModel_s && selectedAttributionModel_s.length>0 && selectedAttributionModel_s.indexOf( modelObject.id )!=-1"
+                      (change)="changeModelsMultiple($event,modelObject.id)">
+                       {{ modelObject.name }} - {{ modelObject.id }}
+                    </md-checkbox>
+                </md-list-item>
+              </ng-template>
+            </md-list>-->
+            <!-- TOCHECK : ngIf seems to aovid bug of empty list; see what happens if list is modified or staistically (tested 30 times in a row without bug)-->
+            <td-chips *ngIf="attributionModelsChipList.length > 0" [items]="attributionModelsChipList" (add)="updateActiveModelsOnChipsChange($event)" (remove)="updateActiveModelsOnChipsChange($event)" [(ngModel)]="activeAttributionModelsChipList" placeholder="Enter attribution model name"></td-chips>
+        </div>
 
-                     <ng-template ngFor let-modelObject [ngForOf]="attributionModelsMapping">
-                       <md-option
-                          *ngIf="modelObject.is_active" [value]="modelObject.id"
-                          [attr.selected]="selectedAttributionModel_s==modelObject.id">
-                       >
-                            {{ modelObject.name }} - {{ modelObject.id }}
-                       </md-option>
-                    </ng-template>
-        </md-select>
-    </section>
+        <div class="col-md-6 col-xs-12">
+          <h4>Date</h4>
+            <div class="input-group" daterangepicker [options]="options" (selected)="selectedDate($event)" >
+                <span class="form-control uneditable-input"  name="daterange" >
+                    {{ dateRange.startDate | date:'M/dd/y' }} - {{ dateRange.endDate | date:'M/dd/y' }}
+                </span>
+                <span class="input-group-btn">
+                    <a type="button" class="btn btn-default"><i class="glyphicon glyphicon-calendar"></i></a>
+                </span>
+            </div>
+        </div>
+    </md-card-content>
 
-    <section *ngIf="isAttributionModelMultiple" class="example-section">
-        <h4>Attribution models</h4>
-        <md-list>
-          <ng-template ngFor let-modelObject [ngForOf]="attributionModelsMapping">
-            <md-list-item *ngIf="modelObject.is_active">
-                <md-checkbox [checked]="selectedAttributionModel_s && selectedAttributionModel_s.length>0 && selectedAttributionModel_s.indexOf( modelObject.id )!=-1"
-                  (change)="changeModelsMultiple($event,modelObject.id)">
-                   {{ modelObject.name }} - {{ modelObject.id }}
-                </md-checkbox>
-            </md-list-item>
-          </ng-template>
-        </md-list>
-        <md-chip *ngIf="lessThan2Selectedmodels"
-            [selected]="true"
-            color="warn">
-            Please choose at least 2 models
-        </md-chip>
-    </section>
-</td-expansion-panel>
+<!--</td-expansion-panel>-->
 <md-card>

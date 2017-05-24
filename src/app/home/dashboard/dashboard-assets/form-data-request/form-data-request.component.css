@@ -7,3 +7,19 @@ td-expansion-panel h3{
 td-expansion-panel section{
   padding : 15px;
 }
+
+.attrib-model-select{
+  width : 100%;
+}
+
+.attrib-model-form{
+  padding : 15px;
+}
+
+.inline-title{
+  display:inline-block;
+}
+
+:host >>> .mat-input-container{
+  width:100%;
+}
