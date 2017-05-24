@@ -34,8 +34,5 @@ export class BykpiviewComponent implements OnInit {
 
     constructor() { }
 
-    ngOnInit() {
-        console.warn("-----------------");
-        console.warn(this.filtersDimensionMapping);
-    }
+    ngOnInit() {}
 }

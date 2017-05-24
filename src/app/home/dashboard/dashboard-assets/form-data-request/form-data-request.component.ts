@@ -32,7 +32,7 @@ export class FormDataRequestComponent implements OnInit {
 
     private _selectedAttributionModel_s : any; // TODO get default from api
     set selectedAttributionModel_s(newAttribModel){
-        console.log("SETTER ATTRIBUTION MODEL ID SERVICE");
+        //console.log("SETTER ATTRIBUTION MODEL ID SERVICE");
         this._selectedAttributionModel_s = newAttribModel;
         //If multiple attribution models needed : check there's more than one selected
         if(this.isAttributionModelMultiple){
@@ -61,11 +61,8 @@ export class FormDataRequestComponent implements OnInit {
     constructor(private dataRequestService : DataRequestService/*, private options: DaterangepickerConfig*/) { }
 
     ngOnInit() {
-        console.log("--------------");
-        console.log("Attribution models mapping");
-        console.log(this.attributionModelsMapping);
-        let a = this.expansionRequestParams.close();
-        console.log(a);
+        debugLogGroup(this.DEBUG, ["Form Data Request component : Attribution models mapping",this.attributionModelsMapping]);
+        //let a = this.expansionRequestParams.close();
         this.dateRange = this.initDefaultDateRange();
         this.selectedAttributionModel_s = this.defaultSelectedAttributionModel_s;
         let today = new Date();

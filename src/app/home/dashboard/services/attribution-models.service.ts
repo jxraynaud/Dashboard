@@ -40,7 +40,7 @@ export class AttributionModelsService {
                         config]);
 
                     if(Object.keys(config).length === 0 && config.constructor === Object){
-                        console.warn("---!!!--- Config empty");
+                        console.warn("---!!!--- Config empty (normal at first pass)");
                     }else{
                             debugLogGroup(this.DEBUG, ["AttributionModelsService : Trying to get data from API for attribution models with params [config, dataRequestParams]:",
                                 config

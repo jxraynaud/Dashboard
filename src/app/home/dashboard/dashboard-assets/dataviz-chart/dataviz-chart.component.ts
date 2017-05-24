@@ -186,8 +186,6 @@ export class DatavizChartComponent implements OnInit {
                         })
                         return obj;
                     });
-                    console.warn("***************")
-                    console.log(chartData);
                     this.multi = chartData;
                     this.histogramChart = true;
                 break;
