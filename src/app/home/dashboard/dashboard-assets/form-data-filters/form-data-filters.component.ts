@@ -128,12 +128,19 @@ export class FormDataFiltersComponent implements OnInit, OnChanges {
         //console.log(this.dimensionFilters[filterType].checked.indexOf(parseInt(filterElemId)));
     }
 
+    isNoFilterChecked(filterType){
+        return this.dimensionFilters[filterType].checked && this.dimensionFilters[filterType].checked.length > 0
+    }
+
+    isNoFilterCheckedAll(){
+        let noFilterChecked = true;
+        Object.keys(this.dimensionfiltersMapping).map(filterType=>{ if(this.isNoFilterChecked(filterType)){ noFilterChecked = false } });
+        return noFilterChecked;
+    }
+
     /*isChecked(filterElemId,filterType){
         return this.dimensionFilters[filterType]['checked'].indexOf(parseInt(filterElemId)) != -1;
     }*/
 
-    /*isNoFilterChecked(filterType){
-        return this.dimensionFilters[filterType].checked && this.dimensionFilters[filterType].checked.length > 0
-    }*/
 
 }

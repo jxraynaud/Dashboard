@@ -1,21 +1,38 @@
   <md-card>
-    <md-card-title>
-      Filters
-    </md-card-title>
-    <md-card-content>
-      <div class="row" *ngFor="let filterType of dimensionfiltersMapping | keys">
-          <!--<h4 class="col-lg-2 col-md-3 col-sm-4 col-xs-12">Filter by {{dimensionNameFromIdColLabel(filterType)}} :</h4>
-          <td-chips class="col-lg-10 col-md-9 col-sm-8 col-xs-12" [items]="filtersChips[filterType]" [(ngModel)]="activeFiltersChips[filterType]"  (add)="addFilterChip($event,filterType)" (remove)="removeFilterChip($event,filterType)" placeholder="Enter {{dimensionNameFromIdColLabel(filterType)}} name to add to filters"></td-chips>
-        -->
-        <td-chips
-          [items]="filtersChips[filterType]"
-          [(ngModel)]="activeFiltersChips[filterType]"
-          (add)="addFilterChip($event,filterType)"
-          (remove)="removeFilterChip($event,filterType)"
-          placeholder="Enter {{dimensionNameFromIdColLabel(filterType)}} name to add to filters">
-        </td-chips>
-      </div>
-    </md-card-content>
+
+      <td-expansion-panel>
+        <ng-template td-expansion-panel-header>
+          <md-card-title *ngIf="isNoFilterCheckedAll()">
+            Open to add filters
+          </md-card-title>
+          <md-card-title *ngIf="!isNoFilterCheckedAll()">
+            Filtered by
+            <span *ngFor="let filterType of dimensionfiltersMapping | keys">
+              <span *ngIf="isNoFilterChecked(filterType)">
+                {{activeFiltersChips[filterType].length}} {{dimensionNameFromIdColLabel(filterType)}}(s),
+                <!--<span *ngFor="let activeFilter of activeFiltersChips[filterType]">
+                  {{activeFilter}}
+                </span>-->
+              </span>
+            </span>
+          </md-card-title>
+
+
+        </ng-template>
+        <md-card-content>
+            <div class="row" *ngFor="let filterType of dimensionfiltersMapping | keys">
+              <td-chips
+                [items]="filtersChips[filterType]"
+                [(ngModel)]="activeFiltersChips[filterType]"
+                (add)="addFilterChip($event,filterType)"
+                (remove)="removeFilterChip($event,filterType)"
+                placeholder="Enter {{dimensionNameFromIdColLabel(filterType)}} name to add to filters">
+              </td-chips>
+            </div>
+        </md-card-content>
+      </td-expansion-panel>
+
+
   </md-card>
 <!--<md-card>
     <md-tab-group>

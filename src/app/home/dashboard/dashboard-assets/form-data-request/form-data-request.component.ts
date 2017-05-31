@@ -12,7 +12,7 @@ import {debugLog, debugWarn, debugLogGroup} from '../../../../utils';
   styleUrls: ['./form-data-request.component.css']
 })
 export class FormDataRequestComponent implements OnInit, OnChanges {
-    DEBUG : boolean = false;
+    DEBUG : boolean = true;
     @Input() defaultSelectedAttributionModel_s; /*: /*number | number[];*/
     @Input() isAttributionModelMultiple : boolean;
     @Input() attributionModelsMapping : Array<Object>;
@@ -30,7 +30,7 @@ export class FormDataRequestComponent implements OnInit, OnChanges {
     }
     set dateRange(newDateRange){
         this._dateRange = newDateRange;
-        debugLog(this.DEBUG,"Setter from dateRange attributes triggers data recalculation");
+        debugLogGroup(this.DEBUG,["Setter from dateRange attributes triggers data recalculation",this.dateRange]);
         this.sendDataRequestParams(this.dateRange.startDate,this.dateRange.endDate,this.selectedAttributionModel_s)
     }
 
@@ -156,7 +156,7 @@ export class FormDataRequestComponent implements OnInit, OnChanges {
 
     public selectedDate(value: any):void {
         //triggers setter of dateRange attribute
-        this.dateRange ={
+        this.dateRange = {
             startDate : new Date(value.start),
             endDate : new Date(value.end),
         };

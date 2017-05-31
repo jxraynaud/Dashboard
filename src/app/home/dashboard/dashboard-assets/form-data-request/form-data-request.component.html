@@ -62,7 +62,7 @@
           <h4>Date</h4>
             <div class="input-group" daterangepicker [options]="options" (selected)="selectedDate($event)" >
                 <span class="form-control uneditable-input"  name="daterange" >
-                    {{ dateRange.startDate | date:'M/dd/y' }} - {{ dateRange.endDate | date:'M/dd/y' }}
+                    {{ dateRange.startDate | date:'y/MM/dd' }} - {{ dateRange.endDate | date:'y/MM/dd' }}
                 </span>
                 <span class="input-group-btn">
                     <a type="button" class="btn btn-default"><i class="glyphicon glyphicon-calendar"></i></a>
