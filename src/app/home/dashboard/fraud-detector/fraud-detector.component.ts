@@ -52,6 +52,7 @@ export class FraudDetectorComponent implements OnInit {
     filtersDimensions : Object;
     filtersDimensionMapping;
     config;
+    dimensionsConfigElem;
     attributionModelsMapping : Array<{}>;
 
     requestParams : {};
@@ -140,19 +141,22 @@ export class FraudDetectorComponent implements OnInit {
                     "List of active columns : ",
                     this.activeDimensions
                 ]);
-                let dimensionColumnsListsObject = this.generateDimensionColumnsListsObject(configData['available_dimensions'], this.activeDimensions);
-                this.activeDimensionsWithIdColumns = dimensionColumnsListsObject.withIdColumns;
-                this.activeDimensionsWithoutIdColumns = dimensionColumnsListsObject.withoutIdColumns;
-                this.activeStaticMetricsColumns = this.generateStaticMetricsColumnsListsObject(configData['available_static_metrics'], this.activeStaticMetrics);
-                //Define list of additive metrics*
-                //console.warn('pre filter')
-                //console.warn(this.staticAdditiveMetricsList)
-                //console.warn(configData['available_static_metrics'])
-                this.staticAdditiveMetricsList = configData['available_static_metrics'].filter((e)=>{ return e.is_additive }).map((e)=>{ return e.data_id_column_name });
-                //console.warn("post filter")
-                //console.warn(this.staticAdditiveMetricsList)
-                this.rebuildMetricsColumns();
-                this.isAttributionModelMultiple = configData['is_attribution_model_multiple'];
+                if(!configData['available_dimensions']){ throw new Error('Fraud Detector : No "available_dimensions in view.config.json file !"'); }else{
+                    this.dimensionsConfigElem = configData['available_dimensions'];
+                    let dimensionColumnsListsObject = this.generateDimensionColumnsListsObject(configData['available_dimensions'], this.activeDimensions);
+                    this.activeDimensionsWithIdColumns = dimensionColumnsListsObject.withIdColumns;
+                    this.activeDimensionsWithoutIdColumns = dimensionColumnsListsObject.withoutIdColumns;
+                    this.activeStaticMetricsColumns = this.generateStaticMetricsColumnsListsObject(configData['available_static_metrics'], this.activeStaticMetrics);
+                    //Define list of additive metrics*
+                    //console.warn('pre filter')
+                    //console.warn(this.staticAdditiveMetricsList)
+                    //console.warn(configData['available_static_metrics'])
+                    this.staticAdditiveMetricsList = configData['available_static_metrics'].filter((e)=>{ return e.is_additive }).map((e)=>{ return e.data_id_column_name });
+                    //console.warn("post filter")
+                    //console.warn(this.staticAdditiveMetricsList)
+                    this.rebuildMetricsColumns();
+                    this.isAttributionModelMultiple = configData['is_attribution_model_multiple'];
+                }
             },
             error : (err) => console.error(err),
         });
@@ -375,8 +379,9 @@ export class FraudDetectorComponent implements OnInit {
 
      //Output devents manaement functions
      filtersUpdated(filters){
-         debugLog(this.DEBUG,"Fruad Detector Component : calling filtersUpdated")
+         debugLog(this.DEBUG,"Fraud Detector Component : calling filtersUpdated")
          debugLogGroup(this.DEBUG, ["Fraud Detecor Component : triggering output event updatedfilters from filter component with value [filters]",filters]);
          this.dataFiltersService.filtersDimensionBehaviorSubject.next(filters);
+         //console.log("tessst")
      }
 }

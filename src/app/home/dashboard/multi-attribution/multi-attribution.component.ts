@@ -52,6 +52,7 @@ export class MultiAttributionComponent implements OnInit {
     filtersDimensions : Object;
     filtersDimensionMapping;
     config;
+    dimensionsConfigElem;
     attributionModelsMapping : Array<{}>;
 
     requestParams : {};
@@ -140,14 +141,17 @@ export class MultiAttributionComponent implements OnInit {
                         "List of active columns : ",
                         this.activeDimensions
                     ]);
-                    let dimensionColumnsListsObject = this.generateDimensionColumnsListsObject(configData['available_dimensions'], this.activeDimensions);
-                    this.activeDimensionsWithIdColumns = dimensionColumnsListsObject.withIdColumns;
-                    this.activeDimensionsWithoutIdColumns = dimensionColumnsListsObject.withoutIdColumns;
-                    this.activeStaticMetricsColumns = this.generateStaticMetricsColumnsListsObject(configData['available_static_metrics'], this.activeStaticMetrics);
-                    //Define list of additive metrics
-                    this.staticAdditiveMetricsList = configData['available_static_metrics'].filter((e)=>{ return e.is_additive }).map((e)=>{ return e.data_id_column_name });
-                    this.rebuildMetricsColumns();
-                    this.isAttributionModelMultiple = configData['is_attribution_model_multiple'];
+                    if(!configData['available_dimensions']){ throw new Error('Multi Attribution : No "available_dimensions in view.config.json file !"'); }else{
+                        this.dimensionsConfigElem = configData['available_dimensions'];
+                        let dimensionColumnsListsObject = this.generateDimensionColumnsListsObject(configData['available_dimensions'], this.activeDimensions);
+                        this.activeDimensionsWithIdColumns = dimensionColumnsListsObject.withIdColumns;
+                        this.activeDimensionsWithoutIdColumns = dimensionColumnsListsObject.withoutIdColumns;
+                        this.activeStaticMetricsColumns = this.generateStaticMetricsColumnsListsObject(configData['available_static_metrics'], this.activeStaticMetrics);
+                        //Define list of additive metrics
+                        this.staticAdditiveMetricsList = configData['available_static_metrics'].filter((e)=>{ return e.is_additive }).map((e)=>{ return e.data_id_column_name });
+                        this.rebuildMetricsColumns();
+                        this.isAttributionModelMultiple = configData['is_attribution_model_multiple'];
+                    }
                 },
                 error : (err) => console.error(err),
             });

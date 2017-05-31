@@ -6,7 +6,7 @@ import {
     ITdDataTableColumn,
     IPageChangeEvent } from '@covalent/core';
 
-import { debugLog, debugLogGroup } from '../../../../utils';
+import { debugLog, debugLogGroup, debugWarn } from '../../../../utils';
 
 import { groupBy } from '../../libs/groupby';
 
@@ -17,7 +17,7 @@ import { groupBy } from '../../libs/groupby';
 })
 export class DatavizChartComponent implements OnInit {
 
-    DEBUG : boolean = false;
+    DEBUG : boolean = true;
 
     @Input() filteredData : Array<{}>;
     private aggregatedFilteredData : Array<{}>;
@@ -106,7 +106,7 @@ export class DatavizChartComponent implements OnInit {
         if(this.aggregatedFilteredData.length > 0
             && this.config.available_dimensions.length > 0
             && this.activeStaticMetricsColumns.length >  0
-            && this.aggregatedFilteredData[0][this.config.available_dimensions[0].data_name_column_name]
+            /*&& this.aggregatedFilteredData[0][this.config.available_dimensions[0].data_name_column_name]*/
         ) {
             // First we need to get the list of the metrics to use.
             // We don't include metrics used in criteria
@@ -173,23 +173,43 @@ export class DatavizChartComponent implements OnInit {
                     let dimension_name = this.config.available_dimensions.filter(dimension => {
                         return dimension.data_id_column_name === this.aggregateCriteria
                     })[0].data_name_column_name
-                    // Now we map reformat the new data Object
-                    let chartData = this.aggregatedFilteredData.map((row,index) => {
-                        let obj = {
-                            "name": row[dimension_name]
-                        }
-                        obj["series"] = current_metrics.map(metric => {
-                            return({
-                                "name": metric.label,
-                                "value": row[metric.name]
+                    /*Test that the dimension_name of the aggregate criteria is present in filteredData, to avoid trying to build graph before the names are fetched for the dimensions (would create an error the first time filteredData is sent to component, before names are fetched)*/
+                    if(this.aggregatedFilteredData[0][dimension_name]){
+                        // Now we map reformat the new data Object
+                        let chartData = this.aggregatedFilteredData.map((row,index) => {
+                            let obj = {
+                                "name": row[dimension_name]
+                            }
+                            obj["series"] = current_metrics.map(metric => {
+                                return({
+                                    "name": metric.label,
+                                    "value": row[metric.name]
+                                })
                             })
-                        })
-                        return obj;
-                    });
-                    this.multi = chartData;
-                    this.histogramChart = true;
+                            return obj;
+                        });
+                        this.multi = chartData;
+                        this.histogramChart = true;
+                    }
                 break;
             }
+        }else{
+            debugWarn(this.DEBUG,"Error :");
+            debugLogGroup(this.DEBUG,[
+                "Error in this.aggregatedFilteredData.length > 0",
+                "OR this.config.available_dimensions.length > 0",
+                "OR this.activeStaticMetricsColumns.length >  0",
+                "OR this.aggregatedFilteredData[0][this.config.available_dimensions[0].data_name_column_name]",
+                "(with this.config.available_dimensions[0].data_name_column_name = "+this.config.available_dimensions[0].data_name_column_name+")",
+                "this.aggregatedFilteredData :",
+                this.aggregatedFilteredData,
+                "this.config.available_dimensions :",
+                this.config.available_dimensions,
+                "this.activeStaticMetricsColumns :",
+                this.activeStaticMetricsColumns,
+                "this.aggregatedFilteredData[0] :",
+                this.aggregatedFilteredData[0],
+            ])
         }
     }
 

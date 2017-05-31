@@ -102,7 +102,7 @@ export class FormDataRequestComponent implements OnInit, OnChanges {
     }
 
     ngOnChanges(changes: SimpleChanges){
-        console.log(changes)
+        //console.log(changes)
         //Update models mapping
         if(changes.attributionModelsMapping && changes.attributionModelsMapping.currentValue.length>0){
                 this.attributionModelsChipList = changes.attributionModelsMapping.currentValue.map((e)=>{ return e.name });

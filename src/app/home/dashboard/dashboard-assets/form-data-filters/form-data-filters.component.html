@@ -1,121 +1,83 @@
   <md-card>
+    <md-card-title>
+      Filters
+    </md-card-title>
+    <md-card-content>
+      <div class="row" *ngFor="let filterType of dimensionfiltersMapping | keys">
+          <!--<h4 class="col-lg-2 col-md-3 col-sm-4 col-xs-12">Filter by {{dimensionNameFromIdColLabel(filterType)}} :</h4>
+          <td-chips class="col-lg-10 col-md-9 col-sm-8 col-xs-12" [items]="filtersChips[filterType]" [(ngModel)]="activeFiltersChips[filterType]"  (add)="addFilterChip($event,filterType)" (remove)="removeFilterChip($event,filterType)" placeholder="Enter {{dimensionNameFromIdColLabel(filterType)}} name to add to filters"></td-chips>
+        -->
+        <td-chips
+          [items]="filtersChips[filterType]"
+          [(ngModel)]="activeFiltersChips[filterType]"
+          (add)="addFilterChip($event,filterType)"
+          (remove)="removeFilterChip($event,filterType)"
+          placeholder="Enter {{dimensionNameFromIdColLabel(filterType)}} name to add to filters">
+        </td-chips>
+      </div>
+    </md-card-content>
+  </md-card>
+<!--<md-card>
     <md-tab-group>
       <div *ngFor="let filterType of dimensionfiltersMapping | keys">
-
-    <!--<td-expansion-panel>
-      <ng-template td-expansion-panel-header>
-          <md-card-title>
+        <md-tab>
+          <ng-template md-tab-label>
             Filters for {{filterType}}
-          </md-card-title>
-      </ng-template>
-      <td-expansion-summary>
+          </ng-template>
+          <td-expansion-panel>
+            <ng-template td-expansion-panel-header>
+              <section>
+                <div *ngIf="isNoFilterChecked(filterType)">
+                  Filtered by {{filterType}}, selected :
+                  <span *ngFor="let filterElemId of dimensionfiltersMapping[filterType] | keys">
+                    <md-chip selected="false" *ngIf="isChecked(filterElemId,filterType)">
+                         {{dimensionfiltersMapping[filterType][filterElemId]}} - {{filterElemId}}
+                         <md-icon class="remove_chip" (click)="updateFilters(false,filterElemId,filterType)">cancel</md-icon>
+                    </md-chip>
+                  </span>
+                   - Click for more
+                </div>
+              -->
 
-          <section>
-            <div *ngIf="isNoFilterChecked(filterType)">
-              Filtered by {{filterType}}, selected :
-              <span *ngFor="let filterElemId of dimensionfiltersMapping[filterType] | keys">
-                <md-chip selected="false" *ngIf="isChecked(filterElemId,filterType)">
-                     {{dimensionfiltersMapping[filterType][filterElemId]}} - {{filterElemId}}
-                     <md-icon class="remove_chip" (click)="updateFilters(false,filterElemId,filterType)">cancel</md-icon>
-                </md-chip>
-              </span>
-            </div>
--->
-            <!--No checked-->
-<!--            <div *ngIf="!isNoFilterChecked(filterType)">
-              No {{filterType}} selected, unfiltered for {{filterType}}
-            </div>
-          </section>
+                <!--No checked-->
+              <!--  <div *ngIf="!isNoFilterChecked(filterType)">
+                  No {{filterType}} selected, unfiltered for {{filterType}} - Click for more
+                </div>
+                Filters for {{filterType}}
+                <td-chips [items]="filtersChips[filterType]" [(ngModel)]="activeFiltersChips[filterType]"  (add)="addFilterChip($event,filterType)" (remove)="removeFilterChip($event,filterType)" placeholder="Enter any string"></td-chips>
+              </section>
 
+            </ng-template>
 
-      </td-expansion-summary>
-      <div class="filter_box">
-        <ul>
-            <li *ngFor="let filterElemId of dimensionfiltersMapping[filterType] | keys">
+            <div class="filter_box">
+              <ul>
+                  <li *ngFor="let filterElemId of dimensionfiltersMapping[filterType] | keys">
 
-              <md-chip class="filter_choice" *ngIf="isChecked(filterElemId,filterType)"
+                    <md-chip class="filter_choice" *ngIf="isChecked(filterElemId,filterType)"
+                        selected="true"
+                        color="primary"
+                        (click)="updateFilters(false,filterElemId,filterType)">
+                      {{dimensionfiltersMapping[filterType][filterElemId]}} ({{filterElemId}})
+                    </md-chip>
+                    <md-chip class="filter_choice" *ngIf="!isChecked(filterElemId,filterType)"
+                        selected="false"
+                        color=""
+                        (click)="updateFilters(true,filterElemId,filterType)">
+                      {{dimensionfiltersMapping[filterType][filterElemId]}} ({{filterElemId}})
+                    </md-chip>
+
+                  </li>
+              </ul>
+             <md-chip
                   selected="true"
                   color="primary"
-                  (click)="updateFilters(false,filterElemId,filterType)">
-                {{dimensionfiltersMapping[filterType][filterElemId]}} ({{filterElemId}})
+                  (click)="filterType">
+                Check all
               </md-chip>
-              <md-chip class="filter_choice" *ngIf="!isChecked(filterElemId,filterType)"
-                  selected="false"
-                  color=""
-                  (click)="updateFilters(true,filterElemId,filterType)">
-                {{dimensionfiltersMapping[filterType][filterElemId]}} ({{filterElemId}})
-              </md-chip>
+            </div>
 
-            </li>
-        </ul>
-       <md-chip
-            selected="true"
-            color="primary"
-            (click)="filterType">
-          Check all
-        </md-chip>
-      </div>
-
-    </td-expansion-panel>-->
-
-
-      <md-tab>
-        <ng-template md-tab-label>
-          Filters for {{filterType}}
-        </ng-template>
-        <td-expansion-panel>
-          <ng-template td-expansion-panel-header>
-            <section>
-              <div *ngIf="isNoFilterChecked(filterType)">
-                Filtered by {{filterType}}, selected :
-                <span *ngFor="let filterElemId of dimensionfiltersMapping[filterType] | keys">
-                  <md-chip selected="false" *ngIf="isChecked(filterElemId,filterType)">
-                       {{dimensionfiltersMapping[filterType][filterElemId]}} - {{filterElemId}}
-                       <md-icon class="remove_chip" (click)="updateFilters(false,filterElemId,filterType)">cancel</md-icon>
-                  </md-chip>
-                </span>
-                 - Click for more
-              </div>
-
-              <!--No checked-->
-              <div *ngIf="!isNoFilterChecked(filterType)">
-                No {{filterType}} selected, unfiltered for {{filterType}} - Click for more
-              </div>
-            </section>
-
-          </ng-template>
-
-          <div class="filter_box">
-            <ul>
-                <li *ngFor="let filterElemId of dimensionfiltersMapping[filterType] | keys">
-
-                  <md-chip class="filter_choice" *ngIf="isChecked(filterElemId,filterType)"
-                      selected="true"
-                      color="primary"
-                      (click)="updateFilters(false,filterElemId,filterType)">
-                    {{dimensionfiltersMapping[filterType][filterElemId]}} ({{filterElemId}})
-                  </md-chip>
-                  <md-chip class="filter_choice" *ngIf="!isChecked(filterElemId,filterType)"
-                      selected="false"
-                      color=""
-                      (click)="updateFilters(true,filterElemId,filterType)">
-                    {{dimensionfiltersMapping[filterType][filterElemId]}} ({{filterElemId}})
-                  </md-chip>
-
-                </li>
-            </ul>
-           <md-chip
-                selected="true"
-                color="primary"
-                (click)="filterType">
-              Check all
-            </md-chip>
-          </div>
-
-        </td-expansion-panel>
-      </md-tab>
-
-</div>
-
+          </td-expansion-panel>
+        </md-tab>
+  </div>
 </md-tab-group>
-</md-card>
+</md-card>-->
