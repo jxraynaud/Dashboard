@@ -16,9 +16,15 @@
               },
               {
                   "name" : "bykpiview",
-                  "menuText" : "by KPI",
+                  "menuText" : "By KPI",
                   "description" : "By KPI and Campaigns",
                   "icon" : "gps_fixed"
+              },
+              {
+                  "name" : "bypartnerview",
+                  "menuText" : "By Partner",
+                  "description" : "By Partners",
+                  "icon" : "group"
               }
           ]
       },
@@ -41,6 +47,12 @@
                   "menuText" : "by KPI",
                   "description" : "By KPI and Campaigns",
                   "icon" : "gps_fixed"
+              },
+              {
+                  "name" : "bypartnerview",
+                  "menuText" : "By Partner",
+                  "description" : "By Partners",
+                  "icon" : "group"
               }
           ]
       }

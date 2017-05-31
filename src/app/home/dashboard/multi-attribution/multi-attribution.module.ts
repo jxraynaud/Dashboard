@@ -18,6 +18,7 @@ import { AttributionModelsService } from '../services/attribution-models.service
 
 import viewConfig from './view.config.json';
 import { BykpiviewComponent } from './bykpiview/bykpiview.component';
+import { BypartnerviewComponent } from './bypartnerview/bypartnerview.component';
 //Methode 5 :
 //export const VIEW_CONFIG = new InjectionToken<any>('test');
 
@@ -32,6 +33,7 @@ import { BykpiviewComponent } from './bykpiview/bykpiview.component';
         MultiAttributionComponent,
         OverviewComponent,
         BykpiviewComponent,
+        BypartnerviewComponent,
     ],
     providers: [
         DataRequestService,

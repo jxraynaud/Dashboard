@@ -53,4 +53,14 @@
         [isAttributionModelMultiple]="isAttributionModelMultiple"
     ></app-bykpiview>
 
+    <app-bypartnerview *ngIf="navService.activeViews.multiattribution=='bypartnerview'"
+        [filteredData]="filteredData"
+        [activeDimensionsWithIdColumns]="activeDimensionsWithIdColumns"
+        [activeDimensionsWithoutIdColumns]="activeDimensionsWithoutIdColumns"
+        [activeStaticMetricsColumns]="metricsColumns"
+        [additiveMetricsList]="additiveMetricsList"
+        [filtersDimensionMapping]="filtersDimensionMapping"
+        [config]="config"
+        [isAttributionModelMultiple]="isAttributionModelMultiple"
+    ></app-bypartnerview>
 <!--</md-sidenav-container>-->

@@ -58,5 +58,17 @@
             [isAttributionModelMultiple]="isAttributionModelMultiple"
         ></app-bykpiview>
 
+        <app-bypartnerview *ngIf="navService.activeViews.frauddetector=='bypartnerview'"
+            [filteredData]="filteredData"
+            [requestParams]="requestParams"
+            [activeDimensionsWithIdColumns]="activeDimensionsWithIdColumns"
+            [activeDimensionsWithoutIdColumns]="activeDimensionsWithoutIdColumns"
+            [activeStaticMetricsColumns]="metricsColumns"
+            [additiveMetricsList]="additiveMetricsList"
+            [filtersDimensionMapping]="filtersDimensionMapping"
+            [config]="config"
+            [isAttributionModelMultiple]="isAttributionModelMultiple"
+        ></app-bypartnerview>
+
   <!--  </md-card>-->
 <!--</md-sidenav-container>-->

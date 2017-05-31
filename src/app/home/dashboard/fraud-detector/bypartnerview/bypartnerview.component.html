@@ -1,0 +1,40 @@
+<md-card>
+  <div flex-gt-xs="100">
+          <md-card-title>{{viewTitle}}</md-card-title>
+  </div>
+  <div flex-gt-xs="100">
+      <md-card>
+          <app-dataviz-chart
+              [filteredData]="filteredData"
+              [requestParams] = "requestParams"
+              [activeDimensionsWithIdColumns]="activeDimensionsWithIdColumns"
+              [activeDimensionsWithoutIdColumns]="activeDimensionsWithoutIdColumns"
+              [activeStaticMetricsColumns]="activeStaticMetricsColumns"
+              [additiveMetricsList]="additiveMetricsList"
+              [filtersDimensionMapping]="filtersDimensionMapping"
+              [config]="config"
+              [aggregateCriteria] = "'partner_id'"
+              [chartType]="'histogram'"
+              [chartTitle]="'Histogram'"
+          ></app-dataviz-chart>
+      </md-card>
+  </div>
+  <div flex-gt-xs="100">
+      <md-card>
+          <app-dataviz-datatable
+            [filteredData]="filteredData"
+            [activeDimensionsWithIdColumns]="activeDimensionsWithIdColumns"
+            [activeDimensionsWithoutIdColumns]="activeDimensionsWithoutIdColumns"
+            [activeStaticMetricsColumns]="activeStaticMetricsColumns"
+            [additiveMetricsList]="additiveMetricsList"
+            [filtersDimensionMapping]="filtersDimensionMapping"
+            [config]="config"
+            [availableGroupByFields]="['conversion_date','advertiser_id','partner_id','kpi_id','metacampaign_id']"
+            [pageSizes]="[10, 50, 100, 150, 200]"
+            [pageSize]="10"
+            [displayIdsInDatatable]="false"
+            [aggregateCriterias] = "['partner_id','kpi_id']"
+          ></app-dataviz-datatable>
+      </md-card>
+  </div>
+</md-card>

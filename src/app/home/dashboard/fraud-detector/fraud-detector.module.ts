@@ -15,6 +15,7 @@ import { AttributionModelsService } from '../services/attribution-models.service
 import viewConfig from './view.config.json';
 import { OverviewComponent } from './overview/overview.component';
 import { BykpiviewComponent } from './bykpiview/bykpiview.component';
+import { BypartnerviewComponent } from './bypartnerview/bypartnerview.component';
 
 @NgModule({
   imports: [
@@ -27,6 +28,7 @@ import { BykpiviewComponent } from './bykpiview/bykpiview.component';
       FraudDetectorComponent,
       OverviewComponent,
       BykpiviewComponent,
+      BypartnerviewComponent,
   ],
   providers: [
       DataRequestService,
