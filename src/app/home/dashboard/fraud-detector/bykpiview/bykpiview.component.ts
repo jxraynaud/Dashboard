@@ -18,7 +18,7 @@ import {debugLog, debugWarn, debugLogGroup} from '../../../../utils';
 export class BykpiviewComponent implements OnInit {
     DEBUG : boolean = false;
 
-    viewTitle : string = "Multi Attributions Models by KPI"
+    viewTitle : string = "Fraud detector by KPI"
 
     //Unnamed yet filtered data (to be named by dataviz)
     @Input() filteredData : Array<{}> = [];

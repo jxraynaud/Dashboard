@@ -10,7 +10,6 @@ import {
 
 import {debugLog, debugWarn, debugLogGroup} from '../../../../utils';
 
-
 @Component({
   selector: 'app-bykpiview',
   templateUrl: './bykpiview.component.html',
@@ -36,5 +35,4 @@ export class BykpiviewComponent implements OnInit {
 
     ngOnInit() {
     }
-
 }

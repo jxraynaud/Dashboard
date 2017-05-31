@@ -27,8 +27,8 @@ export class FormDataFiltersComponent implements OnInit, OnChanges {
     constructor() {}
 
     ngOnInit() {
-        console.log("dimensionFilters");
-        console.log(this.dimensionFilters);
+        //console.log("dimensionFilters");
+        //console.log(this.dimensionFilters);
         //this.filtersModels =
     }
 

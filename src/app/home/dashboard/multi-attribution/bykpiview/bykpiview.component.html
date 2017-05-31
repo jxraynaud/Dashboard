@@ -1,8 +1,8 @@
-<div>
+<md-card>
     <div flex-gt-xs="100">
-        <md-card>
+
             <md-card-title>{{viewTitle}}</md-card-title>
-        </md-card>
+
         <md-card>
             <app-dataviz-chart
                 [filteredData]="filteredData"
@@ -12,7 +12,7 @@
                 [additiveMetricsList]="additiveMetricsList"
                 [filtersDimensionMapping]="filtersDimensionMapping"
                 [config]="config"
-                [aggregateCriteria] = "'partner_id'"
+                [aggregateCriteria] = "'kpi_id'"
                 [chartType]="'histogram'"
                 [chartTitle]="'Histogram'"
             ></app-dataviz-chart>
@@ -36,4 +36,4 @@
             ></app-dataviz-datatable>
         </md-card>
     </div>
-</div>
+</md-card>
