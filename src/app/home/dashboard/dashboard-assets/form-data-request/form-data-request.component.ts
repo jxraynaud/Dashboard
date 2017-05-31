@@ -12,7 +12,7 @@ import {debugLog, debugWarn, debugLogGroup} from '../../../../utils';
   styleUrls: ['./form-data-request.component.css']
 })
 export class FormDataRequestComponent implements OnInit, OnChanges {
-    DEBUG : boolean = true;
+    DEBUG : boolean = false;
     @Input() defaultSelectedAttributionModel_s; /*: /*number | number[];*/
     @Input() isAttributionModelMultiple : boolean;
     @Input() attributionModelsMapping : Array<Object>;
@@ -147,10 +147,10 @@ export class FormDataRequestComponent implements OnInit, OnChanges {
         let today = Date.now();
         return {
             //TODO : remettre dates par défaut
-            //startDate : new Date(today - (8*days)),
-            startDate : new Date("2016-01-01"),
-            //endDate : new Date(today - (1*days)),
-            endDate : new Date("2016-03-01"),
+            startDate : new Date(today - (60*days)),
+            //startDate : new Date("2016-01-01"),
+            endDate : new Date(today - (30*days)),
+            //endDate : new Date("2016-03-01"),
         };
     }
 

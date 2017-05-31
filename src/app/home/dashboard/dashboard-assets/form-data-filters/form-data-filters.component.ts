@@ -11,7 +11,7 @@ import {debugLog, debugLogGroup} from '../../../../utils';
   styleUrls: ['./form-data-filters.component.css']
 })
 export class FormDataFiltersComponent implements OnInit, OnChanges {
-    DEBUG : boolean = true;
+    DEBUG : boolean = false;
 
     @Input() dimensionFilters : Object;
     @Input() dimensionfiltersMapping : Object;

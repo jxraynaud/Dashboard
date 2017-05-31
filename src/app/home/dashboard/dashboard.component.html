@@ -2,13 +2,13 @@
 <ng-sidebar-container class="dashboard-body">
   <ng-sidebar #dashboardSidebar
     [(opened)]="navService.opened"
-    [mode]="navService.navMode"
-    [position]="navService.navPosition"
+    [mode]="navService['navMode']"
+    [position]="navService['navPosition']"
     [autoCollapseWidth]="'1000'"
     (onOpened)="navService.onNavToggle($event)"
     (onClosed)="navService.onNavToggle($event)">
     <md-nav-list td-sidenav-content>
-        <div *ngFor="let navElem of config.nav">
+        <div *ngFor="let navElem of config['nav']">
           <a md-list-item [routerLink]="[navElem.route]" [routerLinkActive]="['active']" #rla="routerLinkActive">
               <md-icon md-list-avatar>{{navElem.icon}}</md-icon>
               <h3 md-line>{{navElem.menuText}}</h3>

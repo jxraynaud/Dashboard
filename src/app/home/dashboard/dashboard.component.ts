@@ -21,7 +21,7 @@ export class DashboardComponent implements OnInit {
 
     constructor(
         private configService : ConfigService,
-        private navService : NavService) {
+        public navService : NavService) {
             this.configService.setConfigFile(viewConfig);
             this.configBehaviorSubjectSubscription = this.configService.configBehaviorSubject.subscribe({
                 next : (config) => {

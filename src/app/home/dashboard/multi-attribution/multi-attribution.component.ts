@@ -83,7 +83,7 @@ export class MultiAttributionComponent implements OnInit {
 
     constructor(
         private activatedRoute : ActivatedRoute,
-        private navService : NavService,
+        public navService : NavService,
         private configService : ConfigService,
         private dataService : DataService,
         private dataFiltersService : DataFiltersService,
