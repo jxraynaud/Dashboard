@@ -14,7 +14,7 @@ import {debugLog, debugLogGroup} from '../../../utils';
 
 @Injectable()
 export class DataRequestService {
-    DEBUG : boolean = false;
+    DEBUG : boolean = true;
     //private debugLog(str){ this.DEBUG && console.log(str); }
 
     /*defaultRequestParams = [{
@@ -58,7 +58,15 @@ export class DataRequestService {
                             dataRequestParams]);
                         //Send empty data to trigger loading gif
                         this.rawDataBehaviorSubject.next([]);
-                        this.getAll(config, dataRequestParams).then(response => {
+
+                        //Deep copy of data Request Params with date transformed to string to avoid date time + GMT => takes one day before because of 00:00 GMT+1
+                        let formattedDataRequestParams =[]
+                        formattedDataRequestParams.push({});
+                        formattedDataRequestParams[0].attribution_model = dataRequestParams[0].attribution_model;
+                        formattedDataRequestParams[0].start_date = dataRequestParams[0].start_date.toLocaleDateString();
+                        formattedDataRequestParams[0].end_date = dataRequestParams[0].end_date.toLocaleDateString();
+
+                        this.getAll(config, formattedDataRequestParams).then(response => {
                             this.requestDimensionMappingBehaviorSubject.next(this.mapDimensionFromRawData(response, config));
                             this.rawDataBehaviorSubject.next(response);
                         });
@@ -76,6 +84,7 @@ export class DataRequestService {
     * @return {Promise} Promise for the list of all the Advertisers from the API
     */
     getAll(config, dataRequestParams):Promise<[{}]> {
+        //console.log(dataRequestParams[0]['end_date'].toLocaleDateString())
         return this.http.post(config.api_url + config.api_endpoint, dataRequestParams, this.jwt())
             .toPromise()
             .then(response => {
