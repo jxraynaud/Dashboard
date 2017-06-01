@@ -173,12 +173,17 @@ export class DatavizChartComponent implements OnInit {
                     let dimension_name = this.config.available_dimensions.filter(dimension => {
                         return dimension.data_id_column_name === this.aggregateCriteria
                     })[0].data_name_column_name
+                    console.warn("testing "+dimension_name)
+                    console.warn(this.aggregatedFilteredData[0])
                     /*Test that the dimension_name of the aggregate criteria is present in filteredData, to avoid trying to build graph before the names are fetched for the dimensions (would create an error the first time filteredData is sent to component, before names are fetched)*/
                     if(this.aggregatedFilteredData[0][dimension_name]){
                         // Now we map reformat the new data Object
                         let chartData = this.aggregatedFilteredData.map((row,index) => {
+                            console.log(row);
+                            console.log(dimension_name);
+                            console.log(row[dimension_name]);
                             let obj = {
-                                "name": row[dimension_name]
+                                "name": row[dimension_name]?row[dimension_name]:"Noname"
                             }
                             obj["series"] = current_metrics.map(metric => {
                                 return({
