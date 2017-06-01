@@ -49,13 +49,17 @@ export class LoginComponent implements OnInit {
     }
 
     getQueryParamsObject(url){
-        let paramsArray = url.split("?")[1].split("&");
-        let paramsObject = {};
-        paramsArray.map(e=>{
-            let key = e.split("=")[0];
-            let value = e.split("=")[1];
-            paramsObject[key]=value;
-        })
-        return paramsObject;
+        if(url.split("?")[1]){
+            let paramsArray = url.split("?")[1].split("&");
+            let paramsObject = {};
+            paramsArray.map(e=>{
+                let key = e.split("=")[0];
+                let value = e.split("=")[1];
+                paramsObject[key]=value;
+            })
+            return paramsObject;
+        }else{
+            return {};
+        }
     }
 }
