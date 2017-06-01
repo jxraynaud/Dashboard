@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
-import { Http, Headers, RequestOptions, Response } from '@angular/http';
+import { /*Http,*/ Headers, RequestOptions, Response } from '@angular/http';
 
+import { AuthenticatedHttpService } from '../../../services/authenticatedHttpService';
 import { BehaviorSubject }  from 'rxjs/BehaviorSubject';
 import { Subscription } from 'rxjs/Subscription';
 
@@ -26,7 +27,8 @@ export class DataFiltersService {
     rawDataBehaviorSubjectSubscription : Subscription;
 
     constructor(
-        private http: Http,
+        //private http: Http,
+        private http: AuthenticatedHttpService,
         private dataRequestService: DataRequestService,
         private configService : ConfigService,
     ) {

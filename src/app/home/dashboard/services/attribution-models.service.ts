@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
-import { Http, Headers, RequestOptions, Response } from '@angular/http';
+import { /*Http,*/ Headers, RequestOptions, Response } from '@angular/http';
 import { Router} from '@angular/router';
 
+import { AuthenticatedHttpService } from '../../../services/authenticatedHttpService';
 import { BehaviorSubject }    from 'rxjs/BehaviorSubject';
 import { Subject }    from 'rxjs/Subject';
 import { Subscription }   from 'rxjs/Subscription';
@@ -28,7 +29,8 @@ export class AttributionModelsService {
     attributionModelsMappingBehaviorSubject = new BehaviorSubject([]);
 
     constructor(
-        private http: Http,
+        //private http: Http,
+        private http: AuthenticatedHttpService,
         private router: Router,
         private configService : ConfigService,
     ) {
@@ -69,7 +71,8 @@ export class AttributionModelsService {
                 return response.json();
             })
             .catch(error => {
-                console.error("PROMISE REJECTED : could not get data from api in dataRequest with "+config.api_url + config.api_endpoint);
+                console.warn(error);
+                console.error("PROMISE REJECTED : could not get data from api in attribtuionModels with "+config.api_url + config.api_endpoint);
                 console.error("Params in error :");
                 console.log("error : "+error.json().detail);
                 console.log(error.json());

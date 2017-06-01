@@ -1,5 +1,7 @@
 import { Injectable } from '@angular/core';
-import { Http, Headers, Response } from '@angular/http';
+import { /*Http,*/ Headers, Response } from '@angular/http';
+
+import { AuthenticatedHttpService } from './authenticatedHttpService';
 
 import { Observable } from 'rxjs/Observable';
 import 'rxjs/add/operator/map';
@@ -10,7 +12,8 @@ import appConfig from '../app.config.json';
 @Injectable()
 export class AuthenticationService {
     constructor(
-        private http: Http,
+        //private http: Http,
+        private http: AuthenticatedHttpService,
     ) { }
 
     login(username: string, password: string) {

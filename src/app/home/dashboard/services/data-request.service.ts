@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
-import { Http, Headers, RequestOptions, Response } from '@angular/http';
+import {/* Http,*/ Headers, RequestOptions, Response } from '@angular/http';
+import { AuthenticatedHttpService } from '../../../services/authenticatedHttpService';
 import { Router} from '@angular/router';
 
 import { BehaviorSubject }    from 'rxjs/BehaviorSubject';
@@ -33,7 +34,8 @@ export class DataRequestService {
     dataRequestBehaviorSubjectSubscription : Subscription;
 
     constructor(
-        private http: Http,
+        //private http: Http,
+        private http: AuthenticatedHttpService,
         private router: Router,
         private configService : ConfigService,
     ) {
@@ -44,7 +46,7 @@ export class DataRequestService {
                 let dataRequestParams = latestValues[0];
                 let config = latestValues[1];
                 debugLogGroup(this.DEBUG,[
-                    "DataRequestService : combined subscription triggered for subscribers :",
+                    "DataRequestServicek : combined subscription triggered for subscribers :",
                     "rawDataBehaviorSubject",
                     "with values [dataRequestParams, config] :",
                     dataRequestParams,
