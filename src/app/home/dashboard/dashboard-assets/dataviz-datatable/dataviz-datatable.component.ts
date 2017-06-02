@@ -24,6 +24,7 @@ export class DatavizDatatableComponent implements OnInit, OnChanges {
     @Input() activeDimensionsWithIdColumns : ITdDataTableColumn[] = [];
     @Input() activeDimensionsWithoutIdColumns : ITdDataTableColumn[] = [];
     @Input() activeStaticMetricsColumns : ITdDataTableColumn[] = [];
+    @Input() activeCalculatedMetrics : string[];
     @Input() additiveMetricsList : Array<string>;
     @Input() availableGroupByFields = [];
 
@@ -86,7 +87,14 @@ export class DatavizDatatableComponent implements OnInit, OnChanges {
     }
 
     aggregateData(): void {
-        this.aggregatedFilteredData = groupBy(this.filteredData, this.aggregateCriterias, this.additiveMetricsList, function(){}, this.filtersDimensionMapping, this.config);
+        this.aggregatedFilteredData = groupBy(
+            this.filteredData,
+            this.aggregateCriterias,
+            this.additiveMetricsList,
+            function(){},
+            this.activeCalculatedMetrics,
+            this.filtersDimensionMapping,
+            this.config);
     }
 
     toggleIdColumns(){

@@ -25,6 +25,7 @@ export class BykpiviewComponent implements OnInit {
     @Input() activeDimensionsWithIdColumns : ITdDataTableColumn[];
     @Input() activeDimensionsWithoutIdColumns : ITdDataTableColumn[];
     @Input() activeStaticMetricsColumns : ITdDataTableColumn[];
+    @Input() activeCalculatedMetrics : string[];
     @Input() additiveMetricsList : Array<string>;
     @Input() filtersDimensionMapping;
     @Input() config;

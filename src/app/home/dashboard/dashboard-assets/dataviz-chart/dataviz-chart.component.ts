@@ -25,6 +25,7 @@ export class DatavizChartComponent implements OnInit {
     @Input() activeDimensionsWithIdColumns : ITdDataTableColumn[] = [];
     @Input() activeDimensionsWithoutIdColumns : ITdDataTableColumn[] = [];
     @Input() activeStaticMetricsColumns : ITdDataTableColumn[] = [];
+    @Input() activeCalculatedMetrics : string[];
     @Input() additiveMetricsList : Array<string>;
     @Input() availableGroupByFields = [];
     @Input() aggregateCriteria: string;
@@ -96,6 +97,7 @@ export class DatavizChartComponent implements OnInit {
             [this.aggregateCriteria],
             this.additiveMetricsList,
             function(){},
+            this.activeCalculatedMetrics,
             this.filtersDimensionMapping,
             this.config);
 

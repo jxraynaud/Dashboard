@@ -81,5 +81,17 @@
             "is_usable_as_groupby": true,
             "specific_endpoint_url": ""
         }
+    ],
+    "available_calculated_metrics" : [
+      {
+        "column_name" : "percent_certified",
+        "label" : "% Certified",
+        "description" : "",
+        "function_name" : "percent_certified",
+        "is_name_column_numeric": false,
+        "is_usable_as_request_parameter": false,
+        "is_additive": false,
+        "is_usable_as_groupby": false
+      }
     ]
 }

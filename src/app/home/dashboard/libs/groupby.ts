@@ -9,6 +9,7 @@ export function groupBy(
     groupByCriterias:Array<string>,
     columnsToSum:Array<string>,
     computedMetricsFunc,
+    activeCalculatedMetrics,
     filtersDimensionMapping,
     config
     ){
@@ -71,9 +72,53 @@ export function groupBy(
         mapped_reduced_data,
         "Aggregated data",
         aggregated_and_filtered_data]);
+
+        let activeCalculatedDataConfig = [];
+        if(config['available_calculated_metrics']){
+            activeCalculatedDataConfig = config['available_calculated_metrics'].filter((e)=>{
+                return activeCalculatedMetrics.indexOf(e.column_name) != -1
+            })
+        }
+
+        if(typeof activeCalculatedDataConfig != "undefined" && activeCalculatedDataConfig.length > 0){
+            aggregated_and_filtered_data = addCalculatedColumnsToData(aggregated_and_filtered_data,activeCalculatedDataConfig);
+        }
         //return [rawData[0]];
         return aggregated_and_filtered_data;
     }else{
         return [];
     }
+}
+
+/**
+ *    To add a calculated metric :
+ *    1-Add to view.config.json in view
+ *    2-Create ad hoc function here in groupby file + insert function name in "function_name"
+ *    3-Add name to activeCalculatedMetrics in view
+ *    4-Add to name in calculatedAdditiveMetricsList if pertinent
+ */
+
+function addCalculatedColumnsToData(data,activeCalculatedDataConfig){
+    debugLogGroup(DEBUG,["Group by : Processing calculated metrics based on list : ",activeCalculatedDataConfig,]);
+    data.map(dataElem=>{
+        activeCalculatedDataConfig.map((calculatedCol,index)=>{
+            console.log("Calculating "+calculatedCol.column_name+"with "+calculatedCol.function_name+" on ");
+            //console.log(calculatedCol.function_name);
+            //
+            switch (calculatedCol.function_name) {
+                  case "percent_certified": dataElem = calculatedMetric_percentCertified(dataElem,calculatedCol.column_name); break;
+                  case "percent_certified2": dataElem = calculatedMetric_percentCertified(dataElem,calculatedCol.column_name); break;
+                  //case "functionY": functionY(); break;
+              }
+              //console.log(dataElem);
+        });
+        return dataElem;
+    });
+    debugLogGroup(DEBUG,["Data service : Data after processing calcualted metrics : ",data]);
+    return data;
+}
+
+function calculatedMetric_percentCertified(dataElem,columnName){
+    dataElem[columnName] =((dataElem["certified_conversions"] / dataElem["conversions"]) * 100).toFixed(2)
+    return dataElem;
 }

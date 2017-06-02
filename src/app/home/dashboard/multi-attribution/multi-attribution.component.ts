@@ -63,6 +63,7 @@ export class MultiAttributionComponent implements OnInit {
     activeStaticMetrics : string[] = [/*'falseMetric',*/'conversion_date'];
     activeStaticMetricsColumns : ITdDataTableColumn[];
     dynamicMetricsColumns : ITdDataTableColumn[];
+    activeCalculatedMetrics : string[] = ['percent_certified'];
 
     //Concat of static and dynamic metrics to be passed to inputs
     metricsColumns : ITdDataTableColumn[];
@@ -327,6 +328,39 @@ export class MultiAttributionComponent implements OnInit {
             });
         }
         return activeDynamicMetricsColumnsTemp;
+    }
+
+    /**   Generates columns for calculated metrics
+     *    @method generateCalculatedMetricsColumnsListsObject
+     *    @param  {[type]}                                availableMetrics    list of all available calculated metrics (usually found in config file)
+     *    @param  {[type]}                                activeStaticMetrics list of active calculated metrics (manually added to view file)
+     *    @return {ITdDataTableColumn[]}                  list of calculated metrics columns
+     */
+    private generateCalculatedMetricsColumnsListsObject(availableCalculatedMetrics,activeCalculatedMetrics):ITdDataTableColumn[]{
+        debugLog(this.DEBUG,"Fraud Detector Component : calling generateCalculatedMetricsColumnsListsObject")
+        //Creating empty arrays for column list
+        let activeCalculatedMetricsColumnsTemp = [];
+        activeCalculatedMetrics.map((metricName)=>{
+            let singleActiveCalculatedMetric = availableCalculatedMetrics.filter((e)=>{ return e.column_name == metricName});
+
+            if(singleActiveCalculatedMetric.length==0){
+                //Error catch : if an unavailable metric was listed, skip it.
+                console.error('"'+metricName+'" is not an available metric. Metric ignored. See list of available dimensions : ',[availableCalculatedMetrics[0]]);
+            }else{
+                //Filter first and only element returned by filter
+                singleActiveCalculatedMetric = singleActiveCalculatedMetric[0];
+                //Create column
+                let singleActiveMetricColumn = {
+                    name : singleActiveCalculatedMetric.column_name,
+                    label : singleActiveCalculatedMetric.label,
+                    numeric : true
+                };
+                //Pushing element in temporary column list
+                activeCalculatedMetricsColumnsTemp.push(singleActiveMetricColumn);
+            }
+        });
+
+        return activeCalculatedMetricsColumnsTemp;
     }
 
     /** Rebuild global metrics array from static (calculated from config) and dynamic (inferred from data by custom function)

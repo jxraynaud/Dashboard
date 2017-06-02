@@ -9,6 +9,7 @@ import {
     IPageChangeEvent } from '@covalent/core';
 
 import { Subscription } from 'rxjs/Subscription';
+import { Observable } from 'rxjs';
 
 import { NavService } from '../../../services/nav.service'
 
@@ -28,7 +29,7 @@ import viewConfig from './view.config.json';
     styleUrls: ['./fraud-detector.component.css']
 })
 export class FraudDetectorComponent implements OnInit {
-    DEBUG : boolean = false;
+    DEBUG : boolean = true;
 
     //Attributes used for template structure
     openedNav = true;
@@ -63,6 +64,8 @@ export class FraudDetectorComponent implements OnInit {
     activeStaticMetrics : string[] = ['conversion_date', 'conversions', 'certified_conversions'];
     activeStaticMetricsColumns : ITdDataTableColumn[];
     dynamicMetricsColumns : ITdDataTableColumn[];
+    activeCalculatedMetrics : string[] = ['percent_certified'];
+    calculatedMetricsColumns : ITdDataTableColumn[];
 
     //Concat of static and dynamic metrics to be passed to inputs
     metricsColumns : ITdDataTableColumn[];
@@ -70,7 +73,8 @@ export class FraudDetectorComponent implements OnInit {
     // at reception of config BehaviorSubject, chereas dynamic is calculated in generateDynamicMetricsColumnsListsObjects.
     // => the 2 are concat in rebuildColumns() to make additiveMetricsList
     dynamicAdditiveMetricsList : Array<string>;
-    staticAdditiveMetricsList : string[] = ['conversions', 'certified_conversions'];
+    staticAdditiveMetricsList : string[]/* = ['conversions', 'certified_conversions']*/;
+    calculatedAdditiveMetricsList : string[]/* = ['percent_certified']*/;
     additiveMetricsList : Array<string>;
 
     //Setting to pipe from config to the views to define if the attribution model parameter of the api is simple (number) or multiple (array)
@@ -80,6 +84,7 @@ export class FraudDetectorComponent implements OnInit {
     filteredDataBehaviorSubjectSubscription : Subscription;
     configBehaviorSubjectSubscription : Subscription;
     valuesToInputSubscription : Subscription;
+    currentTriggered : string = "";
 
     constructor(
         private activatedRoute : ActivatedRoute,
@@ -136,7 +141,7 @@ export class FraudDetectorComponent implements OnInit {
          */
         this.configBehaviorSubjectSubscription = this.configService.configBehaviorSubject.subscribe({
             next : (configData) => {
-                debugLogGroup(this.DEBUG,["Fraud Detector Component : this.configService.configBehaviorSubject subscription triggered with value [config] for generating list of columns in datatable :",
+                /*debugLogGroup(this.DEBUG,["Fraud Detector Component : this.configService.configBehaviorSubject subscription triggered with value [config] for generating list of columns in datatable :",
                     configData,
                     "List of active columns : ",
                     this.activeDimensions
@@ -147,16 +152,18 @@ export class FraudDetectorComponent implements OnInit {
                     this.activeDimensionsWithIdColumns = dimensionColumnsListsObject.withIdColumns;
                     this.activeDimensionsWithoutIdColumns = dimensionColumnsListsObject.withoutIdColumns;
                     this.activeStaticMetricsColumns = this.generateStaticMetricsColumnsListsObject(configData['available_static_metrics'], this.activeStaticMetrics);
+                    this.calculatedMetricsColumns = this.generateCalculatedMetricsColumnsListsObject(configData['available_calculated_metrics'], this.activeCalculatedMetrics);
                     //Define list of additive metrics*
                     //console.warn('pre filter')
                     //console.warn(this.staticAdditiveMetricsList)
                     //console.warn(configData['available_static_metrics'])
                     this.staticAdditiveMetricsList = configData['available_static_metrics'].filter((e)=>{ return e.is_additive }).map((e)=>{ return e.data_id_column_name });
+                    this.calculatedAdditiveMetricsList = configData['available_calculated_metrics'].filter((e)=>{ return e.is_additive }).map((e)=>{ return e.column_name });
                     //console.warn("post filter")
                     //console.warn(this.staticAdditiveMetricsList)
                     this.rebuildMetricsColumns();
                     this.isAttributionModelMultiple = configData['is_attribution_model_multiple'];
-                }
+                }*/
             },
             error : (err) => console.error(err),
         });
@@ -164,34 +171,68 @@ export class FraudDetectorComponent implements OnInit {
         /**    Subscribe to dataService.filteredDataBehaviorSubject, dataFiltersService.filtersDimensionMappingBehaviorSubject
          *     and configService.configBehaviorSubject
          */
-        this.valuesToInputSubscription = this.dataService.filteredDataBehaviorSubject.combineLatest(
-            this.dataFiltersService.filtersDimensionBehaviorSubject,
-            this.dataFiltersService.filtersDimensionMappingBehaviorSubject,
-            this.configService.configBehaviorSubject,
-            this.attributionModelsService.attributionModelsMappingBehaviorSubject,
+        this.valuesToInputSubscription = Observable.combineLatest(
+            this.dataService.filteredDataBehaviorSubject.do(() => { debugLog( this.DEBUG, 'filtered Data triggers combined subscription'); this.currentTriggered = "filteredData" }),
+            this.dataFiltersService.filtersDimensionBehaviorSubject.do(() => { debugLog( this.DEBUG, 'filters Dimension triggers combined subscription'); this.currentTriggered = "filteredData" }),
+            this.dataFiltersService.filtersDimensionMappingBehaviorSubject.do(() => { debugLog( this.DEBUG, 'filters Dimension Mapping triggers combined subscription'); this.currentTriggered = "filtersDimension" }),
+            this.configService.configBehaviorSubject.do(() => { debugLog( this.DEBUG, 'configBehaviorSubject triggers combined subscription'); this.currentTriggered = "filtersDimensionMapping" }),
+            this.attributionModelsService.attributionModelsMappingBehaviorSubject.do(() => { debugLog( this.DEBUG, 'attribution Models Mapping triggers combined subscription'); this.currentTriggered = "attributionModel" }),
         ).subscribe(
             {
                 next : (latestValues) => {
                     let filteredData = latestValues[0];
                     let filtersDimensions = latestValues[1];
                     let filtersDimensionMapping = latestValues[2];
-                    let config = latestValues[3];
+                    let configData = latestValues[3];
                     let attributionModelsMapping = latestValues[4]
 
                     debugLogGroup(this.DEBUG,["Fraud Detector : combined subscription on (dataService.filteredDataBehaviorSubject, dataFiltersService.filtersDimensionBehaviorSubject, dataFiltersService.filtersDimensionMappingBehaviorSubject, configService.configBehaviorSubject, this.attributionModelsService.attributionModelsMappingBehaviorSubject) triggered :",
-                        "For pushing into inputs to allow name processing in dataviz",
+                        "First calculate and push calculated columns in filteredData",
+                        "Then push into inputs to allow name processing in dataviz",
                         "with values [filteredData, filtersDimensionMapping, filtersDimensionMapping, config, attributionModelsMapping] :",
                         filteredData,
                         filtersDimensions,
                         filtersDimensionMapping,
-                        config,
+                        configData,
                         attributionModelsMapping,
                     ]);
+
+
+                    debugLogGroup(this.DEBUG,["Fraud Detector Component : generating list of columns in datatable :",
+                        configData,
+                        "List of active columns : ",
+                        this.activeDimensions
+                    ]);
+                    if(!configData['available_dimensions']){ throw new Error('Fraud Detector : No "available_dimensions in view.config.json file !"'); }else{
+                        this.dimensionsConfigElem = configData['available_dimensions'];
+                        let dimensionColumnsListsObject = this.generateDimensionColumnsListsObject(configData['available_dimensions'], this.activeDimensions);
+                        this.activeDimensionsWithIdColumns = dimensionColumnsListsObject.withIdColumns;
+                        this.activeDimensionsWithoutIdColumns = dimensionColumnsListsObject.withoutIdColumns;
+                        this.activeStaticMetricsColumns = this.generateStaticMetricsColumnsListsObject(configData['available_static_metrics'], this.activeStaticMetrics);
+                        this.calculatedMetricsColumns = this.generateCalculatedMetricsColumnsListsObject(configData['available_calculated_metrics'], this.activeCalculatedMetrics);
+                        //Define list of additive metrics*
+                        //console.warn('pre filter')
+                        //console.warn(this.staticAdditiveMetricsList)
+                        //console.warn(configData['available_static_metrics'])
+                        this.staticAdditiveMetricsList = configData['available_static_metrics'].filter((e)=>{ return e.is_additive }).map((e)=>{ return e.data_id_column_name });
+                        this.calculatedAdditiveMetricsList = configData['available_calculated_metrics'].filter((e)=>{ return e.is_additive }).map((e)=>{ return e.column_name });
+                        //console.warn("post filter")
+                        //console.warn(this.staticAdditiveMetricsList)
+                        this.rebuildMetricsColumns();
+                        this.isAttributionModelMultiple = configData['is_attribution_model_multiple'];
+                    }
+                    //console.warn(this.currentTriggered);
+                    /*if(this.currentTriggered == "filteredData" && filteredData.length > 0){
+                        //Calculate and push calculated columns to filtered dataService
+                        let activeCalculatedDataConfig = configData['available_calculated_metrics'].filter((e)=>{ return this.activeCalculatedMetrics.indexOf(e.column_name) != -1 })
+
+                        filteredData = this.dataService.addCalculatedColumnsToData(filteredData,activeCalculatedDataConfig);
+                    }*/
 
                     this.filteredData = filteredData;
                     this.filtersDimensions = filtersDimensions;
                     this.filtersDimensionMapping = filtersDimensionMapping;
-                    this.config = config;
+                    this.config = configData;
                     this.attributionModelsMapping = attributionModelsMapping
                 },
                 error : (err) => console.error(err),
@@ -200,15 +241,13 @@ export class FraudDetectorComponent implements OnInit {
     }
 
     ngOnInit() {
-        debugLog(this.DEBUG,"Fruad Detector Component : calling ngOnInit");
+        debugLog(this.DEBUG,"Fraud Detector Component : calling ngOnInit");
         if(this.activatedRoute.snapshot.queryParams["view"]){
             let viewParam = this.activatedRoute.snapshot.queryParams["view"];
             debugWarn(this.DEBUG, "Fraud detector : Switching by query parameters to view "+viewParam);
             this.navService.activeViews.frauddetector = viewParam;
         }
     }
-
-
 
     /** Generates 2 things : list of columns with id columns and list of columns without id columns
      * @method generateDimensionColumnsListsObject
@@ -217,7 +256,7 @@ export class FraudDetectorComponent implements OnInit {
      */
 
      private generateDimensionColumnsListsObject(availableDimensions,activeDimensions):{withIdColumns:ITdDataTableColumn[], withoutIdColumns:ITdDataTableColumn[]}{
-         debugLog(this.DEBUG,"Fruad Detector Component : calling generateDimensionColumnsListsObject")
+         debugLog(this.DEBUG,"Fraud Detector Component : calling generateDimensionColumnsListsObject")
          //Creating empty arrays for column list
          let activeWithIdDimensionColumnsTemp = [];
          let activeWithoutIdDimensionColumnsTemp = [];
@@ -269,7 +308,7 @@ export class FraudDetectorComponent implements OnInit {
       *    @return {ITdDataTableColumn[]}                  list of static metrics columns
       */
      private generateStaticMetricsColumnsListsObject(availableMetrics,activeStaticMetrics):ITdDataTableColumn[]{
-         debugLog(this.DEBUG,"Fruad Detector Component : calling generateStaticMetricsColumnsListsObject")
+         debugLog(this.DEBUG,"Fraud Detector Component : calling generateStaticMetricsColumnsListsObject")
          //Creating empty arrays for column list
          let activeStaticMetricsColumnsTemp = [];
          activeStaticMetrics.map((metricName)=>{
@@ -302,7 +341,7 @@ export class FraudDetectorComponent implements OnInit {
       * @return {[type]}                                       array of columns for dynamic metrics
       **/
      private generateDynamicMetricsColumnsListsObjects(data):ITdDataTableColumn[]{
-         debugLog(this.DEBUG,"Fruad Detector Component : calling generateDynamicMetricsColumnsListsObjects")
+         debugLog(this.DEBUG,"Fraud Detector Component : calling generateDynamicMetricsColumnsListsObjects")
          //Reinitialize dynamic additive columns list
          this.dynamicAdditiveMetricsList = []
 
@@ -342,35 +381,90 @@ export class FraudDetectorComponent implements OnInit {
          return activeDynamicMetricsColumnsTemp;
      }
 
+     /**   Generates columns for calculated metrics
+      *    @method generateCalculatedMetricsColumnsListsObject
+      *    @param  {[type]}                                availableMetrics    list of all available calculated metrics (usually found in config file)
+      *    @param  {[type]}                                activeStaticMetrics list of active calculated metrics (manually added to view file)
+      *    @return {ITdDataTableColumn[]}                  list of calculated metrics columns
+      */
+     private generateCalculatedMetricsColumnsListsObject(availableCalculatedMetrics,activeCalculatedMetrics):ITdDataTableColumn[]{
+         debugLog(this.DEBUG,"Fraud Detector Component : calling generateCalculatedMetricsColumnsListsObject")
+         //Creating empty arrays for column list
+         let activeCalculatedMetricsColumnsTemp = [];
+         activeCalculatedMetrics.map((metricName)=>{
+             let singleActiveCalculatedMetric = availableCalculatedMetrics.filter((e)=>{ return e.column_name == metricName});
+
+             if(singleActiveCalculatedMetric.length==0){
+                 //Error catch : if an unavailable metric was listed, skip it.
+                 console.error('"'+metricName+'" is not an available metric. Metric ignored. See list of available dimensions : ',[availableCalculatedMetrics[0]]);
+             }else{
+                 //Filter first and only element returned by filter
+                 singleActiveCalculatedMetric = singleActiveCalculatedMetric[0];
+                 //Create column
+                 let singleActiveMetricColumn = {
+                     name : singleActiveCalculatedMetric.column_name,
+                     label : singleActiveCalculatedMetric.label,
+                     numeric : true
+                 };
+                 //Pushing element in temporary column list
+                 activeCalculatedMetricsColumnsTemp.push(singleActiveMetricColumn);
+             }
+         });
+
+         return activeCalculatedMetricsColumnsTemp;
+     }
+
+
      /** Rebuild global metrics array from static (calculated from config) and dynamic (inferred from data by custom function)
       * @method rebuildMetricsColumns
       * @return {[type]}              [description]
       */
      private rebuildMetricsColumns(){
-         debugLog(this.DEBUG,"Fruad Detector Component : calling rebuildMetricsColumns");
+         debugLog(this.DEBUG,"Fraud Detector Component : calling rebuildMetricsColumns");
          debugLogGroup(this.DEBUG,["static metrics",
-         this.activeStaticMetricsColumns,
-        "dyn metrics",
-         this.dynamicMetricsColumns]);
+            this.activeStaticMetricsColumns,
+            "dyn metrics",
+            this.dynamicMetricsColumns,
+            "calculated metrics",
+            this.calculatedMetricsColumns,
+        ]);
+        //If static & dynamic not empty concat, else take only static, else empty array
          if(this.activeStaticMetricsColumns !== undefined && this.dynamicMetricsColumns !== undefined && this.dynamicMetricsColumns.length > 0){
-             //console.warn("don't go 1");
              this.metricsColumns = this.activeStaticMetricsColumns.concat(this.dynamicMetricsColumns);
              debugLogGroup(this.DEBUG,["Fraud Detector: Building metrics column set from static metrics and dynamic metrics, resulting in [this.metricColumns] :",
              this.metricsColumns]);
          }else if(this.activeStaticMetricsColumns !== undefined){
-             //console.warn("should be here 1")
              debugLog(this.DEBUG, "Fraud Detector dynamic metrics : no data, fallback to static columns only (normal at first pass)");
              this.metricsColumns = this.activeStaticMetricsColumns;
+         }else{
+             this.metricsColumns = []
          }
+         //Add calculated to metric columns if not empty
+         if(this.calculatedMetricsColumns !==undefined && this.calculatedMetricsColumns.length > 0){
+             debugLogGroup(this.DEBUG,[
+                 "Fraud Detector Component : adding calculated matrics columns : ",
+                 this.calculatedMetricsColumns
+             ])
+             this.metricsColumns = this.metricsColumns.concat(this.calculatedMetricsColumns);
+         }
+         debugLogGroup(this.DEBUG,[
+             "Fraud Detector Component : list of metrics columns (static + dynamic + calculated) : ",
+             this.metricsColumns
+         ])
+
+         //Additive list
          if(this.dynamicAdditiveMetricsList !== undefined  && this.dynamicMetricsColumns.length > 0){
-             //console.warn("don't go 2");
              this.additiveMetricsList = this.dynamicAdditiveMetricsList.concat(this.staticAdditiveMetricsList);
          }else{
-            // console.warn("should be here 2")
-             //console.warn(this.staticAdditiveMetricsList)
              //Fallback on additive only if dynamic metrics not ready
              this.additiveMetricsList = this.staticAdditiveMetricsList
          }
+         //Add additive calculated to additive list of columns if not empty
+         if(this.calculatedAdditiveMetricsList != undefined && this.calculatedAdditiveMetricsList.length > 0){
+             console.warn(this.calculatedAdditiveMetricsList);
+             this.additiveMetricsList = this.additiveMetricsList.concat(this.calculatedAdditiveMetricsList);
+         }
+
          debugLogGroup(this.DEBUG,[
              "Fraud Detector Component : list of additive metrics for groupBy : ",
              this.additiveMetricsList

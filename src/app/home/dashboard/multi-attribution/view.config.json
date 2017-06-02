@@ -61,5 +61,8 @@
         "is_usable_as_groupby": true,
         "specific_endpoint_url": ""
       }
+    ],
+    "available_calculated_metrics" : [
+      
     ]
 }
