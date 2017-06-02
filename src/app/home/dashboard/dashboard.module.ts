@@ -17,6 +17,7 @@ import { DefaultComponent } from './default/default.component';
 import { DashboardAssetsModule } from './dashboard-assets/dashboard-assets.module';
 
 import { Daterangepicker } from 'ng2-daterangepicker';
+import { ViewBaseComponent } from './view-base/view-base.component';
 
 /*
 import { DatePickerModule } from 'ng2-datepicker';
@@ -43,6 +44,7 @@ import { NgxChartsModule } from '@swimlane/ngx-charts';
         SidebarModule,
     ],
     declarations: [
+        ViewBaseComponent,
         DashboardComponent,
         DefaultComponent,
     ],

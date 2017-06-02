@@ -11,8 +11,9 @@ import {
 import { Subscription } from 'rxjs/Subscription';
 import { Observable } from 'rxjs';
 
-import { NavService } from '../../../services/nav.service'
+import { ViewBaseComponent } from '../view-base/view-base.component'
 
+import { NavService } from '../../../services/nav.service'
 import { DataService } from '../services/data.service';
 import { DataFiltersService } from '../services/data-filters.service';
 import { ConfigService } from '../services/config.service';
@@ -28,74 +29,35 @@ import viewConfig from './view.config.json';
     templateUrl: './fraud-detector.component.html',
     styleUrls: ['./fraud-detector.component.css']
 })
-export class FraudDetectorComponent implements OnInit {
-    DEBUG : boolean = true;
+export class FraudDetectorComponent extends ViewBaseComponent implements OnInit{
+    DEBUG : boolean = false;
 
-    //Attributes used for template structure
-    openedNav = true;
-    //activeView:string = "overview";
-    /*viewsList=[
-        {
-            name : "overview",
-            menuText : "Overview view",
-            description: "Daily conversions",
-            icon: "view_compact"
-        },
-        {
-            name : "bykpiview",
-            menuText : "by KPI",
-            description: "By KPI and Campaigns",
-            icon: "business"
-        }
-    ]*/
-    //Unnamed filtered data
-    filteredData : Array<{}>;
-    filtersDimensions : Object;
-    filtersDimensionMapping;
-    config;
-    dimensionsConfigElem;
-    attributionModelsMapping : Array<{}>;
 
-    requestParams : {};
-    activeDimensions : string[] = ['advertiser_id','partner_id','kpi_id','metacampaign_id',/*'falseDimension'*/];
-    activeDimensionsWithIdColumns : ITdDataTableColumn[];
-    activeDimensionsWithoutIdColumns : ITdDataTableColumn[];
+    //activeDimensions : string[] = ['advertiser_id','partner_id','kpi_id','metacampaign_id',/*'falseDimension'*/];
 
-    activeStaticMetrics : string[] = ['conversion_date', 'conversions', 'certified_conversions'];
-    activeStaticMetricsColumns : ITdDataTableColumn[];
-    dynamicMetricsColumns : ITdDataTableColumn[];
-    activeCalculatedMetrics : string[] = ['percent_certified'];
-    calculatedMetricsColumns : ITdDataTableColumn[];
+    activeStaticMetrics = ['conversion_date', 'conversions', 'certified_conversions'];
 
-    //Concat of static and dynamic metrics to be passed to inputs
-    metricsColumns : ITdDataTableColumn[];
-    //List of additive metrics columns for groupby function by their key name (string) : intermediary values static and dynamic because static is calculated
-    // at reception of config BehaviorSubject, chereas dynamic is calculated in generateDynamicMetricsColumnsListsObjects.
-    // => the 2 are concat in rebuildColumns() to make additiveMetricsList
-    dynamicAdditiveMetricsList : Array<string>;
-    staticAdditiveMetricsList : string[]/* = ['conversions', 'certified_conversions']*/;
-    calculatedAdditiveMetricsList : string[]/* = ['percent_certified']*/;
-    additiveMetricsList : Array<string>;
-
-    //Setting to pipe from config to the views to define if the attribution model parameter of the api is simple (number) or multiple (array)
-    isAttributionModelMultiple : boolean;
-
-    //TODO : destroy subscription at the end
-    filteredDataBehaviorSubjectSubscription : Subscription;
-    configBehaviorSubjectSubscription : Subscription;
-    valuesToInputSubscription : Subscription;
-    currentTriggered : string = "";
+    activeCalculatedMetrics = ['percent_certified'];
 
     constructor(
-        private activatedRoute : ActivatedRoute,
+        protected activatedRoute : ActivatedRoute,
         public navService : NavService,
-        private configService : ConfigService,
-        private dataService : DataService,
-        private dataFiltersService : DataFiltersService,
-        private dataRequestService : DataRequestService,
-        private attributionModelsService : AttributionModelsService,
+        protected configService : ConfigService,
+        protected dataService : DataService,
+        protected dataFiltersService : DataFiltersService,
+        protected dataRequestService : DataRequestService,
+        protected attributionModelsService : AttributionModelsService,
     ) {
-        this.navService.opened = true;
+        super(activatedRoute,
+            navService,
+            configService,
+            dataService,
+            dataFiltersService,
+            dataRequestService,
+            attributionModelsService,
+        )
+
+        //this.navService.opened = this.openedNav;
 
         this.configService.setConfigFile(viewConfig);
 
