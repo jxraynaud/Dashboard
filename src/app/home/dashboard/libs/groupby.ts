@@ -107,7 +107,7 @@ function addCalculatedColumnsToData(data,activeCalculatedDataConfig){
             //
             switch (calculatedCol.function_name) {
                   case "percent_certified": dataElem = calculatedMetric_percentCertified(dataElem,calculatedCol.column_name); break;
-                  case "percent_certified2": dataElem = calculatedMetric_percentCertified(dataElem,calculatedCol.column_name); break;
+                  //case "percent_certified2": dataElem = calculatedMetric_percentCertified(dataElem,calculatedCol.column_name); break;
                   //case "functionY": functionY(); break;
               }
               //console.log(dataElem);
