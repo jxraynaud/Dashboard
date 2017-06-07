@@ -36,7 +36,8 @@ export class FormDataRequestComponent implements OnInit, OnChanges {
 
     private _selectedAttributionModel_s : any; // TODO get default from api
     set selectedAttributionModel_s(newAttribModel){
-        //console.log("SETTER ATTRIBUTION MODEL ID SERVICE");
+        console.log("SETTER ATTRIBUTION MODEL ID SERVICE");
+        console.log(newAttribModel);
         this._selectedAttributionModel_s = newAttribModel;
         //If multiple attribution models needed : check there's more than one selected
         if(this.isAttributionModelMultiple){
@@ -171,7 +172,12 @@ export class FormDataRequestComponent implements OnInit, OnChanges {
      *    @return {[type]}                        [description]
      */
     public updateActiveModelsOnChipsChange(modelName){
-        this.selectedAttributionModel_s = this.attributionModelsMapping.filter((e)=>{ return this.activeAttributionModelsChipList.indexOf(e["name"]) != -1 }).map((f)=>{return f["id"]});
+        let tempoSelectedAttributionModel_s = [];
+        //Process list of active models to get ids in right order
+        this.activeAttributionModelsChipList.map(activeElemName =>{
+            tempoSelectedAttributionModel_s.push(this.attributionModelsMapping.find(elem=>{ return elem["name"] == activeElemName })["id"]);
+        });
+        this.selectedAttributionModel_s = tempoSelectedAttributionModel_s;
     }
 
     public changeModel(value):void {
