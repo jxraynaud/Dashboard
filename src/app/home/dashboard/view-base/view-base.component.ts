@@ -107,7 +107,7 @@ export class ViewBaseComponent implements OnInit {
         /** Subscribe to dataService.filteredDataBehaviorSubject and this.configService.configBehaviorSubject, to generate Dynamic Metrics Columns each time filteredData arrives
          * Sets attributes :
          *  - dynamicMetricsColumns : dynamic metrics inferred from data by funtion generateDynamicMetricsColumnsListsObjects [function specific to view multi-attribution]
-         *  Through rebuildMetricsColumns
+         *  Through rebuildColumns
          *  - metricsColumns : obect containing columns for metrics (static and dynamic if any)
          *  - additiveMetricsList : list of addivtive metrics (by string), dynamic coming from dynamicAdditiveMetricsList [generated in generateDynamicMetricsColumnsListsObjects],
          *  and static coming from staticAdditiveMetricsList [set in configBehaviorSubjectSubscription (subscription to configService.configBehaviorSubject)]
@@ -130,24 +130,10 @@ export class ViewBaseComponent implements OnInit {
                         filteredData,
                         configData,
                     ]);
-                    this.dynamicMetricsColumns = this.generateDynamicMetricsColumnsListsObjects(filteredData);
 
-                    if(!configData['available_dimensions']){ throw new Error(this.SUBCLASSNAME+'No "available_dimensions in view.config.json file !"'); }else{
-                        this.dimensionsConfigElem = configData['available_dimensions'];
-                        let dimensionColumnsListsObject = this.generateDimensionColumnsListsObject(configData['available_dimensions'], this.activeDimensions);
-                        this.activeDimensionsWithIdColumns = dimensionColumnsListsObject.withIdColumns;
-                        this.activeDimensionsWithoutIdColumns = dimensionColumnsListsObject.withoutIdColumns;
-                        this.activeStaticMetricsColumns = this.generateStaticMetricsColumnsListsObject(configData['available_static_metrics'], this.activeStaticMetrics);
-                        this.calculatedMetricsColumns = this.generateCalculatedMetricsColumnsListsObject(configData['available_calculated_metrics'], this.activeCalculatedMetrics, filteredData);
 
-                        //Define list of additive metrics
-                        this.staticAdditiveMetricsList = configData['available_static_metrics'].filter((e)=>{ return e.is_additive }).map((e)=>{ return e.data_id_column_name });
-                        this.calculatedAdditiveMetricsList = configData['available_calculated_metrics'].filter((e)=>{ return e.is_additive }).map((e)=>{ return e.column_name });
+                    this.rebuildColumns(configData, filteredData);
 
-                        this.isAttributionModelMultiple = configData['is_attribution_model_multiple'];
-                    }
-
-                    this.rebuildMetricsColumns();
                 }else{
                     debugWarn(this.DEBUG,this.SUBCLASSNAME+"this.dataService.filteredDataBehaviorSubject subscription triggered. filteredData empty, not doing anything.");
                 }
@@ -191,27 +177,6 @@ export class ViewBaseComponent implements OnInit {
                         configData,
                         attributionModelsMapping,
                     ]);
-
-                    /*debugLogGroup(this.DEBUG,[this.SUBCLASSNAME+"this.configService.configBehaviorSubject subscription triggered with value [config] for generating list of columns in datatable :",
-                        configData,
-                        "List of active columns : ",
-                        this.activeDimensions
-                    ]);
-                    if(!configData['available_dimensions']){ throw new Error(this.SUBCLASSNAME+'No "available_dimensions in view.config.json file !"'); }else{
-                        this.dimensionsConfigElem = configData['available_dimensions'];
-                        let dimensionColumnsListsObject = this.generateDimensionColumnsListsObject(configData['available_dimensions'], this.activeDimensions);
-                        this.activeDimensionsWithIdColumns = dimensionColumnsListsObject.withIdColumns;
-                        this.activeDimensionsWithoutIdColumns = dimensionColumnsListsObject.withoutIdColumns;
-                        this.activeStaticMetricsColumns = this.generateStaticMetricsColumnsListsObject(configData['available_static_metrics'], this.activeStaticMetrics);
-                        this.calculatedMetricsColumns = this.generateCalculatedMetricsColumnsListsObject(configData['available_calculated_metrics'], this.activeCalculatedMetrics);
-
-                        //Define list of additive metrics
-                        this.staticAdditiveMetricsList = configData['available_static_metrics'].filter((e)=>{ return e.is_additive }).map((e)=>{ return e.data_id_column_name });
-                        this.calculatedAdditiveMetricsList = configData['available_calculated_metrics'].filter((e)=>{ return e.is_additive }).map((e)=>{ return e.column_name });
-
-                        this.rebuildMetricsColumns();
-                        this.isAttributionModelMultiple = configData['is_attribution_model_multiple'];
-                    }*/
 
                     this.filteredData = filteredData;
                     this.filtersDimensions = filtersDimensions;
@@ -359,15 +324,18 @@ export class ViewBaseComponent implements OnInit {
     }
 
     /**   Generates columns for calculated metrics
-     *    @method generateCalculatedMetricsColumnsListsObject
+     *    @method addCalculatedMetricsColumns
      *    @param  {[type]}                                availableMetrics    list of all available calculated metrics (usually found in config file)
      *    @param  {[type]}                                activeStaticMetrics list of active calculated metrics (manually added to view file)
+     *    @param  {[type]}                    filteredData               [description]
+          @param  {[type]}                    metricsColumnsBase        metrics columns up to now. Will add columns to the object before returning it
      *    @return {ITdDataTableColumn[]}                  list of calculated metrics columns
      */
-    protected generateCalculatedMetricsColumnsListsObject(availableCalculatedMetrics,activeCalculatedMetrics, filteredData):ITdDataTableColumn[]{
-        debugLog(this.DEBUG,this.SUBCLASSNAME+"calling generateCalculatedMetricsColumnsListsObject")
-        //Creating empty arrays for column list
-        let activeCalculatedMetricsColumnsTemp = [];
+    protected addCalculatedMetricsColumns(availableCalculatedMetrics,activeCalculatedMetrics, filteredData, metricsColumnsBase):ITdDataTableColumn[]{
+        debugLog(this.DEBUG,this.SUBCLASSNAME+"calling addCalculatedMetricsColumns")
+        //Make a shallow copy of metricsColumnsBase
+        let augmentedMetricsColumnsList = metricsColumnsBase.slice();
+
         activeCalculatedMetrics.map((metricName)=>{
             let singleActiveCalculatedMetric = availableCalculatedMetrics.filter((e)=>{ return e.column_name == metricName});
 
@@ -378,38 +346,35 @@ export class ViewBaseComponent implements OnInit {
                 //Filter first and only element returned by filter
                 singleActiveCalculatedMetric = singleActiveCalculatedMetric[0];
 
-                let singleActiveMetricColumn = [];
                 switch(singleActiveCalculatedMetric.column_name){
-                    case "percent_certified" : singleActiveMetricColumn = this.calculatedMetricsCols_baseSingle(singleActiveCalculatedMetric); break;
-                    case "multi_attrib_comparison" : singleActiveMetricColumn = this.calculatedMetricsCols_attributionModelsComparison(singleActiveCalculatedMetric, filteredData); break;
+                    case "percent_certified" : augmentedMetricsColumnsList = this.addCalculatedMetricsCols_baseSingle(singleActiveCalculatedMetric, augmentedMetricsColumnsList); break;
+                    case "multi_attrib_comparison" : augmentedMetricsColumnsList = this.addCalculatedMetricsCols_attributionModelsComparison(singleActiveCalculatedMetric, filteredData, augmentedMetricsColumnsList); break;
                     default : console.error(this.SUBCLASSNAME+" calculated metric '"+singleActiveCalculatedMetric.column_name+"' not declared in view-base component's switch statement : column can't be added to datatable. Please declare.");
                 }
-
-                //Pushing element(s) in temporary column list
-                activeCalculatedMetricsColumnsTemp = activeCalculatedMetricsColumnsTemp.concat(singleActiveMetricColumn);
+                debugLogGroup(true, [this.SUBCLASSNAME+" added column(s) of calculated data for "+singleActiveCalculatedMetric.column_name+", new metrics: ",augmentedMetricsColumnsList]);
             }
         });
 
-        return activeCalculatedMetricsColumnsTemp;
+        return augmentedMetricsColumnsList;
     }
 
     /**
-     *    [calculatedMetricsCols_baseSingle description]
+     *    [addCalculatedMetricsCols_baseSingle description]
      *    @method returns column object for simple calculated metric : one column composed from name & label taken from config
      *    @param  {[type]}                         singleActiveCalculatedMetric [description]
      *    @return {[type]}                         [description]
      */
-    calculatedMetricsCols_baseSingle(singleActiveCalculatedMetric){
-        return [{
+    addCalculatedMetricsCols_baseSingle(singleActiveCalculatedMetric, augmentedMetricsColumnsList){
+        return augmentedMetricsColumnsList.concat( [{
             name : singleActiveCalculatedMetric.column_name,
             label : singleActiveCalculatedMetric.label,
             numeric : true
-        }];
+        }] );
     }
 
-    calculatedMetricsCols_attributionModelsComparison(singleActiveCalculatedMetric, filteredData){
-        let columnsToGenerate = [];
-        //console.warn(filteredData[0]);
+    addCalculatedMetricsCols_attributionModelsComparison(singleActiveCalculatedMetric, filteredData, augmentedMetricsColumnsList){
+        //Make a shallow copy of the metrics column list at start
+        let newMetricsList = augmentedMetricsColumnsList.slice();
 
         if(filteredData){
             let singleData = filteredData[0];
@@ -423,57 +388,101 @@ export class ViewBaseComponent implements OnInit {
                     conversionsCols[colOrder]=dataKey;
                 }
             });
-            //console.warn(conversionsCols);
 
+            //Isolate first column (to compare to) and other columns
             let firstConvCol = conversionsCols[0];
             let conversionsColsWithoutFirst = conversionsCols.slice(1);
 
-            //console.warn(conversionsColsWithoutFirst);
-
             conversionsColsWithoutFirst.map(col=>{
-                columnsToGenerate.push( {
-                    name:col+"__"+firstConvCol,
-                    label:firstConvCol.split("*").slice(0,1).concat(firstConvCol.split("*").slice(2)).join("")+" VS "+col.split("*").slice(0,1).concat(firstConvCol.split("*").slice(2)).join("")
-                } )
+                //Find index of compared column to add it just after
+                let indexOfConversionCol = Object.keys(newMetricsList).find(index=>{
+                    return newMetricsList[index].name == col;
+                })
+                //Index to use to add % column = index of conversion column +1
+                let indexToAddTo = parseInt(indexOfConversionCol)+1
+
+                //Insert at the right place (after conversion column)
+                let colToAdd = {
+                    name : "MA_comparison_"+col.split("*").splice(1,1)+"__"+firstConvCol.split("*").splice(1,1),
+                    label : "%",
+                    tooltip : "% "+col.split("*").slice(0,1).concat(col.split("*").slice(2)).join("")+" compared to "+firstConvCol.split("*").slice(0,1).concat(firstConvCol.split("*").slice(2)).join("")
+                }
+                newMetricsList.splice(indexToAddTo,0,colToAdd);
+                console.warn(augmentedMetricsColumnsList);
+
             });
-            //console.warn(columnsToGenerate);
 
         }
-        return columnsToGenerate;
+        return newMetricsList;
     }
 
     /** Rebuild global metrics array from static (calculated from config) and dynamic (inferred from data by custom function)
-     * @method rebuildMetricsColumns
+     * @method rebuildColumns
      * @return {[type]}              [description]
      */
-    protected rebuildMetricsColumns(){
-        debugLog(this.DEBUG,this.SUBCLASSNAME+"calling rebuildMetricsColumns");
-        debugLogGroup(this.DEBUG,["static metrics",
-           this.activeStaticMetricsColumns,
-           "dyn metrics",
-           this.dynamicMetricsColumns,
-           "calculated metrics",
-           this.calculatedMetricsColumns,
-       ]);
-       //If static & dynamic not empty concat, else take only static, else empty array
-        if(this.activeStaticMetricsColumns !== undefined && this.dynamicMetricsColumns !== undefined && this.dynamicMetricsColumns.length > 0){
-            this.metricsColumns = this.activeStaticMetricsColumns.concat(this.dynamicMetricsColumns);
-            debugLogGroup(this.DEBUG,[this.SUBCLASSNAME+"Building metrics column set from static metrics and dynamic metrics, resulting in [this.metricColumns] :",
-            this.metricsColumns]);
-        }else if(this.activeStaticMetricsColumns !== undefined){
-            debugLog(this.DEBUG, this.SUBCLASSNAME+"dynamic metrics : no data, fallback to static columns only (normal at first pass)");
-            this.metricsColumns = this.activeStaticMetricsColumns;
-        }else{
-            this.metricsColumns = []
-        }
+    protected rebuildColumns(configData, filteredData){
+        debugLog(this.DEBUG,this.SUBCLASSNAME+"calling rebuildColumns");
+
+        //this.dynamicMetricsColumns = this.generateDynamicMetricsColumnsListsObjects(filteredData);
+
+        //Throw an arror if no dimension available
+        if( !configData['available_dimensions'] || configData['available_dimensions'].length == 0 ){ throw new Error(this.SUBCLASSNAME+'No "available_dimensions in view.config.json file !"');}
+
+        this.dimensionsConfigElem = configData['available_dimensions'];
+        let dimensionColumnsListsObject = this.generateDimensionColumnsListsObject(configData['available_dimensions'], this.activeDimensions);
+        this.activeDimensionsWithIdColumns = dimensionColumnsListsObject.withIdColumns;
+        this.activeDimensionsWithoutIdColumns = dimensionColumnsListsObject.withoutIdColumns;
+
+        //Calculate static and dynamic columns
+        this.activeStaticMetricsColumns = this.generateStaticMetricsColumnsListsObject(configData['available_static_metrics'], this.activeStaticMetrics);
+        this.dynamicMetricsColumns = this.generateDynamicMetricsColumnsListsObjects(filteredData);
+
+        //If static & dynamic not empty concat, else take only static, else empty array
+         if(this.activeStaticMetricsColumns !== undefined && this.dynamicMetricsColumns !== undefined && this.dynamicMetricsColumns.length > 0){
+             this.metricsColumns = this.activeStaticMetricsColumns.concat(this.dynamicMetricsColumns);
+             debugLogGroup(this.DEBUG,[this.SUBCLASSNAME+"Building metrics column set from static metrics and dynamic metrics, resulting in [this.metricColumns] :",
+             this.metricsColumns]);
+         }else if(this.activeStaticMetricsColumns !== undefined){
+             debugLog(this.DEBUG, this.SUBCLASSNAME+"dynamic metrics : no data, fallback to static columns only (normal at first pass)");
+             this.metricsColumns = this.activeStaticMetricsColumns;
+         }else{
+             this.metricsColumns = []
+         }
+
+         debugLogGroup(this.DEBUG,["static metrics",
+            this.activeStaticMetricsColumns,
+            "dynamic metrics",
+            this.dynamicMetricsColumns,
+        ]);
+
+        //Calculated Metrics calculates using base of columns, to be able to insert columns between dynamic cols
+        //this.calculatedMetricsColumns = this.generateCalculatedMetricsColumnsListsObject(configData['available_calculated_metrics'], this.activeCalculatedMetrics, filteredData);
+        this.metricsColumns = this.addCalculatedMetricsColumns(configData['available_calculated_metrics'], this.activeCalculatedMetrics, filteredData, this.metricsColumns);
+
         //Add calculated to metric columns if not empty
-        if(this.calculatedMetricsColumns !==undefined && this.calculatedMetricsColumns.length > 0){
+        /*if(this.calculatedMetricsColumns !==undefined && this.calculatedMetricsColumns.length > 0){
             debugLogGroup(this.DEBUG,[
                 this.SUBCLASSNAME+"adding calculated metrics columns : ",
                 this.calculatedMetricsColumns
             ])
             this.metricsColumns = this.metricsColumns.concat(this.calculatedMetricsColumns);
-        }
+        }*/
+
+
+        //Define list of additive metrics
+        this.staticAdditiveMetricsList = configData['available_static_metrics'].filter((e)=>{ return e.is_additive }).map((e)=>{ return e.data_id_column_name });
+        this.calculatedAdditiveMetricsList = configData['available_calculated_metrics'].filter((e)=>{ return e.is_additive }).map((e)=>{ return e.column_name });
+
+        this.isAttributionModelMultiple = configData['is_attribution_model_multiple'];
+
+        /*debugLogGroup(this.DEBUG,["static metrics",
+           this.activeStaticMetricsColumns,
+           "dyn metrics",
+           this.dynamicMetricsColumns,
+           "calculated metrics",
+           this.calculatedMetricsColumns,
+       ]);*/
+
         debugLogGroup(this.DEBUG,[
             this.SUBCLASSNAME+"list of metrics columns (static + dynamic + calculated) : ",
             this.metricsColumns
