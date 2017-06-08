@@ -142,7 +142,7 @@ function calculatedMetric_attributionModelsComparison(dataElem,columnName){
 
         //Calculate percent for each and insert into dataElem
         conversionsColsWithoutFirst.map(col=>{
-            let delta = dataElem[firstConvCol] - dataElem[col];
+            let delta = dataElem[col] - dataElem[firstConvCol];
             let percent;
             if(dataElem[firstConvCol] != 0){
                 percent = ((delta / dataElem[firstConvCol])*100).toFixed(2)
