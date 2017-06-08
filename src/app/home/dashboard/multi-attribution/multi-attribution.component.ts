@@ -30,7 +30,7 @@ import viewConfig from './view.config.json';
   styleUrls: ['./multi-attribution.component.css']
 })
 export class MultiAttributionComponent extends ViewBaseComponent implements OnInit {
-    DEBUG : boolean = true;
+    DEBUG : boolean = false;
     SUBCLASSNAME = "Multiattribution component : "
 
     openedNav : boolean = false;
@@ -39,7 +39,7 @@ export class MultiAttributionComponent extends ViewBaseComponent implements OnIn
 
     activeStaticMetrics = [/*'falseMetric',*/'conversion_date'];
 
-    activeCalculatedMetrics : string[] = ['falseMetric',];
+    activeCalculatedMetrics : string[] = ['multi_attrib_comparison',];
 
     constructor(
         protected activatedRoute : ActivatedRoute,

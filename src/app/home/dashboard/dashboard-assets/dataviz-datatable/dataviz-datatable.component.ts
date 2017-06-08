@@ -115,24 +115,26 @@ export class DatavizDatatableComponent implements OnInit, OnChanges {
      *    @return {[type]}       [description]
      */
     rebuildColumns(){
-        //Concatenate constant columns (defined above) with dynamic columns
-        this.withIdColumns = this.activeDimensionsWithIdColumns.concat(this.activeStaticMetricsColumns);
-        this.withoutIdColumns = this.activeDimensionsWithoutIdColumns.concat(this.activeStaticMetricsColumns);
+        if(this.activeDimensionsWithIdColumns && this.activeDimensionsWithoutIdColumns){
+            //Concatenate constant columns (defined above) with dynamic columns
+            this.withIdColumns = this.activeDimensionsWithIdColumns.concat(this.activeStaticMetricsColumns);
+            this.withoutIdColumns = this.activeDimensionsWithoutIdColumns.concat(this.activeStaticMetricsColumns);
 
-        //Filter to keep only columns present in data (changes dependign on groupBy)
-        if(this.aggregatedFilteredData[0]){
-            //Keys present in the data
-            let dataKeys = Object.keys(this.aggregatedFilteredData[0]);
-            //Filter to keep only columns that have an index in dataKeys (list of keys present in data)
-            this.withIdColumns = this.withIdColumns.filter((col)=>{ return dataKeys.indexOf(col.name)!=-1 });
-            this.withoutIdColumns = this.withoutIdColumns.filter((col)=>{ return dataKeys.indexOf(col.name)!=-1 });
+            //Filter to keep only columns present in data (changes dependign on groupBy)
+            if(this.aggregatedFilteredData[0]){
+                //Keys present in the data
+                let dataKeys = Object.keys(this.aggregatedFilteredData[0]);
+                //Filter to keep only columns that have an index in dataKeys (list of keys present in data)
+                this.withIdColumns = this.withIdColumns.filter((col)=>{ return dataKeys.indexOf(col.name)!=-1 });
+                this.withoutIdColumns = this.withoutIdColumns.filter((col)=>{ return dataKeys.indexOf(col.name)!=-1 });
 
-            //Put columns depending of "display ids" (displayIdsInDatatable) toggle option
-            //(Inside aggegatedFiltredData test to avoid columns flash before/after groupby)
-            if(this.displayIdsInDatatable == true){
-                this.columns = this.withIdColumns;
-            }else{
-                this.columns = this.withoutIdColumns;
+                //Put columns depending of "display ids" (displayIdsInDatatable) toggle option
+                //(Inside aggegatedFiltredData test to avoid columns flash before/after groupby)
+                if(this.displayIdsInDatatable == true){
+                    this.columns = this.withIdColumns;
+                }else{
+                    this.columns = this.withoutIdColumns;
+                }
             }
         }
     }

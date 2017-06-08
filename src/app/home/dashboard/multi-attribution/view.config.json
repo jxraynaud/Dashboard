@@ -63,5 +63,15 @@
       }
     ],
     "available_calculated_metrics" : [
+      {
+        "column_name" : "multi_attrib_comparison",
+        "label" : "",
+        "description" : "",
+        "function_name" : "multi_attrib_comparison",
+        "is_name_column_numeric": false,
+        "is_usable_as_request_parameter": false,
+        "is_additive": false,
+        "is_usable_as_groupby": false
+      }
     ]
 }

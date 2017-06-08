@@ -93,11 +93,10 @@ export function groupBy(
 /**
  *    To add a calculated metric :
  *    1-Add to view.config.json in view
- *    2-Create ad hoc function here in groupby file + insert function name in "function_name"
- *    3-Add name to activeCalculatedMetrics in view
- *    4-Add to name in calculatedAdditiveMetricsList if pertinent
+ *    2-Add name to activeCalculatedMetrics in view
+ *    3-Create ad hoc function here in groupby file + insert function name in "function_name"
+ *    4-Create ad hoc function in view-base.component.ts + add to switch statemeent (or use base function if standard 1-column metric)
  */
-
 function addCalculatedColumnsToData(data,activeCalculatedDataConfig){
     debugLogGroup(DEBUG,["Group by : Processing calculated metrics based on list : ",activeCalculatedDataConfig,]);
     data.map(dataElem=>{
@@ -107,8 +106,9 @@ function addCalculatedColumnsToData(data,activeCalculatedDataConfig){
             //
             switch (calculatedCol.function_name) {
                   case "percent_certified": dataElem = calculatedMetric_percentCertified(dataElem,calculatedCol.column_name); break;
-                  //case "percent_certified2": dataElem = calculatedMetric_percentCertified(dataElem,calculatedCol.column_name); break;
+                  case "multi_attrib_comparison" : dataElem = calculatedMetric_attributionModelsComparison(dataElem,calculatedCol.column_name); break;
                   //case "functionY": functionY(); break;
+                  default : console.error("GroupBy : calculated metric '"+calculatedCol.column_name+"' not declared in groupBy.ts 's switch statement and can't be processed. Please declare.");
               }
               //console.log(dataElem);
         });
@@ -120,5 +120,37 @@ function addCalculatedColumnsToData(data,activeCalculatedDataConfig){
 
 function calculatedMetric_percentCertified(dataElem,columnName){
     dataElem[columnName] =((dataElem["certified_conversions"] / dataElem["conversions"]) * 100).toFixed(2)
+    return dataElem;
+}
+
+function calculatedMetric_attributionModelsComparison(dataElem,columnName){
+    if(dataElem){
+        let conversionsCols = [];
+
+        //Create ordered list of columns depending on *ordernumber* in dataKey
+        Object.keys(dataElem).map((dataKey) => {
+            //If column name starts with "conversions "
+            if(dataKey.split(" ")[0]=="conversions"){
+                let colOrder = dataKey.split("*")[1];
+                conversionsCols[colOrder]=dataKey;
+            }
+        });
+
+        let firstConvCol = conversionsCols[0];
+        //Every conversion col to be compared to first col
+        let conversionsColsWithoutFirst = conversionsCols.slice(1);
+
+        //Calculate percent for each and insert into dataElem
+        conversionsColsWithoutFirst.map(col=>{
+            let delta = dataElem[firstConvCol] - dataElem[col];
+            let percent;
+            if(dataElem[firstConvCol] != 0){
+                percent = ((delta / dataElem[firstConvCol])*100).toFixed(2)
+            }else{
+                percent = "--"
+            }
+            dataElem[col+"__"+firstConvCol]=percent+"%";
+        });
+    }
     return dataElem;
 }

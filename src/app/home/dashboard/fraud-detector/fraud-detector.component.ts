@@ -30,7 +30,7 @@ import viewConfig from './view.config.json';
     styleUrls: ['./fraud-detector.component.css']
 })
 export class FraudDetectorComponent extends ViewBaseComponent implements OnInit{
-    DEBUG : boolean = true;
+    DEBUG : boolean = false;
     SUBCLASSNAME = "Fraud Detector component : "
 
     openedNav : boolean = true;

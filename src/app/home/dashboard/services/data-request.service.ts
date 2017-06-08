@@ -15,7 +15,7 @@ import {debugLog, debugLogGroup} from '../../../utils';
 
 @Injectable()
 export class DataRequestService {
-    DEBUG : boolean = false;
+    DEBUG : boolean = true;
     //private debugLog(str){ this.DEBUG && console.log(str); }
 
     /*defaultRequestParams = [{
