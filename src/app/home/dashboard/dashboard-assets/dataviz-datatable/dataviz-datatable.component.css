@@ -7,3 +7,15 @@
 .loadingDiv img{
   margin:auto;
 }
+
+.optionsMenu, .container{
+  background-color : #ffffff;
+}
+
+.align-right{
+  text-align:right;
+}
+
+.optionsMenu{
+  max-width:900px;
+}

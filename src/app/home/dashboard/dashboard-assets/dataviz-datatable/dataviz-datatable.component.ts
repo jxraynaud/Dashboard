@@ -7,6 +7,8 @@ import {
     ITdDataTableColumn,
     IPageChangeEvent } from '@covalent/core';
 
+import { Angular2Csv } from 'angular2-csv/Angular2-csv';
+
 import { debugLog, debugLogGroup } from '../../../../utils';
 import { groupBy } from '../../libs/groupby';
 
@@ -34,13 +36,21 @@ export class DatavizDatatableComponent implements OnInit, OnChanges {
     public columns : ITdDataTableColumn[];
 
     public filteredByDataTableData: any[];
+    //For CSV, filled in parallel to filteredByDataTableData
+    public filteredUnpagedData: any[];
     public filteredTotal: number;
-    //
+
     searchTerm: string = '';
     fromRow: number = 1;
     currentPage: number = 1;
     @Input() sortBy: string;
     sortOrder: TdDataTableSortingOrder = TdDataTableSortingOrder.Descending;
+
+    csv_isComma = false;
+    csv_isSimpleQuotes = false;
+    csv_isDecimalComma = false;
+    csv_pagedData = false;
+    csv_displayOptions = false;
 
     //Facultative inputs
     @Input() pageSizes = [10, 50, 100, 150, 200];
@@ -62,6 +72,22 @@ export class DatavizDatatableComponent implements OnInit, OnChanges {
         private _dataTableService: TdDataTableService) {
     }
 
+    generateCSV(){
+        let csvOptions = {
+            fieldSeparator: this.csv_isComma?",":";",
+            quoteStrings: this.csv_isSimpleQuotes?"'":'"',
+            decimalseparator: this.csv_isDecimalComma?",":".",
+            showLabels: true,
+            showTitle: false
+          };
+
+        if(this.csv_pagedData){
+            new Angular2Csv(this.filteredByDataTableData, 'Clovis_report', csvOptions);
+        }else{
+            console.log(this.filteredUnpagedData)
+            new Angular2Csv(this.filteredUnpagedData, 'Clovis_report', csvOptions);
+        }
+    }
 
     ngOnInit() {
         //Initiate activegroupbyfields to default value given in input
@@ -165,6 +191,8 @@ export class DatavizDatatableComponent implements OnInit, OnChanges {
             newData = this._dataTableService.filterData(newData, this.searchTerm, true);
             this.filteredTotal = newData.length;
             newData = this._dataTableService.sortData(newData, this.sortBy, this.sortOrder);
+            //For CSV
+            this.filteredUnpagedData = newData.slice();
             newData = this._dataTableService.pageData(newData, this.fromRow, this.currentPage * this.pageSize);
             this.filteredByDataTableData = newData;
         }

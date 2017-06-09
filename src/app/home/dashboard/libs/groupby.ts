@@ -149,9 +149,9 @@ function calculatedMetric_attributionModelsComparison(dataElem,columnName){
             }else{
                 percent = "--"
             }
-            let colName = "MA_comparison_"+col.split("*").splice(1,1)+"__"+firstConvCol.split("*").splice(1,1);
-            if(percent>0){ percent = "+"+percent }
-            dataElem[colName]=percent;
+            let colName = "MA_comparison_"+col.split("*").slice(0,1).concat(col.split("*").slice(2)).join("")+"__"+firstConvCol.split("*").slice(0,1).concat(firstConvCol.split("*").slice(2)).join("");
+            //if(percent>0){ percent = "+"+percent }
+            dataElem[colName]=parseFloat(percent);
         });
     }
     return dataElem;

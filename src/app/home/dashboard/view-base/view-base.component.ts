@@ -403,9 +403,10 @@ export class ViewBaseComponent implements OnInit {
 
                 //Insert at the right place (after conversion column)
                 let colToAdd = {
-                    name : "MA_comparison_"+col.split("*").splice(1,1)+"__"+firstConvCol.split("*").splice(1,1),
+                    name : "MA_comparison_"+col.split("*").slice(0,1).concat(col.split("*").slice(2)).join("")+"__"+firstConvCol.split("*").slice(0,1).concat(firstConvCol.split("*").slice(2)).join(""),
                     label : "%",
-                    tooltip : "% "+col.split("*").slice(0,1).concat(col.split("*").slice(2)).join("")+" compared to "+firstConvCol.split("*").slice(0,1).concat(firstConvCol.split("*").slice(2)).join("")
+                    tooltip : "% "+col.split("*").slice(0,1).concat(col.split("*").slice(2)).join("")+" compared to "+firstConvCol.split("*").slice(0,1).concat(firstConvCol.split("*").slice(2)).join(""),
+                    numeric : true
                 }
                 newMetricsList.splice(indexToAddTo,0,colToAdd);
                 console.warn(augmentedMetricsColumnsList);
