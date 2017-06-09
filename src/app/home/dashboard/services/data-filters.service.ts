@@ -70,7 +70,7 @@ export class DataFiltersService {
                     "with value :",
                     data]);
                     if(data.length > 0){
-                        //Map on the dimensions (lis tof used dimensions) to find for each dimension a list of unique id from the data
+                        //Map on the dimensions (list of used dimensions) to find for each dimension a list of unique id from the data
                         let dimensionsFilters = {};
                         dimensions.map((dim)=>{
                             let singleDimension = [];
