@@ -40,17 +40,13 @@ export class FormDataFiltersComponent implements OnInit, OnChanges {
         //console.log("NGONCAHNGES");
         //console.log(changes);
         if(changes.dimensionFilters){
-            //console.log("Ng On Changes dimensionFilters");
-            //console.log(changes.dimensionFilters);
-            //console.log(changes.dimensionFilters.currentValue);
-            Object.keys(changes.dimensionFilters.currentValue).map(e=>{
-                    //console.log(this.activeFiltersChips[e]=changes.dimensionFilters.currentValue[e].checked);
-            });
+            debugLog(this.DEBUG,"Ng On Changes dimensionFilters");
+            this.activeFiltersChips = this.generateActiveFiltersChipsFromDimensionsArray(changes.dimensionFilters.currentValue);
+            this.filtersUpdated.emit(changes.dimensionFilters.currentValue)
         }
 
         if(changes.dimensionfiltersMapping){
-            //console.log("Ng On Changes dimensionfiltersMapping");
-            //console.log(changes.dimensionfiltersMapping);
+            debugLogGroup(this.DEBUG,["Ng On Changes dimensionfiltersMapping",changes.dimensionfiltersMapping]);
             this.filtersChips = changes.dimensionfiltersMapping.currentValue
             this.activeFiltersChips = {};
             Object.keys(changes.dimensionfiltersMapping.currentValue).map(e=>{
@@ -59,6 +55,17 @@ export class FormDataFiltersComponent implements OnInit, OnChanges {
                 }
             });
         }
+    }
+
+    generateActiveFiltersChipsFromDimensionsArray(dimensionsArray){
+        let newActiveFiltersChips = {};
+        Object.keys(dimensionsArray).map(key=>{
+                newActiveFiltersChips[key]=[];
+                dimensionsArray[key].checked.map(elemId=>{
+                    newActiveFiltersChips[key].push(this.mapIdToChipName(elemId,key));
+                })
+        });
+        return newActiveFiltersChips;
     }
 
     dimensionNameFromIdColLabel(dimensionDataIdColName){
@@ -95,10 +102,12 @@ export class FormDataFiltersComponent implements OnInit, OnChanges {
         return this.dimensionfiltersMapping[filterType].findIndex(e=>{ return e==chipName })
     }
 
-    mapIdToChipName(id,fitlerType){}
+    mapIdToChipName(id,filterType):string{
+        return this.dimensionfiltersMapping[filterType][id];
+    }
 
     /**
-     *    UpdateFilters adds or rmeoves (dpeending on toCheck paramter) a single filter form specified filter type and triggers event for updating filters
+     *    UpdateFilters adds or removes (dpeending on toCheck parameter) a single filter form specified filter type and triggers event for updating filters
      *    @method updateFilters
      *    @param  {[type]}      toCheck      boolean : true means action to add filter to active ones, false means to remove it
      *    @param  {[type]}      filterElemId id of the filter elementto add or remove

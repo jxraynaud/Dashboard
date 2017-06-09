@@ -45,6 +45,7 @@
           [filtersDimensionMapping]="filtersDimensionMapping"
           [config]="config"
           [isAttributionModelMultiple]="isAttributionModelMultiple"
+          (clickFilter)="clickFilter($event)"
         ></app-overview>
 
         <app-bykpiview *ngIf="navService.activeViews.frauddetector=='bykpiview'"
@@ -58,6 +59,7 @@
             [filtersDimensionMapping]="filtersDimensionMapping"
             [config]="config"
             [isAttributionModelMultiple]="isAttributionModelMultiple"
+            (clickFilter)="clickFilter($event)"
         ></app-bykpiview>
 
         <app-bypartnerview *ngIf="navService.activeViews.frauddetector=='bypartnerview'"
@@ -71,6 +73,7 @@
             [filtersDimensionMapping]="filtersDimensionMapping"
             [config]="config"
             [isAttributionModelMultiple]="isAttributionModelMultiple"
+            (clickFilter)="clickFilter($event)"
         ></app-bypartnerview>
 
   <!--  </md-card>-->

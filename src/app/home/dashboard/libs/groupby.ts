@@ -101,7 +101,7 @@ function addCalculatedColumnsToData(data,activeCalculatedDataConfig){
     debugLogGroup(DEBUG,["Group by : Processing calculated metrics based on list : ",activeCalculatedDataConfig,]);
     data.map(dataElem=>{
         activeCalculatedDataConfig.map((calculatedCol,index)=>{
-            console.log("Calculating "+calculatedCol.column_name+"with "+calculatedCol.function_name+" on ");
+            debugLog(DEBUG,"Calculating "+calculatedCol.column_name+" with switch alternative "+calculatedCol.function_name);
             //console.log(calculatedCol.function_name);
             //
             switch (calculatedCol.function_name) {

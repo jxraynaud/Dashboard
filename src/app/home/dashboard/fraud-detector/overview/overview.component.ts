@@ -12,6 +12,8 @@ import { Subscription } from 'rxjs/Subscription';
 import { DataService } from '../../services/data.service';
 import { ConfigService } from '../../services/config.service';
 
+import { SubviewBaseComponent } from '../../subview-base/subview-base.component';
+
 import {debugLog, debugWarn, debugLogGroup} from '../../../../utils';
 
 @Component({
@@ -19,7 +21,7 @@ import {debugLog, debugWarn, debugLogGroup} from '../../../../utils';
   templateUrl: './overview.component.html',
   styleUrls: ['./overview.component.css']
 })
-export class OverviewComponent implements OnInit {
+export class OverviewComponent extends SubviewBaseComponent implements OnInit {
     DEBUG : boolean = false;
 
     //Unnamed yet filtered data (to be named by dataviz)
@@ -35,7 +37,7 @@ export class OverviewComponent implements OnInit {
      //Setting to pipe to the views to define if the attribution model parameter of the api is simple (number) or multiple (array)
     @Input() isAttributionModelMultiple : boolean;
 
-    constructor() { }
+    constructor() { super(); }
 
     ngOnInit() {
     }

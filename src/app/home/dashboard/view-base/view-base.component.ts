@@ -28,7 +28,7 @@ import {debugLog, debugWarn, debugLogGroup} from '../../../utils';
   styleUrls: ['./view-base.component.css']
 })
 export class ViewBaseComponent implements OnInit {
-    DEBUG : boolean = true;
+    DEBUG : boolean = false;
     SUBCLASSNAME : string;
 
     //Attributes used for template structure
@@ -84,11 +84,7 @@ export class ViewBaseComponent implements OnInit {
         protected dataRequestService : DataRequestService,
         protected attributionModelsService : AttributionModelsService,
     ) {
-
         console.warn(this.openedNav)
-
-
-
     }
 
 
@@ -191,6 +187,17 @@ export class ViewBaseComponent implements OnInit {
 
     ngOnInit() {
         this.navService.opened = this.openedNav;
+    }
+
+    /*Triggers when event bubbles from dattaviz chart through subview*/
+    clickFilter(event){
+        let tempoFilters = Object.assign({},this.filtersDimensions);
+        tempoFilters[event.filterType].checked = [this.mapFilterNameToId(event.name,event.filterType)];
+        this.filtersDimensions = tempoFilters;
+    }
+
+    mapFilterNameToId(name,filterType):number{
+        return this.filtersDimensionMapping[filterType].findIndex(e=>{ return e==name })
     }
 
     /** Generates 2 things : list of columns with id columns and list of columns without id columns

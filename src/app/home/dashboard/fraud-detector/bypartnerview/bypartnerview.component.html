@@ -17,6 +17,7 @@
               [aggregateCriteria] = "'partner_id'"
               [chartType]="'histogram'"
               [chartTitle]="'Histogram'"
+              (histogramClick)="histogramClickFilter($event)"
           ></app-dataviz-chart>
       </md-card>
   </div>

@@ -41,6 +41,7 @@
       [filtersDimensionMapping]="filtersDimensionMapping"
       [config]="config"
       [isAttributionModelMultiple]="isAttributionModelMultiple"
+      (clickFilter)="clickFilter($event)"
     ></app-overview>
 
     <app-bykpiview *ngIf="navService.activeViews.multiattribution=='bykpiview'"
@@ -53,6 +54,7 @@
         [filtersDimensionMapping]="filtersDimensionMapping"
         [config]="config"
         [isAttributionModelMultiple]="isAttributionModelMultiple"
+        (clickFilter)="clickFilter($event)"
     ></app-bykpiview>
 
     <app-bypartnerview *ngIf="navService.activeViews.multiattribution=='bypartnerview'"
@@ -65,5 +67,6 @@
         [filtersDimensionMapping]="filtersDimensionMapping"
         [config]="config"
         [isAttributionModelMultiple]="isAttributionModelMultiple"
+        (clickFilter)="clickFilter($event)"
     ></app-bypartnerview>
 <!--</md-sidenav-container>-->

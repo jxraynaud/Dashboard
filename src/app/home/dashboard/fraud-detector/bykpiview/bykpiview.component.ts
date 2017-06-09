@@ -8,6 +8,8 @@ import {
     ITdDataTableColumn,
     IPageChangeEvent } from '@covalent/core';
 
+import { SubviewBaseComponent } from '../../subview-base/subview-base.component';
+
 import {debugLog, debugWarn, debugLogGroup} from '../../../../utils';
 
 @Component({
@@ -15,7 +17,7 @@ import {debugLog, debugWarn, debugLogGroup} from '../../../../utils';
     templateUrl: './bykpiview.component.html',
     styleUrls: ['./bykpiview.component.css']
 })
-export class BykpiviewComponent implements OnInit {
+export class BykpiviewComponent extends SubviewBaseComponent implements OnInit {
     DEBUG : boolean = false;
 
     viewTitle : string = "Fraud detector by KPI"
@@ -33,7 +35,7 @@ export class BykpiviewComponent implements OnInit {
     //Setting to pipe to the views to define if the attribution model parameter of the api is simple (number) or multiple (array)
     @Input() isAttributionModelMultiple : boolean;
 
-    constructor() { }
+    constructor() { super();  }
 
     ngOnInit() {}
 }

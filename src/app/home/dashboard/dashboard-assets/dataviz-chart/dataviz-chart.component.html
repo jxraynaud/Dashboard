@@ -62,7 +62,8 @@
               [yAxisLabel]="yAxisLabel"
               [yAxisTickFormatting]="axisDigits"
               [barPadding]="2"
-              [groupPadding]="8">
+              [groupPadding]="8"
+              (select)="onSelectHistogram($event)">
             </ngx-charts-bar-vertical-2d>
         </div>
       </div>
