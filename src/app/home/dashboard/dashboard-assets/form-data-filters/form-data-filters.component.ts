@@ -63,8 +63,6 @@ export class FormDataFiltersComponent implements OnInit, OnChanges {
         if(changes.dimensionFilters || changes.dimensionfiltersMapping ){
             let tempoDimensionFilters = changes.dimensionFilters?changes.dimensionFilters.currentValue:this.dimensionFilters;
             let tempoDimensionFilterMapping = changes.dimensionfiltersMapping?changes.dimensionfiltersMapping.currentValue:this.dimensionfiltersMapping;
-            console.warn("DIM");
-            console.log(tempoDimensionFilters);
             if(tempoDimensionFilters && tempoDimensionFilterMapping){
                 debugLog(this.DEBUG,"Dimensions Filters OR DimensionsFilterMapping change");
                 //Update available chips by matching ids to names
@@ -87,8 +85,6 @@ export class FormDataFiltersComponent implements OnInit, OnChanges {
     }
 
     generateAvailableFiltersChipsFromDimensionsArray(dimensionsArray,filtersMappingObject){
-        console.warn("DIM ARRAY");
-        console.log(dimensionsArray);
         let newAvailableFiltersChips = {};
         Object.keys(dimensionsArray).map(key=>{
                 newAvailableFiltersChips[key]=[];
@@ -96,8 +92,6 @@ export class FormDataFiltersComponent implements OnInit, OnChanges {
                     newAvailableFiltersChips[key].push(this.mapIdToChipName(elemId,key,filtersMappingObject));
                 })
         });
-        console.warn("lll");
-        console.log(newAvailableFiltersChips);
         return newAvailableFiltersChips;
     }
 
