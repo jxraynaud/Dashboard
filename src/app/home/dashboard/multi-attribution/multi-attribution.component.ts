@@ -33,7 +33,7 @@ export class MultiAttributionComponent extends ViewBaseComponent implements OnIn
     DEBUG : boolean = false;
     SUBCLASSNAME = "Multiattribution component : "
 
-    openedNav : boolean = false;
+    openedNav : boolean = true;
 
     //activeDimensions : string[] = ['advertiser_id','partner_id','kpi_id','metacampaign_id',/*'falseDimension'*/];
 

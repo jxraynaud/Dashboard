@@ -17,7 +17,7 @@ import { groupBy } from '../../libs/groupby';
 })
 export class DatavizChartComponent implements OnInit {
 
-    DEBUG : boolean = false;
+    DEBUG : boolean = true;
 
     @Input() filteredData : Array<{}>;
     private aggregatedFilteredData : Array<{}>;

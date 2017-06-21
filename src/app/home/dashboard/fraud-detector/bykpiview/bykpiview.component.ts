@@ -27,6 +27,7 @@ export class BykpiviewComponent extends SubviewBaseComponent implements OnInit {
     @Input() activeDimensionsWithIdColumns : ITdDataTableColumn[] = [];
     @Input() activeDimensionsWithoutIdColumns : ITdDataTableColumn[] = [];
     @Input() activeStaticMetricsColumns : ITdDataTableColumn[] = [];
+    @Input() allActiveMetricsColumns : ITdDataTableColumn[];
     @Input() activeCalculatedMetrics : string[];
     @Input() additiveMetricsList : Array<string> = [];
     @Input() filtersDimensionMapping;
