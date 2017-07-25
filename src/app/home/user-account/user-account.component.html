@@ -1,0 +1,45 @@
+<div class="md-content" layout-padding flex>
+  <div layout-gt-xs="row" layout-align-gt-xs="center start" class="margin">
+    <div flex-gt-xs="50">
+      <md-card tdMediaToggle="gt-xs" [mediaClasses]="['push-top-lg']">
+        <md-card-title>Change your password</md-card-title>
+        <md-divider></md-divider>
+          <form #changePasswordForm="ngForm">
+            <md-card-content>
+                <div layout="row">
+                  Old password :
+                </div>
+                <div layout="row">
+                  <input mdInput #passControl="ngModel" placeholder="Old Password" type="password" name="oldpassword" [(ngModel)]="model.oldpassword" required>
+                  <md-hint align="start">
+                    <span [hidden]="!passControl.errors?.required || passControl.pristine" class="tc-red-600">Required</span>
+                  </md-hint>
+                </div>
+                <div layout="row">
+                    New password :
+                </div>
+                <div layout="row">
+                    <input mdInput #passControl="ngModel" placeholder="New Password" type="password" name="newpassword" [(ngModel)]="model.newpassword" required>
+                    <md-hint align="start">
+                      <span [hidden]="!passControl.errors?.required || passControl.pristine" class="tc-red-600">Required</span>
+                    </md-hint>
+                </div>
+                <div layout="row">
+                    Confirm new password :
+                </div>
+                <div layout="row">
+                    <input mdInput #passControl="ngModel" placeholder="Confirm New Password" type="password" name="confirmnewpassword" [(ngModel)]="model.confirmnewpassword" required>
+                    <md-hint align="start">
+                      <span [hidden]="!passControl.errors?.required || passControl.pristine" class="tc-red-600">Required</span>
+                    </md-hint>
+                </div>
+            </md-card-content>
+            <md-divider></md-divider>
+            <md-card-actions layout="row">
+              <button flex md-raised-button color="accent" type="submit" [disabled]="!changePasswordForm.form.valid" (click)="changePassword()">Change my password</button>
+            </md-card-actions>
+          </form>
+        </md-card>
+      </div>
+    </div>
+  </div>
