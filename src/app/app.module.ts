@@ -20,7 +20,8 @@ import { AppRoutingModule } from './app-routing.module';
 import { LoginComponent } from './login/login.component';
 import { NotFoundComponent } from './not-found/not-found.component';
 
-import { AuthenticationService } from './services/authentication.service'
+import { AuthenticationService } from './services/authentication.service';
+import { ChangePasswordService } from './services/change-password.service';
 import { AlertService } from './services/alert.service';
 import { AlertComponent } from './alert/alert.component'
 
@@ -46,6 +47,7 @@ import { AlertComponent } from './alert/alert.component'
       //{ provide: Http, useClass: AuthenticatedHttpService },
       AuthenticatedHttpService,
       AuthenticationService,
+      ChangePasswordService,
       AlertService,
       NavService,
   ],

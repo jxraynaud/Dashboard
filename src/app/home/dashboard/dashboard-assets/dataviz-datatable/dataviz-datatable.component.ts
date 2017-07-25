@@ -46,7 +46,7 @@ export class DatavizDatatableComponent implements OnInit, OnChanges {
     @Input() sortBy: string;
     sortOrder: TdDataTableSortingOrder = TdDataTableSortingOrder.Descending;
 
-    csv_isComma = false;
+    csv_isComma = true;
     csv_isSimpleQuotes = false;
     csv_isDecimalComma = false;
     csv_pagedData = false;

@@ -16,6 +16,13 @@ export class DefaultComponent implements OnInit {
       route: 'dashboard',
       title: 'Dashboard',
     },
+    {
+        color: 'blue-500',
+        description: 'User account management',
+        icon: 'face',
+        route: 'account',
+        title: 'User Account',
+      },
   ];
 
   ngOnInit(){}

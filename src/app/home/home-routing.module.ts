@@ -6,6 +6,7 @@ import { DefaultComponent } from './default/default.component'
 
 //import { DashboardComponent } from '../dashboard/dashboard.component';
 import { DashboardModule } from './dashboard/dashboard.module'
+import { UserAccountComponent } from './user-account/user-account.component'
 import { AuthGuard } from './auth.guard';
 
 export const homeRoutes : Routes = [
@@ -24,6 +25,11 @@ export const homeRoutes : Routes = [
                 path: 'dashboard',
                 canActivateChild: [AuthGuard],
                 loadChildren: './dashboard/dashboard.module#DashboardModule'
+            },
+            {
+                path: 'account',
+                canActivate: [AuthGuard],
+                component : UserAccountComponent
             },
         ]
     },
