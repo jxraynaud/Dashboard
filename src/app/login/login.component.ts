@@ -32,7 +32,11 @@ export class LoginComponent implements OnInit {
         //this.authenticationService.logout();
 
         // get return url from route parameters or default to '/'
-        this.returnUrl = this.route.snapshot.queryParams['returnUrl'].split("?")[0] || '/';
+        if(this.route.snapshot.queryParams['returnUrl']){
+            this.returnUrl = this.route.snapshot.queryParams['returnUrl'].split("?")[0] || '/';
+        }else{
+            this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/';
+        }
         this.returnUrlParams = this.getQueryParamsObject(this.route.snapshot.queryParams['returnUrl']);
     }
 
@@ -49,7 +53,7 @@ export class LoginComponent implements OnInit {
     }
 
     getQueryParamsObject(url){
-        if(url.split("?")[1]){
+        if(typeof(url) !== 'undefined' && url.split("?")[1]){
             let paramsArray = url.split("?")[1].split("&");
             let paramsObject = {};
             paramsArray.map(e=>{
