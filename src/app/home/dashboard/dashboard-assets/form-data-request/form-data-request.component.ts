@@ -148,9 +148,9 @@ export class FormDataRequestComponent implements OnInit, OnChanges {
         let today = Date.now();
         return {
             //TODO : remettre dates par défaut
-            startDate : new Date(today - (60*days)),
+            startDate : new Date(today - (31*days)),
             //startDate : new Date("2016-01-01"),
-            endDate : new Date(today - (30*days)),
+            endDate : new Date(today - (1*days)),
             //endDate : new Date("2016-03-01"),
         };
     }
