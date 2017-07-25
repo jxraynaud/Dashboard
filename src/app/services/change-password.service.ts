@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { /*Http,*/ Headers, Response } from '@angular/http';
+import { /*Http,*/ Headers, RequestOptions, Response } from '@angular/http';
 
 import { AuthenticatedHttpService } from './authenticatedHttpService';
 
@@ -16,10 +16,25 @@ export class ChangePasswordService {
     ) { }
 
     changePassword(oldPassword:string, newPassword:string, confirmNewPassword:string){
-        return this.http.post(appConfig.passwordChange.url + appConfig.passwordChange.endpoint, { new_password1 : newPassword, new_password2 : confirmNewPassword, old_password : oldPassword })
+        return this.http.post(appConfig.passwordChange.url + appConfig.passwordChange.endpoint, { new_password1 : newPassword, new_password2 : confirmNewPassword, old_password : oldPassword }, this.jwt())
             .map((response: Response) => {
-                console.log(response)
+                return response.json();
             });
     }
+
+    /**
+     * Retrieves JWT token from localStorage and returns it if available. For use in HTTP requests
+     * @method jwt
+     * @return {[type]} [description]
+     */
+    private jwt() {
+        // create authorization header with jwt token
+        let currentUser = JSON.parse(localStorage.getItem('currentUser'));
+        if (currentUser && currentUser.token) {
+            let headers = new Headers({ 'Authorization': 'JWT ' + currentUser.token });
+            return new RequestOptions({ headers: headers });
+        }
+    }
+
 
 }

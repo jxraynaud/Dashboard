@@ -30,8 +30,8 @@ export class UserAccountComponent implements OnInit {
   changePassword():void{
       this.changePasswordService.changePassword(this.model.oldPassword, this.model.newPassword, this.model.confirmNewPassword)
           .subscribe(
-              data => {
-                  console.warn(data)
+              response => {
+                  this.alertService.success(response.detail);
               },
               error => {
                   this.alertService.error(error._body);

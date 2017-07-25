@@ -10,7 +10,7 @@
                   Old password :
                 </div>
                 <div layout="row">
-                  <input mdInput #passControl="ngModel" placeholder="Old Password" type="password" name="oldpassword" [(ngModel)]="model.oldpassword" required>
+                  <input mdInput #passControl="ngModel" placeholder="Old Password" type="password" name="oldPassword" [(ngModel)]="model.oldPassword" required>
                   <md-hint align="start">
                     <span [hidden]="!passControl.errors?.required || passControl.pristine" class="tc-red-600">Required</span>
                   </md-hint>
@@ -19,7 +19,7 @@
                     New password :
                 </div>
                 <div layout="row">
-                    <input mdInput #passControl="ngModel" placeholder="New Password" type="password" name="newpassword" [(ngModel)]="model.newpassword" required>
+                    <input mdInput #passControl="ngModel" placeholder="New Password" type="password" name="newPassword" [(ngModel)]="model.newPassword" required>
                     <md-hint align="start">
                       <span [hidden]="!passControl.errors?.required || passControl.pristine" class="tc-red-600">Required</span>
                     </md-hint>
@@ -28,7 +28,7 @@
                     Confirm new password :
                 </div>
                 <div layout="row">
-                    <input mdInput #passControl="ngModel" placeholder="Confirm New Password" type="password" name="confirmnewpassword" [(ngModel)]="model.confirmnewpassword" required>
+                    <input mdInput #passControl="ngModel" placeholder="Confirm New Password" type="password" name="confirmNewPassword" [(ngModel)]="model.confirmNewPassword" required>
                     <md-hint align="start">
                       <span [hidden]="!passControl.errors?.required || passControl.pristine" class="tc-red-600">Required</span>
                     </md-hint>
