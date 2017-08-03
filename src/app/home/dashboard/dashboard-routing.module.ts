@@ -33,6 +33,11 @@ const dashboardRoutes: Routes = [
                 canActivateChild: [AuthGuard],
                 loadChildren: './fraud-detector/fraud-detector.module#FraudDetectorModule'
             },
+            {
+                path: 'reporting',
+                canActivateChild: [AuthGuard],
+                loadChildren: './reporting/reporting.module#ReportingModule'
+            },
         ]
     }
 ];

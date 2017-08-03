@@ -20,6 +20,13 @@ export class DefaultComponent implements OnInit {
       route: 'multi-attribution',
       title: 'Multi Attribution Models',
     },
+    {
+      color: 'red-700',
+      description: 'Reporting',
+      icon: 'assignment',
+      route: 'reporting',
+      title: 'Reporting',
+    },
   ];
 
   constructor(){

@@ -1,0 +1,41 @@
+<md-card>
+  <md-card-title>
+    Generate a report
+  </md-card-title>
+
+  <md-card-content class="reporting-form">
+
+    <div class="col-md-6 col-xs-12">
+      <h4>Metacampaign</h4>
+      <md-select class="metacampaign-select" placeholder="Metacampaign" (change)="changeMetacampaign($event.value)" [(ngModel)]="selected_metacampaign">
+         <md-option *ngFor="let metacampaign of metacampaigns" [value]="metacampaign.api_id" >{{ metacampaign.api_name }}</md-option>
+      </md-select>
+
+      <button *ngIf="selected_metacampaign" md-raised-button [color]="'primary'" (click)="generateReport()">Generate Report</button>
+
+    </div>
+
+    <div class="col-md-6 col-xs-12">
+      <h4>Date</h4>
+        <div class="input-group" daterangepicker [options]="date_options" (selected)="selectedDate($event)" >
+            <span class="form-control uneditable-input"  name="daterange" >
+                {{ selected_dateRange.startDate | date:'y/MM/dd' }} - {{ selected_dateRange.endDate | date:'y/MM/dd' }}
+            </span>
+            <span class="input-group-btn">
+                <a type="button" class="btn btn-default"><i class="glyphicon glyphicon-calendar"></i></a>
+            </span>
+        </div>
+    </div>
+
+    <div *ngIf="report_responses.length > 0" class="col-md-12 col-xs-12">
+      <h4>Your last generated reports</h4>
+        <div *ngFor="let report of report_responses">
+            <strong>Report for metacampaign {{report.campaign_name}}</strong> - {{ report.startDate | date:'y/MM/dd' }} to {{ report.endDate | date:'y/MM/dd' }} <br />
+            ===> <a href="{{ report.url }}">{{ report.url }}</a>
+        </div>
+    </div>
+
+    <div style="clear:both"></div>
+
+  </md-card-content>
+</md-card>

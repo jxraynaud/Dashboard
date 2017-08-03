@@ -55,6 +55,13 @@
                   "icon" : "group"
               }
           ]
+      },
+      {
+          "name" : "reporting",
+          "menuText" : "Reporting",
+          "description" : "Generate a report",
+          "icon" : "assignment",
+          "route" : "reporting"
       }
   ]
 }
