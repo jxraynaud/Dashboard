@@ -19,6 +19,7 @@ import {debugLog, debugLogGroup} from '../../../utils';
 })
 export class ReportingComponent implements OnInit {
     DEBUG : boolean = true;
+    API_URL : string = "http://localhost:8000/api/";
 
     openedNav : boolean = false;
 
@@ -97,7 +98,7 @@ export class ReportingComponent implements OnInit {
 
     getMetacampaigns(){
         console.warn(this.jwt().headers)
-        return this.http.get("http://localhost:8000/api/metacampaigns/", this.jwt())
+        return this.http.get(this.API_URL+"metacampaigns/", this.jwt())
            .toPromise()
            .then(response => {
                debugLogGroup(this.DEBUG, ["Promise result received for ReportingComponent.getMetacampaigns()",
@@ -129,7 +130,7 @@ export class ReportingComponent implements OnInit {
     generateReport(){
         console.warn("Generating report for metacampaign ID "+this.selected_metacampaign);
 
-        this.http.post("http://localhost:8000/api/metacampaign_reporting/", { "metacampaign":this.selected_metacampaign, "dateRange":this.selected_dateRange }, this.jwt())
+        this.http.post(this.API_URL+"metacampaign_reporting/", { "metacampaign":this.selected_metacampaign, "dateRange":this.selected_dateRange }, this.jwt())
            .toPromise()
            .then(response => {
                debugLogGroup(this.DEBUG, ["Promise result received for DataRequestService.getAll()",
