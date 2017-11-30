@@ -6,16 +6,6 @@
   <md-card-content class="reporting-form">
 
     <div class="col-md-6 col-xs-12">
-      <h4>Metacampaign</h4>
-      <md-select class="metacampaign-select" placeholder="Metacampaign" (change)="changeMetacampaign($event.value)" [(ngModel)]="selected_metacampaign">
-         <md-option *ngFor="let metacampaign of metacampaigns" [value]="metacampaign.api_id" >{{ metacampaign.api_name }}</md-option>
-      </md-select>
-
-      <button *ngIf="selected_metacampaign" md-raised-button [color]="'primary'" (click)="generateReport()">Generate Report</button>
-
-    </div>
-
-    <div class="col-md-6 col-xs-12">
       <h4>Date</h4>
         <div class="input-group" daterangepicker [options]="date_options" (selected)="selectedDate($event)" >
             <span class="form-control uneditable-input"  name="daterange" >
@@ -25,6 +15,16 @@
                 <a type="button" class="btn btn-default"><i class="glyphicon glyphicon-calendar"></i></a>
             </span>
         </div>
+    </div>
+
+    <div class="col-md-6 col-xs-12">
+      <h4>Metacampaign</h4>
+      <md-select class="metacampaign-select" placeholder="Metacampaign" (change)="changeMetacampaign($event.value)" [(ngModel)]="selected_metacampaign">
+         <md-option *ngFor="let metacampaign of metacampaigns" [value]="metacampaign.ad__placement__campaign__metacampaign__id" >{{ metacampaign.ad__placement__campaign__metacampaign__name }}</md-option>
+      </md-select>
+
+      <button *ngIf="selected_metacampaign" md-raised-button [color]="'primary'" (click)="generateReport()">Generate Report</button>
+
     </div>
 
     <div *ngIf="report_responses.length > 0" class="col-md-12 col-xs-12">

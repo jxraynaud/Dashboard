@@ -91,14 +91,32 @@ export class ReportingComponent implements OnInit {
     }
 
     initSubscriptions(){
-        this.getMetacampaigns().then(response=>{
+        /*this.getMetacampaigns().then(response=>{
             this.metacampaigns = response;
-        })
+        })*/
     }
 
-    getMetacampaigns(){
+    /*getMetacampaigns(){
         console.warn(this.jwt().headers)
         return this.http.get(this.API_URL+"metacampaigns/", this.jwt())
+           .toPromise()
+           .then(response => {
+               debugLogGroup(this.DEBUG, ["Promise result received for ReportingComponent.getMetacampaigns()",
+                   response.json()]);
+               return response.json();
+           })
+           .catch(error => {
+               console.error("PROMISE REJECTED : could not get data from api in reporting section ");
+               console.log("error : "+error.json().detail);
+               console.log(error.json());
+           //    this.router.navigate(['/login'], { queryParams: { returnUrl : window.location.pathname }});
+               return [];
+           });
+    }*/
+
+    getMetacampaignsForDaterange(startDate, endDate){
+        console.warn(this.jwt().headers)
+        return this.http.post(this.API_URL+"metacampaign_reporting_list/", {startDate : startDate, endDate : endDate}, this.jwt())
            .toPromise()
            .then(response => {
                debugLogGroup(this.DEBUG, ["Promise result received for ReportingComponent.getMetacampaigns()",
@@ -118,13 +136,28 @@ export class ReportingComponent implements OnInit {
         //console.warn("TEST");
     }
 
+    generateDateYYYYMMDD(date){
+        let d = new Date(date);
+        let month = ("0"+d.getMonth() + 1).slice(-2);
+        let day = ("0" + d.getDate()).slice(-2);
+        return d.getFullYear()+"-"+month+"-"+day;
+    }
+
     public selectedDate(value: any):void {
         //triggers setter of selected_dateRange attribute
+        let startDate = this.generateDateYYYYMMDD(new Date(value.start));
+        let endDate = this.generateDateYYYYMMDD(new Date(value.end));
+
         this.selected_dateRange = {
-            startDate : new Date(value.start),
-            endDate : new Date(value.end),
+            startDate : startDate,
+            endDate : endDate,
         };
-        debugLog(this.DEBUG, "New daterange : "+this.selected_dateRange.startDate+" - "+this.selected_dateRange.endDate);
+
+        debugLog(this.DEBUG, "New daterange : "+startDate+" - "+endDate);
+
+        this.getMetacampaignsForDaterange(startDate, endDate).then(response=>{
+            this.metacampaigns = response;
+        })
     }
 
     generateReport(){
