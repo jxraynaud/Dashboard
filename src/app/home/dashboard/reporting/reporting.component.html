@@ -2,37 +2,134 @@
   <md-card-title>
     Generate a report
   </md-card-title>
+  {{selected_dateRange['startDate']}} - {{selected_dateRange['endDate']}}
 
-  <md-card-content class="reporting-form">
+  <md-card-content class="reporting-form container">
 
-    <div class="col-md-6 col-xs-12">
-      <h4>Date</h4>
-        <div class="input-group" daterangepicker [options]="date_options" (selected)="selectedDate($event)" >
-            <span class="form-control uneditable-input"  name="daterange" >
-                {{ selected_dateRange.startDate | date:'y/MM/dd' }} - {{ selected_dateRange.endDate | date:'y/MM/dd' }}
-            </span>
-            <span class="input-group-btn">
-                <a type="button" class="btn btn-default"><i class="glyphicon glyphicon-calendar"></i></a>
-            </span>
-        </div>
+    <div class="row">
+      <div class="col-md-6 col-xs-12">
+        <h4>Date</h4>
+          <div class="input-group" daterangepicker [options]="date_options" (selected)="selectedDate($event)" >
+              <span class="form-control uneditable-input"  name="daterange" >
+                  {{ selected_dateRange.startDate | date:'y/MM/dd' }} - {{ selected_dateRange.endDate | date:'y/MM/dd' }}
+              </span>
+              <span class="input-group-btn">
+                  <a type="button" class="btn btn-default"><i class="glyphicon glyphicon-calendar"></i></a>
+              </span>
+          </div>
+      </div>
+
+
+      <div class="col-md-6 col-xs-12">
+        <h4>Metacampaign</h4>
+        <div class="center" *ngIf="metacampaignsLoading"><img height="50" src="assets/loading.gif" />Calculating relevant Metacampaigns<img height="50" src="assets/loading.gif" /></div>
+        <div class="center" *ngIf="!metacampaignsLoading && metacampaigns.length == 0"><md-chip class="errorChip" color="accent" selected="true">No metacampaigns available for this date range</md-chip></div>
+        <md-select *ngIf="!metacampaignsLoading && metacampaigns.length > 0" class="metacampaign-select" placeholder="Metacampaign" (change)="changeMetacampaign($event.value)" [(ngModel)]="selected_metacampaign">
+           <md-option *ngFor="let metacampaign of metacampaigns" [value]="metacampaign.ad__placement__campaign__metacampaign__id" >{{ metacampaign.ad__placement__campaign__metacampaign__name }}</md-option>
+        </md-select>
+      </div>
+
     </div>
 
-    <div class="col-md-6 col-xs-12">
-      <h4>Metacampaign</h4>
-      <md-select class="metacampaign-select" placeholder="Metacampaign" (change)="changeMetacampaign($event.value)" [(ngModel)]="selected_metacampaign">
-         <md-option *ngFor="let metacampaign of metacampaigns" [value]="metacampaign.ad__placement__campaign__metacampaign__id" >{{ metacampaign.ad__placement__campaign__metacampaign__name }}</md-option>
-      </md-select>
+    <div class="row">
+      <div class="col-md-2 col-xs-12 align-right">
+        Standard KPIs
+      </div>
+      <div class="col-md-4 col-xs-12">
+        <md-slide-toggle [color]="'primary'" [(ngModel)]="customKpis">Custom KPIs</md-slide-toggle>
+      </div>
 
-      <button *ngIf="selected_metacampaign" md-raised-button [color]="'primary'" (click)="generateReport()">Generate Report</button>
+      <div *ngIf="customKpis" class="col-md-6 col-xs-12">
+        <td-chips *ngIf="kpisChips.length > 0" [items]="kpisChips" (add)="addActiveStandardChip($event, kpis, activeKpisItems)" (remove)="removeActiveStandardChip($event, activeKpisItems)" [(ngModel)]="activeKpisChips" placeholder="Choose KPIs"></td-chips>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-md-2 col-xs-12 align-right">
+        Data by Kpi
+      </div>
+      <div class="col-md-4 col-xs-12">
+        <md-slide-toggle [color]="'primary'" [(ngModel)]="dataByTag">Data by Tag</md-slide-toggle>
+      </div>
 
     </div>
 
-    <div *ngIf="report_responses.length > 0" class="col-md-12 col-xs-12">
-      <h4>Your last generated reports</h4>
-        <div *ngFor="let report of report_responses">
-            <strong>Report for metacampaign {{report.campaign_name}}</strong> - {{ report.startDate | date:'y/MM/dd' }} to {{ report.endDate | date:'y/MM/dd' }} <br />
-            ===> <a href="{{ report.url }}">{{ report.url }}</a>
+    <div class="row">
+      <div class="col-md-2 col-xs-12 align-right">
+        One column for all conversions
+      </div>
+      <div class="col-md-4 col-xs-12">
+        <md-slide-toggle [color]="'primary'" [(ngModel)]="separatePostImpPostClick">Separate post imp / post click data</md-slide-toggle>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-md-2 col-xs-12 align-right">
+        CSV FR
+      </div>
+      <div class="col-md-4 col-xs-12">
+        <md-slide-toggle [color]="'primary'" [(ngModel)]="csvFormatEn">CSV EN</md-slide-toggle>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-md-2 col-xs-12 align-right">
+        Don't ad id column to data
+      </div>
+      <div class="col-md-4 col-xs-12">
+        <md-slide-toggle [color]="'primary'" [(ngModel)]="addIdColumn">Add id column to data</md-slide-toggle>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-md-6 col-xs-12 center">
+        Group conversions :
+        <md-radio-group class="groupConversionsBy-group" [(ngModel)]="groupConversionsBy">
+          <md-radio-button class="groupConversionsBy-button" *ngFor="let groupingType of conversionsGroupingTypes" [value]="groupingType['id']">
+            {{groupingType['name']}}
+          </md-radio-button>
+        </md-radio-group>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-md-2 col-xs-12 align-right">
+        Certified and not certified conversions
+      </div>
+      <div class="col-md-4 col-xs-12">
+        <md-slide-toggle [color]="'primary'" [(ngModel)]="certifiedConversionsOnly">Certified conversions only</md-slide-toggle>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-md-6 col-xs-12">
+        Attribution models :
+        <td-chips *ngIf="attributionModelsChips.length > 0" [items]="attributionModelsChips" (add)="addActiveAttributionModelChip($event)" (remove)="removeActiveAttributionModelChip($event)" [(ngModel)]="activeAttributionModelsChips" placeholder="Choose Attribution Models"></td-chips>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-md-6 col-xs-12" >
+        <md-chip class="errorChip" *ngFor="let error of form_errors" color="accent" selected="true">
+          {{error}}
+        </md-chip>
+      </div>
+      <div class="col-md-6 col-xs-12 align-right">
+        <button *ngIf="parameters_ok" md-raised-button [color]="'primary'" (click)="generateReport()">Generate Report</button>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-md-12 col-xs-12">
+        <div *ngIf="report_responses.length > 0" class="col-md-12 col-xs-12">
+          <h4>Your last generated reports</h4>
+            <div *ngFor="let report of report_responses">
+                <strong>Report for metacampaign {{report.campaign_name}}</strong> - {{ report.startDate | date:'y/MM/dd' }} to {{ report.endDate | date:'y/MM/dd' }} <br />
+                ===> <a href="{{ report.url }}">{{ report.url }}</a>
+                <div *ngFor="let warning of report.warnings" ><md-icon class="report_warnings">warning</md-icon> {{warning}}</div>
+            </div>
         </div>
+      </div>
     </div>
 
     <div style="clear:both"></div>

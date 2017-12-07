@@ -23,8 +23,10 @@ export class ReportingComponent implements OnInit {
 
     openedNav : boolean = false;
 
-    metacampaigns = [];
-    selected_metacampaign : number;
+    report_responses : {}[] = [];
+    form_errors = [];
+    request_to_send = {};
+    reporting_id_to_watch : number;
 
     // Define the needed attributes
     private _selectedDateRange : {startDate, endDate};
@@ -34,17 +36,40 @@ export class ReportingComponent implements OnInit {
     set selected_dateRange(newDateRange){
         this._selectedDateRange = newDateRange;
     }
-
     date_options;
 
-    report_responses : {}[] = [];
+    metacampaigns = [];
+    metacampaignsLoading = false;
+    selected_metacampaign : number;
+    selected_metacampaign_item : {};
+    parameters_ok : boolean = false;
+
+    customKpis : boolean = false;
+    kpis = [];
+    kpisChips = [];
+    activeKpisChips = [];
+    activeKpisItems = [];
+
+    dataByTag : boolean = false;
+
+    separatePostImpPostClick : boolean = false;
+    csvFormatEn : boolean = false;
+    addIdColumn : boolean = false;
+    certifiedConversionsOnly : boolean = false;
+
+    conversionsGroupingTypes = [{id:1, name:"Global"},{id:2, name:"By Day"},{id:3, name:"By Week"}];
+    groupConversionsBy:number = 1;
+
+    attributionModels = [];
+    attributionModelsChips = [];
+    activeAttributionModelsChips = [];
+    activeAttributionModelsItems = [];
 
     constructor(
         private http: AuthenticatedHttpService,
         protected activatedRoute : ActivatedRoute,
         public navService : NavService,
     ) {
-        this.initSubscriptions();
     }
 
     ngOnInit() {
@@ -76,6 +101,31 @@ export class ReportingComponent implements OnInit {
                     ],
                 },
         };
+
+        this.getKPIs().then(response=>{
+            this.kpis = response;
+            this.kpisChips = this.kpis.map(e=>{return e['api_name']});
+        });
+
+        this.getAttributionModels().then(response=>{
+            this.attributionModels = response;
+            this.attributionModelsChips = this.attributionModels.map(e=>{return e['name']});
+        })
+
+        console.warn(this.selected_dateRange['startDate'])
+        let startDate = this.selected_dateRange['startDate'];
+        let endDate = this.selected_dateRange['endDate'];
+        this.getMetacampaignsForDaterange(startDate, endDate).then(response=>{
+            this.metacampaigns = response;
+            this.metacampaignsLoading = false;
+        });
+    }
+
+    ngAfterContentChecked(){
+        /*TODO : is it the best solution ? without this
+        with check_parameters_ok() directly in the template, generates
+        an ExpressionChangedAfterItHasBeenCheckedError*/
+        this.check_parameters_ok();
     }
 
     initDefaultDateRange():any{
@@ -83,38 +133,17 @@ export class ReportingComponent implements OnInit {
         let today = Date.now();
         return {
             //TODO : remettre dates par défaut
-            startDate : new Date(today - (31*days)),
+            startDate : this.generateDateYYYYMMDD(new Date(today - (7*days))),
             //startDate : new Date("2016-01-01"),
-            endDate : new Date(today - (1*days)),
+            endDate : this.generateDateYYYYMMDD(new Date(today - (1*days))),
             //endDate : new Date("2016-03-01"),
         };
     }
 
-    initSubscriptions(){
-        /*this.getMetacampaigns().then(response=>{
-            this.metacampaigns = response;
-        })*/
-    }
-
-    /*getMetacampaigns(){
-        console.warn(this.jwt().headers)
-        return this.http.get(this.API_URL+"metacampaigns/", this.jwt())
-           .toPromise()
-           .then(response => {
-               debugLogGroup(this.DEBUG, ["Promise result received for ReportingComponent.getMetacampaigns()",
-                   response.json()]);
-               return response.json();
-           })
-           .catch(error => {
-               console.error("PROMISE REJECTED : could not get data from api in reporting section ");
-               console.log("error : "+error.json().detail);
-               console.log(error.json());
-           //    this.router.navigate(['/login'], { queryParams: { returnUrl : window.location.pathname }});
-               return [];
-           });
-    }*/
-
     getMetacampaignsForDaterange(startDate, endDate){
+        this.metacampaignsLoading = true;
+        delete this.selected_metacampaign;
+        this.metacampaigns = [];
         console.warn(this.jwt().headers)
         return this.http.post(this.API_URL+"metacampaign_reporting_list/", {startDate : startDate, endDate : endDate}, this.jwt())
            .toPromise()
@@ -132,14 +161,79 @@ export class ReportingComponent implements OnInit {
            });
     }
 
+    /*********Kpis********/
+    getKPIs(){
+        return this.http.get(this.API_URL+"kpis/", this.jwt())
+           .toPromise()
+           .then(response => {
+               debugLogGroup(this.DEBUG, ["Promise result received for ReportingComponent.getKpis()",
+                   response.json()]);
+               return response.json();
+           })
+           .catch(error => {
+               console.error("PROMISE REJECTED : could not get KPIs data from api in reporting section");
+               console.log("error : "+error.json().detail);
+               console.log(error.json());
+           //    this.router.navigate(['/login'], { queryParams: { returnUrl : window.location.pathname }});
+               return [];
+           });
+    }
+
+    addActiveStandardChip(itemName, itemsArray, activeItemsArray){
+        let itemToAdd = itemsArray.find(i=>{ return i["api_name"] == itemName });
+        activeItemsArray.push( itemToAdd );
+        debugLogGroup(this.DEBUG, ["Adding item "+itemName+" to active, result :", activeItemsArray]);
+    }
+
+    removeActiveStandardChip(itemName, activeItemsArray){
+        let itemIndexToRemove = activeItemsArray.findIndex(i=>{ return i["api_name"] == itemName })
+        console.warn(itemIndexToRemove)
+        activeItemsArray.splice(itemIndexToRemove,1);
+        debugLogGroup(this.DEBUG, ["Removing item "+itemName+" from active, result :", activeItemsArray]);
+    }
+
+    /*******Attribution models********/
+    getAttributionModels(){
+        return this.http.get(this.API_URL+"attribution-models/", this.jwt())
+           .toPromise()
+           .then(response => {
+               debugLogGroup(this.DEBUG, ["Promise result received for ReportingComponent.getAttributionModels()",
+                   response.json()]);
+               return response.json();
+           })
+           .catch(error => {
+               console.error("PROMISE REJECTED : could not get Attribution Models data from api in reporting section");
+               console.log("error : "+error.json().detail);
+               console.log(error.json());
+           //    this.router.navigate(['/login'], { queryParams: { returnUrl : window.location.pathname }});
+               return [];
+           });
+    }
+
+    addActiveAttributionModelChip(itemName){
+        let AMToAdd = this.attributionModels.find(i=>{ return i["name"] == itemName });
+        this.activeAttributionModelsItems.push( AMToAdd );
+        debugLogGroup(this.DEBUG, ["Adding item "+itemName+" to active, result :", this.activeAttributionModelsItems]);
+    }
+
+    removeActiveAttributionModelChip(itemName, activeItemsArray){
+        let AMIndexToRemove = this.activeAttributionModelsItems.findIndex(i=>{ return i["name"] == itemName })
+        console.warn(AMIndexToRemove)
+        this.activeAttributionModelsItems.splice(AMIndexToRemove,1);
+        debugLogGroup(this.DEBUG, ["Removing item "+itemName+" from active, result :", this.activeAttributionModelsItems]);
+    }
+
     changeMetacampaign(event){
-        //console.warn("TEST");
+        this.selected_metacampaign_item = this.metacampaigns.find(
+            m=>{ return m["ad__placement__campaign__metacampaign__id"] == event; }
+        );
+        debugLogGroup(this.DEBUG, ["Changed metacampaign [this.selected_metacampaign_item] :", this.selected_metacampaign_item]);
     }
 
     generateDateYYYYMMDD(date){
         let d = new Date(date);
-        let month = ("0"+d.getMonth() + 1).slice(-2);
-        let day = ("0" + d.getDate()).slice(-2);
+        let month = ("0"+(d.getMonth()+1)).slice(-2);
+        let day = ("0"+d.getDate()).slice(-2);
         return d.getFullYear()+"-"+month+"-"+day;
     }
 
@@ -157,29 +251,116 @@ export class ReportingComponent implements OnInit {
 
         this.getMetacampaignsForDaterange(startDate, endDate).then(response=>{
             this.metacampaigns = response;
-        })
+            this.metacampaignsLoading = false;
+        });
+    }
+
+    check_parameters_ok(){
+        this.form_errors = [];
+
+        if(!this.selected_dateRange.startDate
+            || !this.selected_dateRange.endDate
+            || !this.selected_metacampaign
+            || (this.customKpis && this.activeKpisItems.length == 0)
+            || this.activeAttributionModelsItems.length == 0
+        ){
+            if(    !this.selected_dateRange.startDate){ this.form_errors.push("Define Start date"); }
+            if(    !this.selected_dateRange.endDate){ this.form_errors.push("Define End date"); }
+            if(    !this.selected_metacampaign){ this.form_errors.push("Choose a Metacampaign"); }
+            if(    (this.customKpis && this.activeKpisItems.length == 0)){ this.form_errors.push('Define list of Custom kpis or choose "Standard KPIs"'); }
+            if(    this.activeAttributionModelsItems.length == 0){ this.form_errors.push("Choose at least one Attribution Model"); }
+            //return false
+            this.parameters_ok = false;
+        }
+        else {
+            //return true;
+            this.parameters_ok = true;
+        }
+    }
+
+    test(){
+        console.warn("oo");
+    }
+
+    watch_report_from_api(){
+        let tryNumber = 0;
+        let newFile = "";
+        let report_generated = 0;
+        console.log("Try number "+tryNumber)
+        var watch_report_loop = setInterval(()=>{
+            tryNumber++;
+            console.log("Try number "+tryNumber)
+
+            this.http.post(this.API_URL+"watch_report_generation/", { "id_to_watch" : this.reporting_id_to_watch }, this.jwt())
+               .toPromise()
+               .then(response => {
+                    debugLogGroup(this.DEBUG, ["Promise result received for DataRequestService.watch_report_from_api()",
+                       response.json()]);
+
+                    report_generated = response.json()["generated"];
+
+                    if(report_generated){
+                        this.report_responses.push(
+                            {"url" : response.json()["file"],
+                             "startDate":this.selected_dateRange.startDate,
+                             "endDate":this.selected_dateRange.endDate,
+                             "campaign_name":this.selected_metacampaign_item['ad__placement__campaign__metacampaign__name'],
+                             "warnings" : response.json()["warnings"].split("//").filter(i => i),
+                        });
+
+                        debugLog(this.DEBUG,"File generated OK");
+                        clearInterval(watch_report_loop);
+                    }
+               })
+               .catch(error => {
+                   console.error("PROMISE REJECTED : error in watching report generation from api");
+                   console.log("error : "+error.detail);
+                   console.log(error);
+                   return [];
+               });
+
+        },1000)
     }
 
     generateReport(){
+        delete this.reporting_id_to_watch;
+
         console.warn("Generating report for metacampaign ID "+this.selected_metacampaign);
 
-        this.http.post(this.API_URL+"metacampaign_reporting/", { "metacampaign":this.selected_metacampaign, "dateRange":this.selected_dateRange }, this.jwt())
+        this.request_to_send = {
+            'startDate' : this.selected_dateRange.startDate,
+            'endDate' : this.selected_dateRange.endDate,
+            'metacampaign' : this.selected_metacampaign_item,
+            'custom_kpis' : this.customKpis,
+            'data_by_tag' : this.dataByTag,
+            'separate_post_imp_post_click' : this.separatePostImpPostClick,
+            'csv_en' : this.csvFormatEn,
+            'id_column' : this.addIdColumn,
+            'conversions_grouping' : this.groupConversionsBy,
+            'certified_conv_only' : this.certifiedConversionsOnly,
+            'attribution_models' : this.activeAttributionModelsItems
+        };
+
+        if(this.customKpis){
+            this.request_to_send['selected_kpis'] = this.activeKpisItems;
+        }
+
+        debugLogGroup( this.DEBUG, ["Preparing to send report parameters to API : ", this.request_to_send]);
+
+        this.http.post(this.API_URL+"metacampaign_reporting/", this.request_to_send, this.jwt())
            .toPromise()
            .then(response => {
-               debugLogGroup(this.DEBUG, ["Promise result received for DataRequestService.getAll()",
+                debugLogGroup(this.DEBUG, ["Promise result received for DataRequestService.getAll()",
                    response.json()]);
-               this.report_responses.push(
-                   {"url" : response.json(),
-                    "startDate":this.selected_dateRange.startDate,
-                    "endDate":this.selected_dateRange.endDate,
-                    "campaign_name":this.metacampaigns.filter((c)=>{return c.api_id==this.selected_metacampaign;})[0]['api_name']
-                });
+                this.reporting_id_to_watch = response.json()["report_id"];
+                this.watch_report_from_api();
+
                console.warn(this.report_responses);
            })
            .catch(error => {
                console.error("PROMISE REJECTED : could not get data from api in reporting section ");
-               console.log("error : "+error.json().detail);
-               console.log(error.json());
+               console.log("error : "+error.detail);
+               console.log(error);
            //    this.router.navigate(['/login'], { queryParams: { returnUrl : window.location.pathname }});
                return [];
            });
