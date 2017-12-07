@@ -104,7 +104,15 @@
     <div class="row">
       <div class="col-md-6 col-xs-12">
         Attribution models :
-        <td-chips *ngIf="attributionModelsChips.length > 0" [items]="attributionModelsChips" (add)="addActiveAttributionModelChip($event)" (remove)="removeActiveAttributionModelChip($event)" [(ngModel)]="activeAttributionModelsChips" placeholder="Choose Attribution Models"></td-chips>
+        <md-icon *ngIf="activeAttributionModelsChips.length > 0" class="inline-block" (click)="clearAttributionModelsChips()">clear</md-icon>
+        <td-chips class="inline-block"
+                  [readOnly]="noMoreAttributionModels()"
+                  *ngIf="attributionModelsChips.length > 0"
+                  [items]="attributionModelsChips"
+                  (add)="addActiveAttributionModelChip($event)"
+                  (remove)="removeActiveAttributionModelChip($event)"
+                  [(ngModel)]="activeAttributionModelsChips"
+                  placeholder="Choose Attribution Models"></td-chips>
       </div>
     </div>
 

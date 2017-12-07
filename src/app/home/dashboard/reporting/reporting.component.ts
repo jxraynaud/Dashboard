@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import {/* Http,*/ Headers, RequestOptions, Response } from '@angular/http';
 
@@ -20,6 +20,14 @@ import {debugLog, debugLogGroup} from '../../../utils';
 export class ReportingComponent implements OnInit {
     DEBUG : boolean = true;
     API_URL : string = "http://localhost:8000/api/";
+    /*Theoretically could be any value to max number of attribution models requested,
+    * but keep in mind UI has 1 problem : when maximum reached, chip field goes into readonly mode
+    * => can't delete ONE chip, only use clear button to clear all choices.
+    * => probably will never need to be more than one, or just no limitation...
+    */
+    MAXIMUM_ATTRIBUTION_MODELS = 1;
+    @ViewChild('attributionModelsChoice') attributionModelsChoice;
+    attributionModelsChoiceDisabled : boolean = false;
 
     openedNav : boolean = false;
 
@@ -57,7 +65,7 @@ export class ReportingComponent implements OnInit {
     addIdColumn : boolean = false;
     certifiedConversionsOnly : boolean = false;
 
-    conversionsGroupingTypes = [{id:1, name:"Global"},{id:2, name:"By Day"},{id:3, name:"By Week"}];
+    conversionsGroupingTypes = [{id:1, name:"Global"},{id:2, name:"By Week"},{id:3, name:"By Day"}];
     groupConversionsBy:number = 1;
 
     attributionModels = [];
@@ -216,6 +224,23 @@ export class ReportingComponent implements OnInit {
         debugLogGroup(this.DEBUG, ["Adding item "+itemName+" to active, result :", this.activeAttributionModelsItems]);
     }
 
+    noMoreAttributionModels(){
+        if(this.activeAttributionModelsChips.length != this.activeAttributionModelsItems.length){
+            console.error("this.activeAttributionModelsChips.length NOT EQUAL to this.activeAttributionModelsItems.length, it chouldbe. See for a bug with clearAttributionModelsChips()")
+        }
+        if(this.activeAttributionModelsItems.length >= this.MAXIMUM_ATTRIBUTION_MODELS){
+            return true;
+        }else{
+            return false;
+        }
+    }
+
+    clearAttributionModelsChips(){
+        console.warn("CLEAR");
+        this.activeAttributionModelsChips = [];
+        this.activeAttributionModelsItems = []
+    }
+
     removeActiveAttributionModelChip(itemName, activeItemsArray){
         let AMIndexToRemove = this.activeAttributionModelsItems.findIndex(i=>{ return i["name"] == itemName })
         console.warn(AMIndexToRemove)
@@ -268,7 +293,7 @@ export class ReportingComponent implements OnInit {
             if(    !this.selected_dateRange.endDate){ this.form_errors.push("Define End date"); }
             if(    !this.selected_metacampaign){ this.form_errors.push("Choose a Metacampaign"); }
             if(    (this.customKpis && this.activeKpisItems.length == 0)){ this.form_errors.push('Define list of Custom kpis or choose "Standard KPIs"'); }
-            if(    this.activeAttributionModelsItems.length == 0){ this.form_errors.push("Choose at least one Attribution Model"); }
+            if(    this.activeAttributionModelsItems.length == 0){ this.form_errors.push("Choose an Attribution Model"); }
             //return false
             this.parameters_ok = false;
         }
