@@ -19,7 +19,9 @@ import {debugLog, debugLogGroup} from '../../../utils';
 })
 export class ReportingComponent implements OnInit {
     DEBUG : boolean = true;
-    API_URL : string = "http://localhost:8000/api/";
+    //API_URL : string = "http://localhost:8000/api/";
+    API_URL : string = "http://37.59.31.134:8001/api/";
+
     /*Theoretically could be any value to max number of attribution models requested,
     * but keep in mind UI has 1 problem : when maximum reached, chip field goes into readonly mode
     * => can't delete ONE chip, only use clear button to clear all choices.
@@ -331,6 +333,7 @@ export class ReportingComponent implements OnInit {
                              "endDate":this.selected_dateRange.endDate,
                              "campaign_name":this.selected_metacampaign_item['ad__placement__campaign__metacampaign__name'],
                              "warnings" : response.json()["warnings"].split("//").filter(i => i),
+                             "warnings_r" : response.json()["warnings_r"].split("\n").filter(i => i),
                         });
 
                         debugLog(this.DEBUG,"File generated OK");
