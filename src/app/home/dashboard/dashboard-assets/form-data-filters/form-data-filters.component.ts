@@ -97,7 +97,11 @@ export class FormDataFiltersComponent implements OnInit, OnChanges {
 
 
     dimensionNameFromIdColLabel(dimensionDataIdColName){
-        return this.dimensionsConfig.filter(e=>{ return e['data_id_column_name'] == dimensionDataIdColName })[0]['label'];
+        if(this.dimensionsConfig){
+            return this.dimensionsConfig.filter(e=>{ return e['data_id_column_name'] == dimensionDataIdColName })[0]['label'];
+        }else{
+            return "";
+        }
     }
 
     addFilterChip(chip,filterType):void{
