@@ -3,6 +3,7 @@ import { ActivatedRoute } from '@angular/router';
 import {/* Http,*/ Headers, RequestOptions, Response } from '@angular/http';
 
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
+import 'rxjs/add/operator/toPromise';
 
 import { DaterangepickerConfig } from 'ng2-daterangepicker';
 import { Daterangepicker } from 'ng2-daterangepicker';
@@ -37,6 +38,7 @@ export class ReportingComponent implements OnInit {
     form_errors = [];
     request_to_send = {};
     reporting_id_to_watch : number;
+    generation_in_progress : boolean = false;
 
     // Define the needed attributes
     private _selectedDateRange : {startDate, endDate};
@@ -126,7 +128,7 @@ export class ReportingComponent implements OnInit {
         let startDate = this.selected_dateRange['startDate'];
         let endDate = this.selected_dateRange['endDate'];
         this.getMetacampaignsForDaterange(startDate, endDate).then(response=>{
-            this.metacampaigns = response;
+            this.metacampaigns = this.sortMetacampaigns(response);
             this.metacampaignsLoading = false;
         });
     }
@@ -160,7 +162,7 @@ export class ReportingComponent implements OnInit {
            .then(response => {
                debugLogGroup(this.DEBUG, ["Promise result received for ReportingComponent.getMetacampaigns()",
                    response.json()]);
-               return response.json();
+                return response.json()
            })
            .catch(error => {
                console.error("PROMISE REJECTED : could not get data from api in reporting section ");
@@ -264,6 +266,29 @@ export class ReportingComponent implements OnInit {
         return d.getFullYear()+"-"+month+"-"+day;
     }
 
+    sortMetacampaigns(unsorted){
+        console.warn("-----")
+        console.warn(unsorted)
+        if(unsorted.length>0){
+            unsorted = unsorted.sort(
+                                (mc1,mc2)=>{
+
+                                    let comparison = 0;
+                                    if(mc1.ad__placement__campaign__metacampaign__name && mc2.ad__placement__campaign__metacampaign__name){
+                                        const mc1_name = mc1.ad__placement__campaign__metacampaign__name.toUpperCase();
+                                        const mc2_name = mc2.ad__placement__campaign__metacampaign__name.toUpperCase();
+                                         if (mc1_name > mc2_name) {
+                                           comparison = 1;
+                                         } else if (mc1_name < mc2_name) {
+                                           comparison = -1;
+                                        }
+                                    }
+                                    return comparison;
+                                });
+        }
+        return unsorted;
+    }
+
     public selectedDate(value: any):void {
         //triggers setter of selected_dateRange attribute
         let startDate = this.generateDateYYYYMMDD(new Date(value.start));
@@ -277,7 +302,7 @@ export class ReportingComponent implements OnInit {
         debugLog(this.DEBUG, "New daterange : "+startDate+" - "+endDate);
 
         this.getMetacampaignsForDaterange(startDate, endDate).then(response=>{
-            this.metacampaigns = response;
+            this.metacampaigns = this.sortMetacampaigns(response);
             this.metacampaignsLoading = false;
         });
     }
@@ -327,14 +352,20 @@ export class ReportingComponent implements OnInit {
                     report_generated = response.json()["generated"];
 
                     if(report_generated){
+                        var url_assets_file = response.json()["file"].replace("/var/www/FraudDetector/newmecblizzardtools/assets","http://37.59.31.134:8001/static")
+                        var file_name_array = response.json()["file"].split("/");
+                        var file_name = file_name_array[file_name_array.length -1];
+                        console.warn(file_name)
                         this.report_responses.push(
-                            {"url" : response.json()["file"],
+                            {"url" : url_assets_file,
                              "startDate":this.selected_dateRange.startDate,
                              "endDate":this.selected_dateRange.endDate,
                              "campaign_name":this.selected_metacampaign_item['ad__placement__campaign__metacampaign__name'],
                              "warnings" : response.json()["warnings"].split("//").filter(i => i),
                              "warnings_r" : response.json()["warnings_r"].split("\n").filter(i => i),
+                             "file_name" : file_name,
                         });
+                        this.generation_in_progress = false;
 
                         debugLog(this.DEBUG,"File generated OK");
                         clearInterval(watch_report_loop);
@@ -352,6 +383,7 @@ export class ReportingComponent implements OnInit {
 
     generateReport(){
         delete this.reporting_id_to_watch;
+        this.generation_in_progress = true;
 
         console.warn("Generating report for metacampaign ID "+this.selected_metacampaign);
 
@@ -407,5 +439,6 @@ export class ReportingComponent implements OnInit {
             return new RequestOptions({ headers: headers });
         }
     }
+
 
 }

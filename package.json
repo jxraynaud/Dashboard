@@ -34,6 +34,7 @@
     "highlight.js": "9.11.0",
     "ng-sidebar": "^4.2.3",
     "ng2-daterangepicker": "^2.0.7",
+    "primeng": "^5.0.2",
     "rxjs": "^5.3.0",
     "showdown": "1.6.4",
     "zone.js": "^0.8.9"
