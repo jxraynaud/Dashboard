@@ -28,7 +28,7 @@ export class ReportingComponent implements OnInit {
     * => can't delete ONE chip, only use clear button to clear all choices.
     * => probably will never need to be more than one, or just no limitation...
     */
-    MAXIMUM_ATTRIBUTION_MODELS = 1;
+    MAXIMUM_ATTRIBUTION_MODELS = 100;
     @ViewChild('attributionModelsChoice') attributionModelsChoice;
     attributionModelsChoiceDisabled : boolean = false;
 
@@ -39,6 +39,7 @@ export class ReportingComponent implements OnInit {
     request_to_send = {};
     reporting_id_to_watch : number;
     generation_in_progress : boolean = false;
+    local_id_request = 0;
 
     // Define the needed attributes
     private _selectedDateRange : {startDate, endDate};
@@ -64,13 +65,13 @@ export class ReportingComponent implements OnInit {
 
     dataByTag : boolean = false;
 
-    separatePostImpPostClick : boolean = false;
-    csvFormatEn : boolean = false;
+    separatePostImpPostClick : boolean = true;
+    csvFormatEn : boolean = true;
     addIdColumn : boolean = false;
-    certifiedConversionsOnly : boolean = false;
+    certifiedConversionsOnly : boolean = true;
 
-    conversionsGroupingTypes = [{id:1, name:"Global"},{id:2, name:"By Week"},{id:3, name:"By Day"}];
-    groupConversionsBy:number = 1;
+    conversionsGroupingTypes = [{id:1, name:"No breakdown per date or week"},{id:2, name:"By Week"},{id:3, name:"By Day"}];
+    groupConversionsBy:number = 3;
 
     attributionModels = [];
     attributionModelsChips = [];
@@ -128,8 +129,14 @@ export class ReportingComponent implements OnInit {
         let startDate = this.selected_dateRange['startDate'];
         let endDate = this.selected_dateRange['endDate'];
         this.getMetacampaignsForDaterange(startDate, endDate).then(response=>{
+            console.warn("response unsorted");
+            console.warn(response);
             this.metacampaigns = this.sortMetacampaigns(response);
+            console.warn("response sorted");
+            console.warn(this.metacampaigns)
             this.metacampaignsLoading = false;
+            /*this.metacampaigns = this.sortMetacampaigns(response);
+            this.metacampaignsLoading = false;*/
         });
     }
 
@@ -152,11 +159,26 @@ export class ReportingComponent implements OnInit {
         };
     }
 
+    /**
+     * Retrieves JWT token from localStorage and returns it if available. For use in HTTP requests
+     * @method jwt
+     * @return {[type]} [description]
+     */
+    private jwt() {
+        // create authorization header with jwt token
+        let currentUser = JSON.parse(localStorage.getItem('currentUser'));
+        if (currentUser && currentUser.token) {
+            let headers = new Headers({ 'Authorization': 'JWT ' + currentUser.token });
+            return new RequestOptions({ headers: headers });
+        }
+    }
+
     getMetacampaignsForDaterange(startDate, endDate){
         this.metacampaignsLoading = true;
         delete this.selected_metacampaign;
         this.metacampaigns = [];
         console.warn(this.jwt().headers)
+        debugLogGroup(this.DEBUG, ["Requesting for metacampaigns list", {startDate : startDate, endDate : endDate}])
         return this.http.post(this.API_URL+"metacampaign_reporting_list/", {startDate : startDate, endDate : endDate}, this.jwt())
            .toPromise()
            .then(response => {
@@ -302,7 +324,11 @@ export class ReportingComponent implements OnInit {
         debugLog(this.DEBUG, "New daterange : "+startDate+" - "+endDate);
 
         this.getMetacampaignsForDaterange(startDate, endDate).then(response=>{
+            console.warn("response unsorted");
+            console.warn(response);
             this.metacampaigns = this.sortMetacampaigns(response);
+            console.warn("response sorted");
+            console.warn(this.metacampaigns)
             this.metacampaignsLoading = false;
         });
     }
@@ -334,53 +360,6 @@ export class ReportingComponent implements OnInit {
         console.warn("oo");
     }
 
-    watch_report_from_api(){
-        let tryNumber = 0;
-        let newFile = "";
-        let report_generated = 0;
-        console.log("Try number "+tryNumber)
-        var watch_report_loop = setInterval(()=>{
-            tryNumber++;
-            console.log("Try number "+tryNumber)
-
-            this.http.post(this.API_URL+"watch_report_generation/", { "id_to_watch" : this.reporting_id_to_watch }, this.jwt())
-               .toPromise()
-               .then(response => {
-                    debugLogGroup(this.DEBUG, ["Promise result received for DataRequestService.watch_report_from_api()",
-                       response.json()]);
-
-                    report_generated = response.json()["generated"];
-
-                    if(report_generated){
-                        var url_assets_file = response.json()["file"].replace("/var/www/FraudDetector/newmecblizzardtools/assets","http://37.59.31.134:8001/static")
-                        var file_name_array = response.json()["file"].split("/");
-                        var file_name = file_name_array[file_name_array.length -1];
-                        console.warn(file_name)
-                        this.report_responses.push(
-                            {"url" : url_assets_file,
-                             "startDate":this.selected_dateRange.startDate,
-                             "endDate":this.selected_dateRange.endDate,
-                             "campaign_name":this.selected_metacampaign_item['ad__placement__campaign__metacampaign__name'],
-                             "warnings" : response.json()["warnings"].split("//").filter(i => i),
-                             "warnings_r" : response.json()["warnings_r"].split("\n").filter(i => i),
-                             "file_name" : file_name,
-                        });
-                        this.generation_in_progress = false;
-
-                        debugLog(this.DEBUG,"File generated OK");
-                        clearInterval(watch_report_loop);
-                    }
-               })
-               .catch(error => {
-                   console.error("PROMISE REJECTED : error in watching report generation from api");
-                   console.log("error : "+error.detail);
-                   console.log(error);
-                   return [];
-               });
-
-        },1000)
-    }
-
     generateReport(){
         delete this.reporting_id_to_watch;
         this.generation_in_progress = true;
@@ -406,6 +385,17 @@ export class ReportingComponent implements OnInit {
         }
 
         debugLogGroup( this.DEBUG, ["Preparing to send report parameters to API : ", this.request_to_send]);
+        //Display request as waiting by pushing info to report_responses
+        this.local_id_request++;
+        this.report_responses.push(
+            {
+             "local_id_request":this.local_id_request,
+             "requested_date":Date.now(),
+             "startDate":this.selected_dateRange.startDate,
+             "endDate":this.selected_dateRange.endDate,
+             "campaign_name":this.selected_metacampaign_item['ad__placement__campaign__metacampaign__name'],
+             "generated":false,
+        });
 
         this.http.post(this.API_URL+"metacampaign_reporting/", this.request_to_send, this.jwt())
            .toPromise()
@@ -413,7 +403,7 @@ export class ReportingComponent implements OnInit {
                 debugLogGroup(this.DEBUG, ["Promise result received for DataRequestService.getAll()",
                    response.json()]);
                 this.reporting_id_to_watch = response.json()["report_id"];
-                this.watch_report_from_api();
+                this.watch_report_from_api(this.local_id_request);
 
                console.warn(this.report_responses);
            })
@@ -426,19 +416,62 @@ export class ReportingComponent implements OnInit {
            });
     }
 
-    /**
-     * Retrieves JWT token from localStorage and returns it if available. For use in HTTP requests
-     * @method jwt
-     * @return {[type]} [description]
-     */
-    private jwt() {
-        // create authorization header with jwt token
-        let currentUser = JSON.parse(localStorage.getItem('currentUser'));
-        if (currentUser && currentUser.token) {
-            let headers = new Headers({ 'Authorization': 'JWT ' + currentUser.token });
-            return new RequestOptions({ headers: headers });
-        }
-    }
+    watch_report_from_api(local_id_request){
+        let tryNumber = 0;
+        let newFile = "";
+        let report_generated = 0;
+        console.log("Try number "+tryNumber)
+        var watch_report_loop = setInterval(()=>{
+            tryNumber++;
+            console.log("Try number "+tryNumber)
 
+            this.http.post(this.API_URL+"watch_report_generation/", { "id_to_watch" : this.reporting_id_to_watch }, this.jwt())
+               .toPromise()
+               .then(response => {
+                    debugLogGroup(this.DEBUG, ["Promise result received for DataRequestService.watch_report_from_api()",
+                       response.json()]);
+
+                    report_generated = response.json()["generated"];
+
+                    if(report_generated){
+                        var url_assets_file = response.json()["file"].replace("/var/www/FraudDetector/newmecblizzardtools/assets","http://37.59.31.134:8001/static")
+                        var file_name_array = response.json()["file"].split("/");
+                        var file_name = file_name_array[file_name_array.length -1];
+                        console.warn(file_name)
+                        let current_report = this.report_responses.find(r=>{ return r["local_id_request"] == local_id_request});
+
+                        current_report["url"] = url_assets_file;
+                        current_report["warnings"] = response.json()["warnings"].split("//").filter(i => i);
+                        current_report["warnings_r"] = response.json()["warnings_r"].split("\n").filter(i => i);
+                        current_report["file_name"] = file_name;
+                        current_report["generation_duration"] = (Date.now() - current_report["requested_date"])/1000;
+                        current_report["generated"]=true;
+                        if(file_name)
+                            { current_report["in_error"] = false; }
+                        else{ current_report["in_error"] = true; }
+                        /*this.report_responses.push(
+                            {"url" : url_assets_file,
+                             "startDate":this.selected_dateRange.startDate,
+                             "endDate":this.selected_dateRange.endDate,
+                             "campaign_name":this.selected_metacampaign_item['ad__placement__campaign__metacampaign__name'],
+                             "warnings" : response.json()["warnings"].split("//").filter(i => i),
+                             "warnings_r" : response.json()["warnings_r"].split("\n").filter(i => i),
+                             "file_name" : file_name,
+                        });*/
+                        this.generation_in_progress = false;
+
+                        debugLog(this.DEBUG,"File generated OK");
+                        clearInterval(watch_report_loop);
+                    }
+               })
+               .catch(error => {
+                   console.error("PROMISE REJECTED : error in watching report generation from api");
+                   console.log("error : "+error.detail);
+                   console.log(error);
+                   return [];
+               });
+
+        },1000)
+    }
 
 }

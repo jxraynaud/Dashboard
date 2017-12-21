@@ -23,7 +23,7 @@
         <h4>Metacampaign</h4>
         <div class="center" *ngIf="metacampaignsLoading"><img height="50" src="assets/loading.gif" />Calculating relevant Metacampaigns<img height="50" src="assets/loading.gif" /></div>
         <div class="center" *ngIf="!metacampaignsLoading && metacampaigns.length == 0"><md-chip class="errorChip" color="accent" selected="true">No metacampaigns available for this date range</md-chip></div>
-        <md-select *ngIf="!metacampaignsLoading && metacampaigns.length > 0" class="metacampaign-select" placeholder="Metacampaign" (change)="changeMetacampaign($event.value)" [(ngModel)]="selected_metacampaign">
+        <md-select *ngIf="!metacampaignsLoading && metacampaigns.length > 0" class="metacampaign-select" placeholder="" (change)="changeMetacampaign($event.value)" [(ngModel)]="selected_metacampaign">
            <md-option *ngFor="let metacampaign of metacampaigns" [value]="metacampaign.ad__placement__campaign__metacampaign__id" >{{ metacampaign.ad__placement__campaign__metacampaign__name }}</md-option>
         </md-select>
       </div>
@@ -32,14 +32,20 @@
 
     <div class="row">
       <div class="col-md-2 col-xs-12 align-right">
-        Standard KPIs
+        Use KPIs associated to the metacampaign
       </div>
       <div class="col-md-4 col-xs-12">
-        <md-slide-toggle [color]="'primary'" [(ngModel)]="customKpis">Custom KPIs</md-slide-toggle>
+        <md-slide-toggle [color]="'primary'" [(ngModel)]="customKpis">Choose your KPIs</md-slide-toggle>
       </div>
 
       <div *ngIf="customKpis" class="col-md-6 col-xs-12">
-        <td-chips *ngIf="kpisChips.length > 0" [items]="kpisChips" (add)="addActiveStandardChip($event, kpis, activeKpisItems)" (remove)="removeActiveStandardChip($event, activeKpisItems)" [(ngModel)]="activeKpisChips" placeholder="Choose KPIs"></td-chips>
+        <td-chips *ngIf="kpisChips.length > 0"
+          [items]="kpisChips"
+          (add)="addActiveStandardChip($event, kpis, activeKpisItems)"
+          (remove)="removeActiveStandardChip($event, activeKpisItems)"
+          [(ngModel)]="activeKpisChips"
+          placeholder="Choose KPIs"
+          class="kpi-chooser"></td-chips>
       </div>
     </div>
 
@@ -64,25 +70,25 @@
 
     <div class="row">
       <div class="col-md-2 col-xs-12 align-right">
-        CSV FR
+        Semi Column Separated Value (csv file)
       </div>
       <div class="col-md-4 col-xs-12">
-        <md-slide-toggle [color]="'primary'" [(ngModel)]="csvFormatEn">CSV EN</md-slide-toggle>
+        <md-slide-toggle [color]="'primary'" [(ngModel)]="csvFormatEn">Comma Separated Values (csv file)</md-slide-toggle>
       </div>
     </div>
 
     <div class="row">
       <div class="col-md-2 col-xs-12 align-right">
-        Don't ad id column to data
+        Don’t include columns with ids (like ad, placement, campaign ids)
       </div>
       <div class="col-md-4 col-xs-12">
-        <md-slide-toggle [color]="'primary'" [(ngModel)]="addIdColumn">Add id column to data</md-slide-toggle>
+        <md-slide-toggle [color]="'primary'" [(ngModel)]="addIdColumn">Include id columns</md-slide-toggle>
       </div>
     </div>
 
     <div class="row">
       <div class="col-md-6 col-xs-12 center">
-        Group conversions :
+        Report date granularity :
         <md-radio-group class="groupConversionsBy-group" [(ngModel)]="groupConversionsBy">
           <md-radio-button class="groupConversionsBy-button" *ngFor="let groupingType of conversionsGroupingTypes" [value]="groupingType['id']">
             {{groupingType['name']}}
@@ -93,7 +99,7 @@
 
     <div class="row">
       <div class="col-md-2 col-xs-12 align-right">
-        Certified and not certified conversions
+        Certified and all conversions
       </div>
       <div class="col-md-4 col-xs-12">
         <md-slide-toggle [color]="'primary'" [(ngModel)]="certifiedConversionsOnly">Certified conversions only</md-slide-toggle>
@@ -126,16 +132,32 @@
         <div *ngIf="generation_in_progress"><img height="50" src="assets/loading.gif" />Generating report<img height="50" src="assets/loading.gif" /></div>
       </div>
     </div>
+    <div class="row absolute_warnings">
+      <div>
+        <md-icon>warning</md-icon>
+          Costs, clicks and impressions data are coming from Sizmek, they need to be corrected!
+        <md-icon>warning</md-icon>
+      </div>
+    </div>
 
     <div class="row">
       <div class="col-md-12 col-xs-12">
         <div *ngIf="report_responses.length > 0" class="col-md-12 col-xs-12">
           <h4>Your last generated reports</h4>
             <div *ngFor="let report of report_responses">
-                <strong>Report for metacampaign {{report.campaign_name}}</strong> - {{ report.startDate | date:'y/MM/dd' }} to {{ report.endDate | date:'y/MM/dd' }} <br />
-                ===> <a href="{{ report.url }}">{{ report.file_name }}</a>
-                <div *ngFor="let warning of report.warnings" ><md-icon class="report_warnings">warning</md-icon> {{warning}}</div>
-                <div *ngFor="let warningR of report.warnings_r" ><md-icon class="report_warnings">warning</md-icon> {{warningR}}</div>
+              <div class="row">
+                <div class="col-md-2 col-xs-3" >
+                  <div class="report_local_id">- {{ report.local_id_request }} -</div>
+                  <div *ngIf="!report.generated"><img height="50" src="assets/loading.gif" />Generating</div>
+                  <div *ngIf="report.generated">Generated in {{ report.generation_duration }}sec.</div>
+                </div>
+                <div class="col-md-10 col-xs-9" >
+                  <strong>Report for metacampaign {{report.campaign_name}}</strong> - {{ report.startDate | date:'y/MM/dd' }} to {{ report.endDate | date:'y/MM/dd' }} <br />
+                  ===> <a href="{{ report.url }}">{{ report.file_name }}</a>
+                  <div *ngFor="let warning of report.warnings" ><md-icon class="report_warnings">warning</md-icon> {{warning}}</div>
+                  <div *ngFor="let warningR of report.warnings_r" ><md-icon class="report_warnings">warning</md-icon> {{warningR}}</div>
+                </div>
+              </div>
             </div>
         </div>
       </div>
