@@ -37,8 +37,8 @@ export class ReportingComponent implements OnInit {
     report_responses : {}[] = [];
     form_errors = [];
     request_to_send = {};
-    reporting_id_to_watch : number;
-    generation_in_progress : boolean = false;
+    //generation_in_progress : boolean = false;
+    nb_files_in_generation : number = 0;
     local_id_request = 0;
 
     // Define the needed attributes
@@ -56,6 +56,10 @@ export class ReportingComponent implements OnInit {
     selected_metacampaign : number;
     selected_metacampaign_item : {};
     parameters_ok : boolean = false;
+
+    metacampaignsChips = [];
+    activeMetacampaignsChips = [];
+    activeMetacampaignsItems = [];
 
     customKpis : boolean = false;
     kpis = [];
@@ -131,13 +135,15 @@ export class ReportingComponent implements OnInit {
         this.getMetacampaignsForDaterange(startDate, endDate).then(response=>{
             console.warn("response unsorted");
             console.warn(response);
-            this.metacampaigns = this.sortMetacampaigns(response);
+            /*this.metacampaigns = response;
+            this.metacampaignsChips = response.map(m=>{return m['ad__placement__campaign__metacampaign__name']});*/
             console.warn("response sorted");
-            console.warn(this.metacampaigns)
+            console.warn(this.metacampaignsChips)
             this.metacampaignsLoading = false;
             /*this.metacampaigns = this.sortMetacampaigns(response);
             this.metacampaignsLoading = false;*/
         });
+
     }
 
     ngAfterContentChecked(){
@@ -176,7 +182,9 @@ export class ReportingComponent implements OnInit {
     getMetacampaignsForDaterange(startDate, endDate){
         this.metacampaignsLoading = true;
         delete this.selected_metacampaign;
+        this.activeMetacampaignsChips = [];
         this.metacampaigns = [];
+        this.metacampaignsChips = [];
         console.warn(this.jwt().headers)
         debugLogGroup(this.DEBUG, ["Requesting for metacampaigns list", {startDate : startDate, endDate : endDate}])
         return this.http.post(this.API_URL+"metacampaign_reporting_list/", {startDate : startDate, endDate : endDate}, this.jwt())
@@ -184,6 +192,8 @@ export class ReportingComponent implements OnInit {
            .then(response => {
                debugLogGroup(this.DEBUG, ["Promise result received for ReportingComponent.getMetacampaigns()",
                    response.json()]);
+                this.metacampaigns = response.json();
+                this.metacampaignsChips = response.json().map(m=>{return m['ad__placement__campaign__metacampaign__name']});
                 return response.json()
            })
            .catch(error => {
@@ -193,6 +203,19 @@ export class ReportingComponent implements OnInit {
            //    this.router.navigate(['/login'], { queryParams: { returnUrl : window.location.pathname }});
                return [];
            });
+    }
+
+    addActiveMetacampaignChip(itemName){
+        let MetacToAdd = this.metacampaigns.find(m=>{ return m["ad__placement__campaign__metacampaign__name"] == itemName });
+        this.activeMetacampaignsItems.push( MetacToAdd );
+        debugLogGroup(this.DEBUG, ["Adding item "+itemName+" to active metacmpaigns, result :", this.activeMetacampaignsItems]);
+    }
+
+    removeActiveMetacampaignsChip(itemName, activeItemsArray){
+        let MetacIndexToRemove = this.activeMetacampaignsItems.findIndex(i=>{ return i["ad__placement__campaign__metacampaign__name"] == itemName })
+        console.warn(MetacIndexToRemove)
+        this.activeMetacampaignsItems.splice(MetacIndexToRemove,1);
+        debugLogGroup(this.DEBUG, ["Removing item "+itemName+" from active metacmpaigns items, result :", this.activeMetacampaignsItems]);
     }
 
     /*********Kpis********/
@@ -262,10 +285,16 @@ export class ReportingComponent implements OnInit {
     }
 
     clearAttributionModelsChips(){
-        console.warn("CLEAR");
+        console.warn("CLEAR ATTRIBUTION MODELS");
         this.activeAttributionModelsChips = [];
         this.activeAttributionModelsItems = []
     }
+
+    /*clearMetacampaignsChips(){
+        console.warn("CLEAR METACAMPAIGNS");
+        this.activeMetacampaignsChips = [];
+        this.activeMetacampaignsItems = []
+    }*/
 
     removeActiveAttributionModelChip(itemName, activeItemsArray){
         let AMIndexToRemove = this.activeAttributionModelsItems.findIndex(i=>{ return i["name"] == itemName })
@@ -288,7 +317,7 @@ export class ReportingComponent implements OnInit {
         return d.getFullYear()+"-"+month+"-"+day;
     }
 
-    sortMetacampaigns(unsorted){
+    /*sortMetacampaigns(unsorted){
         console.warn("-----")
         console.warn(unsorted)
         if(unsorted.length>0){
@@ -309,7 +338,7 @@ export class ReportingComponent implements OnInit {
                                 });
         }
         return unsorted;
-    }
+    }*/
 
     public selectedDate(value: any):void {
         //triggers setter of selected_dateRange attribute
@@ -326,9 +355,10 @@ export class ReportingComponent implements OnInit {
         this.getMetacampaignsForDaterange(startDate, endDate).then(response=>{
             console.warn("response unsorted");
             console.warn(response);
-            this.metacampaigns = this.sortMetacampaigns(response);
+            /*this.metacampaigns = response;
+            this.metacampaignsChips = response.map(m=>{return m['ad__placement__campaign__metacampaign__name']});*/
             console.warn("response sorted");
-            console.warn(this.metacampaigns)
+            console.warn(this.metacampaignsChips)
             this.metacampaignsLoading = false;
         });
     }
@@ -339,12 +369,14 @@ export class ReportingComponent implements OnInit {
         if(!this.selected_dateRange.startDate
             || !this.selected_dateRange.endDate
             || !this.selected_metacampaign
+            || this.activeMetacampaignsItems.length == 0
             || (this.customKpis && this.activeKpisItems.length == 0)
             || this.activeAttributionModelsItems.length == 0
         ){
             if(    !this.selected_dateRange.startDate){ this.form_errors.push("Define Start date"); }
             if(    !this.selected_dateRange.endDate){ this.form_errors.push("Define End date"); }
             if(    !this.selected_metacampaign){ this.form_errors.push("Choose a Metacampaign"); }
+            if(    this.activeMetacampaignsItems.length == 0 ){ this.form_errors.push("Choose at least one Metacampaign"); }
             if(    (this.customKpis && this.activeKpisItems.length == 0)){ this.form_errors.push('Define list of Custom kpis or choose "Standard KPIs"'); }
             if(    this.activeAttributionModelsItems.length == 0){ this.form_errors.push("Choose an Attribution Model"); }
             //return false
@@ -360,16 +392,22 @@ export class ReportingComponent implements OnInit {
         console.warn("oo");
     }
 
-    generateReport(){
-        delete this.reporting_id_to_watch;
-        this.generation_in_progress = true;
+    generateAllReports(){
+        console.warn("Incrementing nb_files_in_generation "+this.nb_files_in_generation);
+        for(let metacampaignToRequest of this.activeMetacampaignsItems){
+            this.generateReport(metacampaignToRequest);
+        }
+    }
 
-        console.warn("Generating report for metacampaign ID "+this.selected_metacampaign);
+    generateReport(selected_metacampaign_item){
+        this.nb_files_in_generation++
+
+        console.warn("Generating report for metacampaign ID "+selected_metacampaign_item['ad__placement__campaign__metacampaign__name']);
 
         this.request_to_send = {
             'startDate' : this.selected_dateRange.startDate,
             'endDate' : this.selected_dateRange.endDate,
-            'metacampaign' : this.selected_metacampaign_item,
+            'metacampaign' : selected_metacampaign_item,
             'custom_kpis' : this.customKpis,
             'data_by_tag' : this.dataByTag,
             'separate_post_imp_post_click' : this.separatePostImpPostClick,
@@ -387,13 +425,19 @@ export class ReportingComponent implements OnInit {
         debugLogGroup( this.DEBUG, ["Preparing to send report parameters to API : ", this.request_to_send]);
         //Display request as waiting by pushing info to report_responses
         this.local_id_request++;
+        /*Store local id inside function to cover for multiple metacampaigns requested :
+        without that, this.local_id_request is incremented N times (N being the number of different metacampaigns requested) in parallel,
+        ==> watch_report_from_api returns file ref N times for the same local_id, and so only the last one is displayed
+        */
+        let local_id_request_to_watch = this.local_id_request;
         this.report_responses.push(
             {
              "local_id_request":this.local_id_request,
              "requested_date":Date.now(),
              "startDate":this.selected_dateRange.startDate,
              "endDate":this.selected_dateRange.endDate,
-             "campaign_name":this.selected_metacampaign_item['ad__placement__campaign__metacampaign__name'],
+             //"campaign_name":this.selected_metacampaign_item['ad__placement__campaign__metacampaign__name'],
+             "campaign_name":selected_metacampaign_item['ad__placement__campaign__metacampaign__name'],
              "generated":false,
         });
 
@@ -402,8 +446,8 @@ export class ReportingComponent implements OnInit {
            .then(response => {
                 debugLogGroup(this.DEBUG, ["Promise result received for DataRequestService.getAll()",
                    response.json()]);
-                this.reporting_id_to_watch = response.json()["report_id"];
-                this.watch_report_from_api(this.local_id_request);
+                let reporting_id_to_watch = response.json()["report_id"];
+                this.watch_report_from_api(local_id_request_to_watch, reporting_id_to_watch);
 
                console.warn(this.report_responses);
            })
@@ -416,7 +460,7 @@ export class ReportingComponent implements OnInit {
            });
     }
 
-    watch_report_from_api(local_id_request){
+    watch_report_from_api(local_id_request, reporting_id_to_watch){
         let tryNumber = 0;
         let newFile = "";
         let report_generated = 0;
@@ -425,7 +469,7 @@ export class ReportingComponent implements OnInit {
             tryNumber++;
             console.log("Try number "+tryNumber)
 
-            this.http.post(this.API_URL+"watch_report_generation/", { "id_to_watch" : this.reporting_id_to_watch }, this.jwt())
+            this.http.post(this.API_URL+"watch_report_generation/", { "id_to_watch" : reporting_id_to_watch }, this.jwt())
                .toPromise()
                .then(response => {
                     debugLogGroup(this.DEBUG, ["Promise result received for DataRequestService.watch_report_from_api()",
@@ -458,9 +502,12 @@ export class ReportingComponent implements OnInit {
                              "warnings_r" : response.json()["warnings_r"].split("\n").filter(i => i),
                              "file_name" : file_name,
                         });*/
-                        this.generation_in_progress = false;
+                        //this.generation_in_progress = false;
+                        this.nb_files_in_generation--;
+                        console.warn("Decrementing nb_files_in_generation "+this.nb_files_in_generation);
 
-                        debugLog(this.DEBUG,"File generated OK");
+                        debugLog(this.DEBUG,"File generated OK for local id "+local_id_request);
+                        console.warn(this.report_responses);
                         clearInterval(watch_report_loop);
                     }
                })

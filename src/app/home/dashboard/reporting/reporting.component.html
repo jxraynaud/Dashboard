@@ -25,8 +25,19 @@
         <div class="center" *ngIf="!metacampaignsLoading && metacampaigns.length == 0"><md-chip class="errorChip" color="accent" selected="true">No metacampaigns available for this date range</md-chip></div>
         <md-select *ngIf="!metacampaignsLoading && metacampaigns.length > 0" class="metacampaign-select" placeholder="" (change)="changeMetacampaign($event.value)" [(ngModel)]="selected_metacampaign">
            <md-option *ngFor="let metacampaign of metacampaigns" [value]="metacampaign.ad__placement__campaign__metacampaign__id" >{{ metacampaign.ad__placement__campaign__metacampaign__name }}</md-option>
+
         </md-select>
+        <!--<md-icon *ngIf="activeMetacampaignsChips.length > 0" class="inline-block" (click)="clearMetacampaignsChips()">clear</md-icon>-->
+        <td-chips *ngIf="!metacampaignsLoading && metacampaigns.length > 0" class="inline-block"
+                  [items]="metacampaignsChips"
+                  (add)="addActiveMetacampaignChip($event)"
+                  (remove)="removeActiveMetacampaignsChip($event)"
+                  [(ngModel)]="activeMetacampaignsChips"
+                  placeholder="Choose Metacampaigns"></td-chips>
+
       </div>
+      <!--                  [readOnly]="noMoreAttributionModels()"
+                        *ngIf="attributionModelsChips.length > 0"-->
 
     </div>
 
@@ -128,8 +139,8 @@
         </md-chip>
       </div>
       <div class="col-md-6 col-xs-12 align-right">
-        <button *ngIf="parameters_ok && !generation_in_progress" md-raised-button [color]="'primary'" (click)="generateReport()">Generate Report</button>
-        <div *ngIf="generation_in_progress"><img height="50" src="assets/loading.gif" />Generating report<img height="50" src="assets/loading.gif" /></div>
+        <button *ngIf="parameters_ok && nb_files_in_generation==0" md-raised-button [color]="'primary'" (click)="generateAllReports()">Generate Report</button>
+        <div *ngIf="nb_files_in_generation>0"><img height="50" src="assets/loading.gif" />Generating report<img height="50" src="assets/loading.gif" /></div>
       </div>
     </div>
     <div class="row absolute_warnings">
