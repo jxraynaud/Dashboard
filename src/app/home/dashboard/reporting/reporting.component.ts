@@ -53,8 +53,6 @@ export class ReportingComponent implements OnInit {
 
     metacampaigns = [];
     metacampaignsLoading = false;
-    selected_metacampaign : number;
-    selected_metacampaign_item : {};
     parameters_ok : boolean = false;
 
     metacampaignsChips = [];
@@ -303,13 +301,6 @@ export class ReportingComponent implements OnInit {
         debugLogGroup(this.DEBUG, ["Removing item "+itemName+" from active, result :", this.activeAttributionModelsItems]);
     }
 
-    changeMetacampaign(event){
-        this.selected_metacampaign_item = this.metacampaigns.find(
-            m=>{ return m["ad__placement__campaign__metacampaign__id"] == event; }
-        );
-        debugLogGroup(this.DEBUG, ["Changed metacampaign [this.selected_metacampaign_item] :", this.selected_metacampaign_item]);
-    }
-
     generateDateYYYYMMDD(date){
         let d = new Date(date);
         let month = ("0"+(d.getMonth()+1)).slice(-2);
@@ -368,14 +359,12 @@ export class ReportingComponent implements OnInit {
 
         if(!this.selected_dateRange.startDate
             || !this.selected_dateRange.endDate
-            || !this.selected_metacampaign
             || this.activeMetacampaignsItems.length == 0
             || (this.customKpis && this.activeKpisItems.length == 0)
             || this.activeAttributionModelsItems.length == 0
         ){
             if(    !this.selected_dateRange.startDate){ this.form_errors.push("Define Start date"); }
             if(    !this.selected_dateRange.endDate){ this.form_errors.push("Define End date"); }
-            if(    !this.selected_metacampaign){ this.form_errors.push("Choose a Metacampaign"); }
             if(    this.activeMetacampaignsItems.length == 0 ){ this.form_errors.push("Choose at least one Metacampaign"); }
             if(    (this.customKpis && this.activeKpisItems.length == 0)){ this.form_errors.push('Define list of Custom kpis or choose "Standard KPIs"'); }
             if(    this.activeAttributionModelsItems.length == 0){ this.form_errors.push("Choose an Attribution Model"); }
