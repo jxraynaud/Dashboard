@@ -45,8 +45,12 @@
         <md-slide-toggle [color]="'primary'" [(ngModel)]="customKpis">Choose your KPIs</md-slide-toggle>
       </div>
 
+
       <div *ngIf="customKpis" class="col-md-6 col-xs-12">
-        <td-chips *ngIf="kpisChips.length > 0"
+        <div class="center" *ngIf="kpisLoading"><img height="50" src="assets/loading.gif" />Calculating relevant KPIs<img height="50" src="assets/loading.gif" /></div>
+        <div class="center" *ngIf="!kpisLoading && kpisChips.length == 0"><md-chip class="errorChip" color="accent" selected="true">No kpi available for this date range</md-chip></div>
+
+        <td-chips *ngIf="!kpisLoading && kpisChips.length > 0"
           [items]="kpisChips"
           (add)="addActiveStandardChip($event, kpis, activeKpisItems)"
           (remove)="removeActiveStandardChip($event, activeKpisItems)"

@@ -20,8 +20,8 @@ import {debugLog, debugLogGroup} from '../../../utils';
 })
 export class ReportingComponent implements OnInit {
     DEBUG : boolean = true;
-    //API_URL : string = "http://localhost:8000/api/";
-    API_URL : string = "http://37.59.31.134:8001/api/";
+    API_URL : string = "http://localhost:8000/api/";
+    //API_URL : string = "http://37.59.31.134:8001/api/";
 
     /*Theoretically could be any value to max number of attribution models requested,
     * but keep in mind UI has 1 problem : when maximum reached, chip field goes into readonly mode
@@ -61,6 +61,7 @@ export class ReportingComponent implements OnInit {
 
     customKpis : boolean = false;
     kpis = [];
+    kpisLoading : boolean = false;
     kpisChips = [];
     activeKpisChips = [];
     activeKpisItems = [];
@@ -117,11 +118,6 @@ export class ReportingComponent implements OnInit {
                 },
         };
 
-        this.getKPIs().then(response=>{
-            this.kpis = response;
-            this.kpisChips = this.kpis.map(e=>{return e['api_name']});
-        });
-
         this.getAttributionModels().then(response=>{
             this.attributionModels = response;
             this.attributionModelsChips = this.attributionModels.map(e=>{return e['name']});
@@ -131,15 +127,13 @@ export class ReportingComponent implements OnInit {
         let startDate = this.selected_dateRange['startDate'];
         let endDate = this.selected_dateRange['endDate'];
         this.getMetacampaignsForDaterange(startDate, endDate).then(response=>{
-            console.warn("response unsorted");
-            console.warn(response);
-            /*this.metacampaigns = response;
-            this.metacampaignsChips = response.map(m=>{return m['ad__placement__campaign__metacampaign__name']});*/
-            console.warn("response sorted");
-            console.warn(this.metacampaignsChips)
             this.metacampaignsLoading = false;
-            /*this.metacampaigns = this.sortMetacampaigns(response);
-            this.metacampaignsLoading = false;*/
+        });
+
+        this.getKPIs(startDate, endDate).then(response=>{
+            this.kpisLoading = false;
+            //this.kpis = response;
+            //this.kpisChips = this.kpis.map(e=>{return e['api_name']});
         });
 
     }
@@ -190,7 +184,8 @@ export class ReportingComponent implements OnInit {
                debugLogGroup(this.DEBUG, ["Promise result received for ReportingComponent.getMetacampaigns()",
                    response.json()]);
                 this.metacampaigns = response.json();
-                this.metacampaignsChips = response.json().map(m=>{return m['ad__placement__campaign__metacampaign__name']});
+                this.metacampaignsChips = this.metacampaigns.map(m=>{return m['ad__placement__campaign__metacampaign__name']});
+                this.metacampaignsChips.sort();
                 return response.json()
            })
            .catch(error => {
@@ -216,12 +211,18 @@ export class ReportingComponent implements OnInit {
     }
 
     /*********Kpis********/
-    getKPIs(){
-        return this.http.get(this.API_URL+"kpis/", this.jwt())
+    getKPIs(startDate, endDate){
+        this.kpisLoading = true;
+        this.activeKpisChips = [];
+        this.kpis = [];
+        this.kpisChips = [];
+        return this.http.post(this.API_URL+"kpi_reporting_list/", {startDate : startDate, endDate : endDate}, this.jwt())
            .toPromise()
            .then(response => {
                debugLogGroup(this.DEBUG, ["Promise result received for ReportingComponent.getKpis()",
                    response.json()]);
+                   this.kpis = response.json();
+                   this.kpisChips = this.kpis.map(e=>{return e['api_name']});
                return response.json();
            })
            .catch(error => {
@@ -343,13 +344,17 @@ export class ReportingComponent implements OnInit {
         debugLog(this.DEBUG, "New daterange : "+startDate+" - "+endDate);
 
         this.getMetacampaignsForDaterange(startDate, endDate).then(response=>{
-            console.warn("response unsorted");
-            console.warn(response);
+            //console.warn("response unsorted");
+            //console.warn(response);
             /*this.metacampaigns = response;
             this.metacampaignsChips = response.map(m=>{return m['ad__placement__campaign__metacampaign__name']});*/
-            console.warn("response sorted");
+            //console.warn("response sorted");
             console.warn(this.metacampaignsChips)
             this.metacampaignsLoading = false;
+        });
+
+        this.getKPIs(startDate,endDate).then(response=>{
+            this.kpisLoading = false;
         });
     }
 
