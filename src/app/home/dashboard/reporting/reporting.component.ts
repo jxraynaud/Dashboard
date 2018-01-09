@@ -179,7 +179,6 @@ export class ReportingComponent implements OnInit {
 
     getMetacampaignsForDaterange(startDate, endDate){
         this.metacampaignsLoading = true;
-        delete this.selected_metacampaign;
         this.activeMetacampaignsChips = [];
         this.metacampaigns = [];
         this.metacampaignsChips = [];
