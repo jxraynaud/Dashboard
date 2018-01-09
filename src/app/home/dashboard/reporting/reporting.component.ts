@@ -121,6 +121,10 @@ export class ReportingComponent implements OnInit {
         this.getAttributionModels().then(response=>{
             this.attributionModels = response;
             this.attributionModelsChips = this.attributionModels.map(e=>{return e['name']});
+            let defaultAttributionModel = this.attributionModels.find(e=>{return e['is_default_model']});
+            //Add to active attributino model chips and toitems (TODO :see if there id an api on widget to add directly as if it was a user action)
+            this.activeAttributionModelsChips = [defaultAttributionModel['name']];
+            this.addActiveAttributionModelChip(defaultAttributionModel['name']);
         })
 
         console.warn(this.selected_dateRange['startDate'])
