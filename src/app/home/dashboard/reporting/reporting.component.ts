@@ -20,8 +20,8 @@ import {debugLog, debugLogGroup} from '../../../utils';
 })
 export class ReportingComponent implements OnInit {
     DEBUG : boolean = true;
-    API_URL : string = "http://localhost:8000/api/";
-    //API_URL : string = "http://37.59.31.134:8001/api/";
+    //API_URL : string = "http://localhost:8000/api/";
+    API_URL : string = "http://37.59.31.134:8001/api/";
 
     /*Theoretically could be any value to max number of attribution models requested,
     * but keep in mind UI has 1 problem : when maximum reached, chip field goes into readonly mode
