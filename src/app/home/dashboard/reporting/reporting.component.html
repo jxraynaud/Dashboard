@@ -24,7 +24,7 @@
         <div class="center" *ngIf="metacampaignsLoading"><img height="50" src="assets/loading.gif" />Calculating relevant Metacampaigns<img height="50" src="assets/loading.gif" /></div>
         <div class="center" *ngIf="!metacampaignsLoading && metacampaigns.length == 0"><md-chip class="errorChip" color="accent" selected="true">No metacampaigns available for this date range</md-chip></div>
         <!--<md-icon *ngIf="activeMetacampaignsChips.length > 0" class="inline-block" (click)="clearMetacampaignsChips()">clear</md-icon>-->
-        <td-chips *ngIf="!metacampaignsLoading && metacampaigns.length > 0" class="inline-block"
+        <td-chips class="metacampaign-select" *ngIf="!metacampaignsLoading && metacampaigns.length > 0" class="inline-block"
                   [items]="metacampaignsChips"
                   (add)="addActiveMetacampaignChip($event)"
                   (remove)="removeActiveMetacampaignsChip($event)"

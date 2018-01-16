@@ -5,6 +5,7 @@
 
 :host >>> .mat-input-container{
   width:100%;
+  min-width:450px;
 }
 
 .center{
