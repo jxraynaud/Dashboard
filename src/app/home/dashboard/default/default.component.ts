@@ -27,6 +27,13 @@ export class DefaultComponent implements OnInit {
       route: 'reporting',
       title: 'Reporting',
     },
+    {
+      color: 'red-700',
+      description: 'KPI manager',
+      icon: 'assignment',
+      route: 'kpi-manager',
+      title: 'KPI Manager',
+    },
   ];
 
   constructor(){

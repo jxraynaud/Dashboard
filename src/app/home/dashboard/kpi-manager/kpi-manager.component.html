@@ -1,0 +1,41 @@
+<md-card>
+  <md-card-title>
+    Kpi Manager
+  </md-card-title>
+
+  <md-card-content class="reporting-form container">
+
+    <div class="row">
+      <div class="col-md-6 col-xs-12">
+        <div *ngFor="let kpi of kpis">
+          {{kpi.name}}
+
+        </div>
+      </div>
+
+      <div class="col-md-6 col-xs-12">
+      </div>
+    </div>
+
+    <div class="row">
+    </div>
+
+    <div style="clear:both"></div>
+
+  </md-card-content>
+</md-card>
+
+<h3 class="first">Basic</h3>
+<!-- <p-table [value]="kpis">
+    <ng-template pTemplate="header">
+        <tr>
+            <th>Vin</th>
+        </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-car>
+        <tr>
+            <td>{{car.vin}}</td>
+
+        </tr>
+    </ng-template>
+</p-table>-->

@@ -62,6 +62,13 @@
           "description" : "Generate a report",
           "icon" : "assignment",
           "route" : "reporting"
+      },
+      {
+          "name" : "kpiManager",
+          "menuText" : "Kpi Manager",
+          "description" : "Access to Kpi and Tags infos",
+          "icon" : "assignment",
+          "route" : "kpi-manager"
       }
   ]
 }

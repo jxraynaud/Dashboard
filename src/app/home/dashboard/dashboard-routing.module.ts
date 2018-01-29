@@ -38,6 +38,11 @@ const dashboardRoutes: Routes = [
                 canActivateChild: [AuthGuard],
                 loadChildren: './reporting/reporting.module#ReportingModule'
             },
+            {
+                path: 'kpi-manager',
+                //canActivateChild: [AuthGuard],
+                loadChildren: './kpi-manager/kpi-manager.module#KpiManagerModule'
+            }, 
         ]
     }
 ];
