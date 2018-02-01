@@ -6,11 +6,61 @@
   <md-card-content class="reporting-form container">
 
     <div class="row">
-      <div class="col-md-6 col-xs-12">
-        <div *ngFor="let kpi of kpis">
-          {{kpi.name}}
+      <div class="col-md-12 col-xs-12">
+        <h3>Filters</h3>
 
-        </div>
+        <div *ngFor="let filter of kpi_filters"><div *ngFor="let elem of filter.values"><span *ngIf="elem['checked']">{{elem['name']}}</span></div></div>
+
+        <md-tab-group class="nav nav-pills">
+          <md-tab label="{{filter.name}}" *ngFor="let filter of kpi_filters">
+            <div *ngFor="let elem of filter.values" class="form-check col-xs-6 col-sm-4 col-md-3 col-lg-3 col-xl-2">
+              <label class="form-check-label">
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  value="{{filter.id_from_attribute(elem)}}"
+                  [(ngModel)] = "elem.checked"
+                  (change)="initAllAvailableValuesForFilters()"
+                  >
+                {{ filter.name_from_attribute(elem) }}
+              </label>
+            </div>
+          </md-tab>
+        </md-tab-group>
+
+      </div>
+
+      <div class="col-md-12 col-xs-12">
+          <table class="table table-bordered table-striped">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Brand</th>
+                <th>Product</th>
+                <th>Creation date</th>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Metacampaigns</th>
+                <th>KPI action</th>
+                <th>Last add/removal of tag</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor='let kpi of kpi_filtered_data' >
+                <ng-container *ngIf="isInFilterConditions(kpi)">
+                  <td scope="row">{{kpi.id}}</td>
+                  <td>{{kpi.product.brand.name}}</td>
+                  <td>{{kpi.product.name}}</td>
+                  <td>{{kpi.creation_date | date:"short"}}</td>
+                  <td>{{kpi.name}}</td>
+                  <td>{{kpi.description}}</td>
+                  <td><ul><li *ngFor="let metacampaign of kpi.metacampaigns">{{metacampaign.api_name}}</li></ul></td>
+                  <td>{{kpi.kpi_action.action}}</td>
+                  <td><span *ngIf="kpi.tag_link_editions">{{kpi.tag_link_editions.action_time | date:"short"}}</span></td>
+              </ng-container>
+              </tr>
+            </tbody>
+          </table>
       </div>
 
       <div class="col-md-6 col-xs-12">
