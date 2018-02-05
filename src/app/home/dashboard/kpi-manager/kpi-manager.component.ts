@@ -114,11 +114,21 @@ export class KpiManagerComponent implements OnInit {
             //console.log("multiple for "+filter['name']);
 
             //this.kpi_filtered_data.filter(kpi=>{ return this.isInFilterConditions(kpi) }).map(kpi=>{ filter.attribute_from_kpi(kpi).map(e=>{ attributes_only_array.push(e) }) });
-            this.kpi_filtered_data.map(kpi=>{ filter.attribute_from_kpi(kpi).map(e=>{ attributes_only_array.push(e) }) });
+            this.kpi_filtered_data.map(kpi=>{
+                if(this.isInFilterConditions(kpi)){
+                    filter.attribute_from_kpi(kpi).map(e=>{ console.warn("toto5"); attributes_only_array.push(e) })
+                }
+            });
 
         }else{
-            //console.log("single for "+filter['name']);
-            attributes_only_array = this.kpi_filtered_data.map(kpi=>{return filter.attribute_from_kpi(kpi); });
+            //Use kpi_filtered_data to get attributes, checking "isInFilterConditions" to get "filtered filters"
+            attributes_only_array = this.kpi_filtered_data.map(kpi=>{
+                if(this.isInFilterConditions(kpi)){
+                    return filter.attribute_from_kpi(kpi);
+                }
+            }).filter(attr => { return typeof attr != 'undefined' });
+            console.warn("toto5")
+            console.warn(attributes_only_array)
         }
 
         let unique_attributes = attributes_only_array.filter((attr, index, self)=>{
@@ -149,26 +159,34 @@ export class KpiManagerComponent implements OnInit {
         let is_displayed = true;
         //Go through all filters
         this.kpi_filters.map(filter=>{
-            //Get valid ids from filters (ones that are markes as "checked")
-            let valid_ids = filter['values'].filter(value_attr=>{return value_attr['checked']}).map(value_attr=>{ return filter.id_from_attribute(value_attr); })
+            //Skip completely filtering if filter['values'] is undefined (means values of filters haven't been retrieved yet)
+            if(filter['values']){
+                //Get valid ids from filters (ones that are markes as "checked")
+                let valid_ids = filter['values'].filter(value_attr=>{
 
-            if(filter['multiple']){
-                //Get array of valid ids
-                let attribute_id_array = filter.attribute_from_kpi(kpi).map(e=>{return filter.id_from_attribute(e); })
-                //If list of valid ids empty (==nothing checked), dont impact filtering [depends on option]
-                if(valid_ids.length == 0 && this.NO_CHECKED_MEANS_UNFILTERED ){
-                    //If no valid ids (nothing checked) AND option is true, do nothing (keep status without checking presence of valid filter values for this filter)
+                    return value_attr['checked']
+                }).map(value_attr=>{
+                    return filter.id_from_attribute(value_attr);
+                })
+
+                if(filter['multiple']){
+                    //Get array of valid ids
+                    let attribute_id_array = filter.attribute_from_kpi(kpi).map(e=>{return filter.id_from_attribute(e); })
+                    //If list of valid ids empty (==nothing checked), dont impact filtering [depends on option]
+                    if(valid_ids.length == 0 && this.NO_CHECKED_MEANS_UNFILTERED ){
+                        //If no valid ids (nothing checked) AND option is true, do nothing (keep status without checking presence of valid filter values for this filter)
+                    }else{
+                        if( !valid_ids.some(id => attribute_id_array.includes(id) ) ){ is_displayed = false; }
+                    }
                 }else{
-                    if( !valid_ids.some(id => attribute_id_array.includes(id) ) ){ is_displayed = false; }
-                }
-            }else{
-                //Get id
-                let attribute_id = filter.id_from_attribute(filter.attribute_from_kpi(kpi));
-                //If list of valid ids empty (==nothing checked), dont impact filtering [depends on option]
-                if(valid_ids.length == 0 && this.NO_CHECKED_MEANS_UNFILTERED ){
-                    //If no valid ids (nothing checked) AND option is true, do nothing (keep status without checking presence of valid filter values for this filter)
-                }else{
-                    if(valid_ids.indexOf(attribute_id) == -1){ is_displayed = false; }
+                    //Get id
+                    let attribute_id = filter.id_from_attribute(filter.attribute_from_kpi(kpi));
+                    //If list of valid ids empty (==nothing checked), dont impact filtering [depends on option]
+                    if(valid_ids.length == 0 && this.NO_CHECKED_MEANS_UNFILTERED ){
+                        //If no valid ids (nothing checked) AND option is true, do nothing (keep status without checking presence of valid filter values for this filter)
+                    }else{
+                        if(valid_ids.indexOf(attribute_id) == -1){ is_displayed = false; }
+                    }
                 }
             }
         });
