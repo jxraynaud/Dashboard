@@ -1,0 +1,49 @@
+<script src="https://unpkg.com/vue"></script>
+
+<div id="app">
+  <div v-bind:title="message">
+    TEST2
+    {{ message }}
+  </div>
+  <ol>
+    <li v-for="a in list"> {{ a }} </li>
+  </ol>
+  <button v-on:click="functionTest">Test function</button>
+  <input v-model="message"></input>
+  <table>
+      <data-line
+        v-for="line in list2"
+        v-bind:title="titledata"
+        v-bind:data_line_array="line">
+      </data-line>
+  </table>
+
+</div>
+
+<!---->
+
+
+<script type="text/javascript">
+/*<tr><td v-for="e in data-line-array">{{e}}</td></tr>*/
+Vue.component('data-line', {
+  props: ['data_line_array','title'],
+  template: '<tr><td v-for="e in data_line_array">{{e}}</td></tr>'
+})
+
+var kpiTable = new Vue({
+  el: '#app',
+  data: {
+    message: 'Hello Vue.js!',
+    list : ["list2","list2","list3"],
+    titledata : "Basictitle",
+    list2: [['info1','info2','info3'],['info4','info5','info6'],['info7','info8','info9']],
+  },
+  methods: {
+    functionTest: function(){
+      this.message = this.message.split(" ").reverse().join(" ");
+    }
+  }
+});
+
+
+</script>

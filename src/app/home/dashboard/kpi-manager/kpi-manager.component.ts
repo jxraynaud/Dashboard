@@ -8,7 +8,7 @@ import { Daterangepicker } from 'ng2-daterangepicker';
 import { NavService } from '../../../services/nav.service';
 import { AuthenticatedHttpService } from '../../../services/authenticatedHttpService';
 
-import {debugLog, debugLogGroup} from '../../../utils';
+import {debugLog, debugLogGroup, intersection} from '../../../utils';
 
 @Component({
   selector: 'app-kpi-manager',
@@ -17,14 +17,17 @@ import {debugLog, debugLogGroup} from '../../../utils';
 })
 export class KpiManagerComponent implements OnInit {
     DEBUG : boolean = true;
-    API_URL : string = "http://localhost:8000/api/";
-    //API_URL : string = "http://37.59.31.134:8001/api/";
+    //API_URL : string = "http://localhost:8000/api/";
+    API_URL : string = "http://37.59.31.134:8001/api/";
 
     //If set to false, nothing checked will display no result
     NO_CHECKED_MEANS_UNFILTERED = true;
+    EXCLUDE_NOT_DISPLAYED_KPIS = false;
 
     kpis = [];
     kpi_filtered_data = [];
+
+    globalTags = [];
 
     kpi_filters = [
         {
@@ -77,6 +80,7 @@ export class KpiManagerComponent implements OnInit {
 
     ngOnInit() {
         this.getKpis();
+        this.getTags();
         this.dateRange = this.initDefaultDateRange();
         let today = new Date();
         this.daterange_options = {
@@ -151,8 +155,37 @@ export class KpiManagerComponent implements OnInit {
                     }
                 });
                 this.kpi_filtered_data = this.kpis;
+                this.kpi_filtered_data.map(kpi=>{
+                    kpi["checked"]=false;
+                })
                 this.initAllAvailableValuesForFilters();
-                console.warn(this.kpis)
+                debugLogGroup(this.DEBUG, ["Kpis, kpi_filtered_data", this.kpis, this.kpi_filtered_data])
+           })
+           .catch(error => {
+               console.error("PROMISE REJECTED : could not get data from api in kpi manager for kpis");
+               console.log("error : "+error.json().detail);
+               console.log(error.json());
+           //    this.router.navigate(['/login'], { queryParams: { returnUrl : window.location.pathname }});
+               return [];
+           });
+    }
+
+    getTags(){
+        return this.http.get(this.API_URL+"global-tags-full/", this.jwt())
+           .toPromise()
+           .then(response => {
+               debugLogGroup(this.DEBUG, ["Promise result received for Kpi-manager.getTags()",
+                   response.json()]);
+                this.globalTags = response.json();
+                //Convert dates
+                this.globalTags.map(tag=>{
+                    tag['publication_date'] = new Date(tag['publication_date']);
+                    if(tag['retired_date']){
+                        tag['retired_date'] = new Date(tag['retired_date']);
+                    }
+                });
+                debugLogGroup(this.DEBUG, ["Globaltags :",
+                    this.globalTags]);
            })
            .catch(error => {
                console.error("PROMISE REJECTED : could not get data from api in kpi manager for kpis");
@@ -292,6 +325,19 @@ export class KpiManagerComponent implements OnInit {
         });
         //console.warn(is_displayed)
         return is_displayed;
+    }
+
+    isTagInSelectedKpis(tag){
+        let selected_kpis = this.kpi_filtered_data.map(kpi=>{
+            if(kpi['checked'] && (!this.EXCLUDE_NOT_DISPLAYED_KPIS || this.isInFilterConditions(kpi))) {
+                return kpi['id'];
+            }
+        }).filter(attr => { return typeof attr != 'undefined' });
+        if(intersection(selected_kpis,tag['kpis']).length > 0 ){ return true; } else { return false; }
+        /*if(selected_kpis.length > 0){
+            console.warn("----");
+            console.warn(selected_kpis)
+        }*/
     }
 
     /*filterData(){

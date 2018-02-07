@@ -49,6 +49,7 @@
           <table class="table table-bordered table-striped">
             <thead>
               <tr>
+                <th>Selected</th>
                 <th>#</th>
                 <th>Brand</th>
                 <th>Product</th>
@@ -63,6 +64,7 @@
             <tbody>
               <tr *ngFor='let kpi of kpi_filtered_data' >
                 <ng-container *ngIf="isInFilterConditions(kpi)">
+                  <td><input type="checkbox" [(ngModel)] = "kpi.checked"></td>
                   <td scope="row">{{kpi.id}}</td>
                   <td>{{kpi.product.brand.name}}</td>
                   <td>{{kpi.product.name}}</td>
@@ -91,7 +93,66 @@
   </md-card-content>
 </md-card>
 
-<h3 class="first">Basic</h3>
+<md-card>
+  <md-card-title>
+    Matching Tags
+  </md-card-title>
+  <md-card-content>
+    <div class="row">
+      <div class="col-md-12 col-xs-12">
+        <table class="table table-bordered table-striped">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Name</th>
+              <th>Description</th>
+              <th>Publication date</th>
+              <th>Retired date</th>
+              <th>To be removed</th>
+              <th>Is removed</th>
+              <th>Is app</th>
+              <th>Is global</th>
+              <th>Is Piggybacker</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor='let tag of globalTags'>
+              <ng-container *ngIf="isTagInSelectedKpis(tag)">
+                <td scope="row">{{tag.id}}</td>
+                <td>{{tag.name}}</td>
+                <td>{{tag.description}}</td>
+                <td>{{tag.publication_date | date:"medium"}}</td>
+                <td>{{tag.retired_date | date:"medium"}}</td>
+                <td>
+                  <span *ngIf="tag.to_be_removed"><md-icon class="green">check_circle</md-icon></span>
+                  <span *ngIf="!tag.to_be_removed"><md-icon class="red">cancel</md-icon></span>
+                </td>
+                <td>
+                  <span *ngIf="tag.is_removed"><md-icon class="green">check_circle</md-icon></span>
+                  <span *ngIf="!tag.is_removed"><md-icon class="red">cancel</md-icon></span>
+                </td>
+                <td>
+                  <span *ngIf="tag.is_app"><md-icon class="green">check_circle</md-icon></span>
+                  <span *ngIf="!tag.is_app"><md-icon class="red">cancel</md-icon></span>
+                </td>
+                <td>
+                  <span *ngIf="tag.is_global"><md-icon class="green">check_circle</md-icon></span>
+                  <span *ngIf="!tag.is_global"><md-icon class="red">cancel</md-icon></span>
+                </td>
+                <td>
+                  <span *ngIf="tag.is_piggybacker"><md-icon class="green">check_circle</md-icon></span>
+                  <span *ngIf="!tag.is_piggybacker"><md-icon class="red">cancel</md-icon></span>
+                </td>
+
+            </ng-container>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </md-card-content>
+</md-card>
+
 <!-- <p-table [value]="kpis">
     <ng-template pTemplate="header">
         <tr>
