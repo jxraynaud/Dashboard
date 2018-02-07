@@ -29,31 +29,44 @@ export class KpiManagerComponent implements OnInit {
     kpi_filters = [
         {
             'name':'Brand',
+            'checkbox':true,
             'attribute_from_kpi':(kpi)=>{ return kpi['product']['brand']; },
             'id_from_attribute':(attr)=>{ return attr['id']; },
             'name_from_attribute':(attr)=>{ return attr['name']; }
         },
         {
             'name':'Product',
+            'checkbox':true,
             'attribute_from_kpi':(kpi)=>{ return kpi['product']; },
             'id_from_attribute':(attr)=>{ return attr['id']; },
             'name_from_attribute':(attr)=>{ return attr['name']; }
         },
         {
             'name':'KPI action',
+            'checkbox':true,
             'attribute_from_kpi':(kpi)=>{ return kpi['kpi_action']; },
             'id_from_attribute':(attr)=>{ return attr['id']; },
             'name_from_attribute':(attr)=>{ return attr['action']; }
         },
         {
             'name':'Metacampaign',
+            'checkbox':true,
             'multiple':true,
             'attribute_from_kpi':(kpi)=>{ return kpi['metacampaigns']; },
             'id_from_attribute':(attr)=>{ return attr['api_id']; },
             'name_from_attribute':(attr)=>{ return attr['api_name']; }
+        },
+        {
+            'name':'Creation date',
+            'daterange':true,
+            'attribute_from_kpi':(kpi)=>{ return kpi['creation_date']; },
+            'id_from_attribute':null,
+            'name_from_attribute':null
         }
     ]
 
+    daterange_options;
+    dateRange : {startDate, endDate};
     //kpi_filters = [];
 
     constructor(
@@ -64,6 +77,49 @@ export class KpiManagerComponent implements OnInit {
 
     ngOnInit() {
         this.getKpis();
+        this.dateRange = this.initDefaultDateRange();
+        let today = new Date();
+        this.daterange_options = {
+           locale: { format: 'DD-MM-YYYY' },
+           alwaysShowCalendars: true,
+           startDate : this.dateRange.startDate,
+           endDate : this.dateRange.endDate,
+           ranges: {
+                   "Today": [
+                       today,
+                       today,
+                   ],
+                   "Yesterday": [
+                       new Date().setDate(today.getDate()-1),
+                       new Date().setDate(today.getDate()-1),
+                   ],
+                   "Last 7 Days": [
+                       new Date().setDate(today.getDate()-7),
+                       today
+                   ],
+                   "Last 30 Days": [
+                       new Date().setDate(today.getDate()-30),
+                       today
+                   ],
+                   "Last 90 days": [
+                       new Date().setDate(today.getDate()-90),
+                       today
+                   ],
+               },
+       };
+
+    }
+
+    initDefaultDateRange():any{
+        let days = 86400000;
+        let today = Date.now();
+        return {
+            //TODO : remettre dates par défaut
+            startDate : new Date(today - (3100*days)),
+            //startDate : new Date("2016-01-01"),
+            endDate : new Date(today - (1*days)),
+            //endDate : new Date("2016-03-01"),
+        };
     }
 
     /**
@@ -110,25 +166,44 @@ export class KpiManagerComponent implements OnInit {
     initAvailableValuesForFilter(filter){
         let attributes_only_array = [];
         //"Unpack" multiple values received by the endpoint as arrays of attributes
-        if(filter["multiple"]){
-            //console.log("multiple for "+filter['name']);
+        if(filter["checkbox"]){
+            if(filter["multiple"]){
+                //console.log("multiple for "+filter['name']);
 
-            //this.kpi_filtered_data.filter(kpi=>{ return this.isInFilterConditions(kpi) }).map(kpi=>{ filter.attribute_from_kpi(kpi).map(e=>{ attributes_only_array.push(e) }) });
-            this.kpi_filtered_data.map(kpi=>{
-                if(this.isInFilterConditions(kpi)){
-                    filter.attribute_from_kpi(kpi).map(e=>{ console.warn("toto5"); attributes_only_array.push(e) })
-                }
-            });
+                //this.kpi_filtered_data.filter(kpi=>{ return this.isInFilterConditions(kpi) }).map(kpi=>{ filter.attribute_from_kpi(kpi).map(e=>{ attributes_only_array.push(e) }) });
+                this.kpi_filtered_data.map(kpi=>{
+                    if(this.isInFilterConditions(kpi)){
+                        filter.attribute_from_kpi(kpi).map(e=>{ console.warn("toto5"); attributes_only_array.push(e) })
+                    }
+                });
 
-        }else{
-            //Use kpi_filtered_data to get attributes, checking "isInFilterConditions" to get "filtered filters"
-            attributes_only_array = this.kpi_filtered_data.map(kpi=>{
+            }else{
+                //Use kpi_filtered_data to get attributes, checking "isInFilterConditions" to get "filtered filters"
+                attributes_only_array = this.kpi_filtered_data.map(kpi=>{
+                    if(this.isInFilterConditions(kpi)){
+                        return filter.attribute_from_kpi(kpi);
+                    }
+                }).filter(attr => { return typeof attr != 'undefined' });
+                console.warn("toto5")
+                console.warn(attributes_only_array)
+            }
+        } else if(filter["daterange"]){
+            //Define first and last date from filtered data
+            /*let sortedCreationDateValues = this.kpi_filtered_data.map(kpi=>{
                 if(this.isInFilterConditions(kpi)){
                     return filter.attribute_from_kpi(kpi);
                 }
-            }).filter(attr => { return typeof attr != 'undefined' });
-            console.warn("toto5")
-            console.warn(attributes_only_array)
+            }).filter(attr => { return typeof attr != 'undefined' }).sort(function(a,b){
+              return a - b;
+            });
+            console.log(sortedCreationDateValues)
+            this.dateRange.startDate = sortedCreationDateValues[0]
+            this.daterange_options.startDate = this.dateRange.startDate;
+            this.dateRange.endDate = sortedCreationDateValues[sortedCreationDateValues.length-1]
+            this.daterange_options.endDate = this.dateRange.endDate;*/
+        }else{
+            console.error("Filter not recognized :");
+            console.error(filter);
         }
 
         let unique_attributes = attributes_only_array.filter((attr, index, self)=>{
@@ -144,6 +219,17 @@ export class KpiManagerComponent implements OnInit {
         return unique_attributes;
     }
 
+    dateChanged(value){
+        //Refresh filters
+        //this.initAllAvailableValuesForFilters();
+        //Update dates
+        this.dateRange = {
+            startDate : new Date(value.start),
+            endDate : new Date(value.end),
+        };
+        debugLog(this.DEBUG, "New daterange : "+this.dateRange.startDate+" - "+this.dateRange.endDate);
+    }
+
     initAllAvailableValuesForFilters(){
         console.warn("REGENERATING FILTERS ON BASE OF : ")
         console.log(this.kpi_filtered_data)
@@ -154,40 +240,54 @@ export class KpiManagerComponent implements OnInit {
         console.log(this.kpi_filters);
     }
 
+    /*refreshAllAvailableFiltersValues(filterName){
+        this.kpi_filters.map(f => {
+            if(f["name"] != filterName){
+                f["values"] = this.initAvailableValuesForFilter(f);
+            }
+        })
+    }*/
+
     isInFilterConditions(kpi){
         //Initial value of display of this kpi line
         let is_displayed = true;
         //Go through all filters
         this.kpi_filters.map(filter=>{
             //Skip completely filtering if filter['values'] is undefined (means values of filters haven't been retrieved yet)
-            if(filter['values']){
-                //Get valid ids from filters (ones that are markes as "checked")
-                let valid_ids = filter['values'].filter(value_attr=>{
+            if(filter['checkbox']==true){
+                if(filter['values']){
+                    //Get valid ids from filters (ones that are markes as "checked")
+                    let valid_ids = filter['values'].filter(value_attr=>{
+                        return value_attr['checked']
+                    }).map(value_attr=>{
+                        return filter.id_from_attribute(value_attr);
+                    })
 
-                    return value_attr['checked']
-                }).map(value_attr=>{
-                    return filter.id_from_attribute(value_attr);
-                })
-
-                if(filter['multiple']){
-                    //Get array of valid ids
-                    let attribute_id_array = filter.attribute_from_kpi(kpi).map(e=>{return filter.id_from_attribute(e); })
-                    //If list of valid ids empty (==nothing checked), dont impact filtering [depends on option]
-                    if(valid_ids.length == 0 && this.NO_CHECKED_MEANS_UNFILTERED ){
-                        //If no valid ids (nothing checked) AND option is true, do nothing (keep status without checking presence of valid filter values for this filter)
+                    if(filter['multiple']){
+                        //Get array of valid ids
+                        let attribute_id_array = filter.attribute_from_kpi(kpi).map(e=>{return filter.id_from_attribute(e); })
+                        //If list of valid ids empty (==nothing checked), dont impact filtering [depends on option]
+                        if(valid_ids.length == 0 && this.NO_CHECKED_MEANS_UNFILTERED ){
+                            //If no valid ids (nothing checked) AND option is true, do nothing (keep status without checking presence of valid filter values for this filter)
+                        }else{
+                            if( !valid_ids.some(id => attribute_id_array.includes(id) ) ){ is_displayed = false; }
+                        }
                     }else{
-                        if( !valid_ids.some(id => attribute_id_array.includes(id) ) ){ is_displayed = false; }
-                    }
-                }else{
-                    //Get id
-                    let attribute_id = filter.id_from_attribute(filter.attribute_from_kpi(kpi));
-                    //If list of valid ids empty (==nothing checked), dont impact filtering [depends on option]
-                    if(valid_ids.length == 0 && this.NO_CHECKED_MEANS_UNFILTERED ){
-                        //If no valid ids (nothing checked) AND option is true, do nothing (keep status without checking presence of valid filter values for this filter)
-                    }else{
-                        if(valid_ids.indexOf(attribute_id) == -1){ is_displayed = false; }
+                        //Get id
+                        let attribute_id = filter.id_from_attribute(filter.attribute_from_kpi(kpi));
+                        //If list of valid ids empty (==nothing checked), dont impact filtering [depends on option]
+                        if(valid_ids.length == 0 && this.NO_CHECKED_MEANS_UNFILTERED ){
+                            //If no valid ids (nothing checked) AND option is true, do nothing (keep status without checking presence of valid filter values for this filter)
+                        }else{
+                            if(valid_ids.indexOf(attribute_id) == -1){ is_displayed = false; }
+                        }
                     }
                 }
+            }else if(filter["daterange"]){
+                if(this.dateRange.startDate - filter.attribute_from_kpi(kpi) > 0 || filter.attribute_from_kpi(kpi) - this.dateRange.endDate > 0 ){ is_displayed = false; }
+            }else{
+                console.error("Filter not recognized :");
+                console.error(filter);
             }
         });
         //console.warn(is_displayed)
