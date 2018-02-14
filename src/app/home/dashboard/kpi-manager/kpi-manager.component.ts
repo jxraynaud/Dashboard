@@ -5,6 +5,8 @@ import {/* Http,*/ Headers, RequestOptions, Response } from '@angular/http';
 import { DaterangepickerConfig } from 'ng2-daterangepicker';
 import { Daterangepicker } from 'ng2-daterangepicker';
 
+import { Angular2Csv } from 'angular2-csv/Angular2-csv';
+
 import { NavService } from '../../../services/nav.service';
 import { AuthenticatedHttpService } from '../../../services/authenticatedHttpService';
 
@@ -71,6 +73,16 @@ export class KpiManagerComponent implements OnInit {
     daterange_options;
     dateRange : {startDate, endDate};
     //kpi_filters = [];
+
+    sort_columns = {
+        'id' : { 'getOrderField' : (kpi) => { return kpi["id"]; }, 'order' : "", "type" : "numberSort" },
+        'brandName' : { 'getOrderField' : (kpi) => { return kpi["product"]["brand"]["name"]; }, 'order' : "", "type" : "stringSort" },
+        'productName' : { 'getOrderField' : (kpi) => { return kpi["product"]["name"]; }, 'order' : "", "type" : "stringSort" },
+        'creationDate' : { 'getOrderField' : (kpi) => { return kpi["creation_date"]; }, 'order' : "", "type" : "dateSort" },
+        'name' : { 'getOrderField' : (kpi) => { return kpi["name"]; }, 'order' : "", "type" : "stringSort" },
+        'kpiActionName' : { 'getOrderField' : (kpi) => { return kpi["kpi_action"]['action']; }, 'order' : "", "type" : "stringSort" },
+        'lastAddOrRemovalTagDate' : { 'getOrderField' : (kpi) => { if(kpi["tag_link_editions"]){ return kpi["tag_link_editions"]["action_time"];} else{return 0} }, 'order' : "", "type" : "dateSort" },
+    }
 
     constructor(
         private http: AuthenticatedHttpService,
@@ -355,8 +367,143 @@ export class KpiManagerComponent implements OnInit {
 
     }*/
 
-    testFilters(){
-        console.log("Filter values");
-        console.log(this.kpi_filters)
+    sortKpis(sortColumn){
+        if(sortColumn["type"]=="numberSort" || sortColumn["type"]=="dateSort"){
+            if(sortColumn["order"] == "" || sortColumn["order"] == "desc" ){
+                this.kpi_filtered_data.sort((kpi1,kpi2)=>{ return sortColumn['getOrderField'](kpi1) - sortColumn['getOrderField'](kpi2); });
+                sortColumn["order"] = "asc";
+            }else if(sortColumn["order"] == "asc"){
+                this.kpi_filtered_data.sort((kpi1,kpi2)=>{ return sortColumn['getOrderField'](kpi2) - sortColumn['getOrderField'](kpi1); });
+                sortColumn["order"] = "desc";
+            }else{
+                console.error("Unknown value for order of column (accepted : '', 'asc' and 'desc')");
+            }
+        }else if(sortColumn["type"]=="stringSort"){
+            if(sortColumn["order"] == "" || sortColumn["order"] == "desc" ){
+                this.kpi_filtered_data.sort((kpi1,kpi2)=>{
+                    if( sortColumn['getOrderField'](kpi1) < sortColumn['getOrderField'](kpi2)){return -1};
+                    if( sortColumn['getOrderField'](kpi1) > sortColumn['getOrderField'](kpi2)){return 1};
+                    return 0;
+                });
+                sortColumn["order"] = "asc";
+            }else if(sortColumn["order"] == "asc"){
+                this.kpi_filtered_data.sort((kpi1,kpi2)=>{
+                    if( sortColumn['getOrderField'](kpi2) < sortColumn['getOrderField'](kpi1)){return -1};
+                    if( sortColumn['getOrderField'](kpi2) > sortColumn['getOrderField'](kpi1)){return 1};
+                    return 0;
+                });
+                sortColumn["order"] = "desc";
+            }else{
+                console.error("Unknown value for order of column (accepted : '', 'asc' and 'desc')");
+            }
+        }/*else if(sortColumn["type"]=="dateSort"){
+            if(sortColumn["order"] == "" || sortColumn["order"] == "desc" ){
+                this.kpi_filtered_data.sort((kpi1,kpi2)=>{ return sortColumn['getOrderField'](kpi1) - sortColumn['getOrderField'](kpi2); });
+                sortColumn["order"] = "asc";
+            }else if(sortColumn["order"] == "asc"){
+                this.kpi_filtered_data.sort((kpi1,kpi2)=>{ return sortColumn['getOrderField'](kpi2) - sortColumn['getOrderField'](kpi1); });
+                sortColumn["order"] = "desc";
+            }else{
+                console.error("Unknown value for order of column (accepted : '', 'asc' and 'desc')");
+            }
+        }*/
+
+        console.warn(this.sort_columns)
     }
+
+    selectAllVisibleKpis(){
+        this.kpi_filtered_data.map(kpi=>{
+            if(this.isInFilterConditions(kpi)){
+                kpi['checked'] = true;
+            }
+        });
+    }
+
+    clearAllCheckedKpis(){
+        this.kpi_filtered_data.map(kpi=>{
+            kpi['checked'] = false;
+        });
+    }
+
+    selectAllFilter(filter){
+        filter['values'].map(v=>{v["checked"]=true})
+    }
+
+    clearAllFilter(filter){
+        filter['values'].map(v=>{v["checked"]=false})
+    }
+
+    clearAllCheckboxTabs(){
+        this.kpi_filters.map(f=>{
+            if(f['checkbox']){
+                this.clearAllFilter(f);
+            }
+        });
+    }
+
+    getNumberOfCheckedValues(filter){
+        if(filter["values"]){
+            return filter["values"].filter(v=>{ return v.checked }).length;
+        }else{
+            return 0;
+        }
+    }
+
+    getFilterLabel(filter){
+        if(filter["checkbox"]){
+            return filter["name"]+" ("+this.getNumberOfCheckedValues(filter)+")"
+        }
+        if(filter["daterange"]){
+            return filter["name"];
+        }
+    }
+
+    //dec . sep , en fr dec , sep ;
+    exportKpiToCSV(separator, decimal){
+        let dataToExport = [];
+        let valid_kpis = this.kpi_filtered_data.filter( kpi => { return this.isInFilterConditions(kpi) } );
+        valid_kpis.map(kpi=>{
+            let line = {};
+            line["id"] = kpi["id"];
+            line["name"] = kpi["name"];
+            line["description"] = kpi["description"];
+            line["product"] = kpi["product"]["name"];
+            line["kpi_action"] = kpi["kpi_action"]["action"];
+            line["creation_date"] = kpi["creation_date"];
+            line["metacampaigns"] = "";
+            kpi["metacampaigns"].map(metac=>{ line["metacampaigns"] += metac["api_name"] +"("+metac["api_id"]+")"+ " / " })
+            if(kpi["tag_link_editions"]){
+                line["last_tag_edition"] = kpi["tag_link_editions"]["action_time"];
+            }else{
+                line["last_tag_edition"] = "None";
+            }
+            dataToExport.push(line);
+        })
+
+        new Angular2Csv(dataToExport, "Test", { fieldSeparator : separator, decimalseparator : decimal, headers: ["Id","Name","Description","Product","Kpi Action","Creation date","Metacampaigns","Date of last tag add/removal"] } );
+    }
+
+    exportTagsToCSV(separator, decimal){
+        console.warn("---");
+        console.warn(this.globalTags)
+        let dataToExport = [];
+        let valid_tags = this.globalTags.filter( tag => { return this.isTagInSelectedKpis(tag) } );
+        valid_tags.map(tag=>{
+            let line = {};
+            line["id"] = tag["id"];
+            line["name"] = tag["name"];
+            line["description"] = tag["description"];
+            line["publication_date"] = tag["publication_date"];
+            line["retired_date"] = tag["retired_date"];
+            line["to_be_removed"] = tag["to_be_removed"];
+            line["is_removed"] = tag["is_removed"];
+            line["is_app"] = tag["is_app"];
+            line["is_global"] = tag["is_global"];
+            line["is_piggybacker"] = tag["is_piggybacker"];
+            dataToExport.push(line);
+        })
+
+        new Angular2Csv(dataToExport, "Test", { fieldSeparator : separator, decimalseparator : decimal, headers: ["Id","Name","Description","Publication date","Retired date","To be removed","Is removed","Is app","Is global","Is piggybacker"] } );
+    }
+
 }

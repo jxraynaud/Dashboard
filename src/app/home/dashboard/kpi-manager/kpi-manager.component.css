@@ -5,3 +5,8 @@
 .green{
   color:green
 }
+
+.smallIcon{
+  font-size : 1em ;
+  font-weight : bold;
+}

@@ -7,12 +7,11 @@
 
     <div class="row">
       <div class="col-md-12 col-xs-12">
-        <h3>Filters</h3>
-
-        <div *ngFor="let filter of kpi_filters"><div *ngFor="let elem of filter.values"><span *ngIf="elem['checked']">{{elem['name']}}</span></div></div>
+        <h3>Filters <button md-raised-button [color]="'primary'" (click)="clearAllCheckboxTabs(filter)">Clear all</button></h3>
+        <!--<div *ngFor="let filter of kpi_filters"><div *ngFor="let elem of filter.values"><span *ngIf="elem['checked']">{{elem['name']}}</span></div></div>-->
 
         <md-tab-group class="nav nav-pills">
-          <md-tab label="{{filter.name}}" *ngFor="let filter of kpi_filters">
+          <md-tab label="{{getFilterLabel(filter)}}" *ngFor="let filter of kpi_filters">
 
             <div *ngIf="filter.checkbox">
               <div *ngFor="let elem of filter.values" class="form-check col-xs-6 col-sm-4 col-md-3 col-lg-3 col-xl-2">
@@ -26,6 +25,10 @@
                     <!--(change)="initAllAvailableValuesForFilters()"-->
                   {{ filter.name_from_attribute(elem) }}
                 </label>
+              </div>
+              <div style="float:right">
+                <button md-raised-button [color]="'primary'" (click)="selectAllFilter(filter)">Select all</button>
+                <button md-button [color]="'primary'" (click)="clearAllFilter(filter)">Clear</button>
               </div>
             </div>
 
@@ -41,24 +44,71 @@
             </div>
 
           </md-tab>
+
         </md-tab-group>
 
       </div>
+    </div>
 
+  </md-card-content>
+</md-card>
+
+<md-card>
+  <md-card-title>
+    Kpis
+    <div style="float:right">
+      <button md-raised-button [color]="'primary'" (click)="exportKpiToCSV(',','.')">Export (en)</button>
+      <button md-raised-button [color]="'primary'" (click)="exportKpiToCSV(';',',')">Export (fr)</button>
+    </div>
+  </md-card-title>
+
+  <md-card-content>
+    <div class="row">
       <div class="col-md-12 col-xs-12">
           <table class="table table-bordered table-striped">
             <thead>
               <tr>
-                <th>Selected</th>
-                <th>#</th>
-                <th>Brand</th>
-                <th>Product</th>
-                <th>Creation date</th>
-                <th>Name</th>
+                <th>Selected
+                  <button md-raised-button [color]="'primary'" (click)="selectAllVisibleKpis()">Select all displayed</button>
+                  <button md-button [color]="'primary'" (click)="clearAllCheckedKpis()">Clear all checked</button>
+                </th>
+                <th (click)="sortKpis(sort_columns['id'])">
+                  <span *ngIf="sort_columns['id']['order'] == 'asc'"><md-icon class="smallIcon">arrow_upward</md-icon></span>
+                  <span *ngIf="sort_columns['id']['order'] == 'desc'"><md-icon class="smallIcon">arrow_downward</md-icon></span>
+                  #
+                </th>
+                <th (click)="sortKpis(sort_columns['brandName'])">
+                  <span *ngIf="sort_columns['brandName']['order'] == 'asc'"><md-icon class="smallIcon">arrow_upward</md-icon></span>
+                  <span *ngIf="sort_columns['brandName']['order'] == 'desc'"><md-icon class="smallIcon">arrow_downward</md-icon></span>
+                  Brand
+                </th>
+                <th (click)="sortKpis(sort_columns['productName'])">
+                  <span *ngIf="sort_columns['productName']['order'] == 'asc'"><md-icon class="smallIcon">arrow_upward</md-icon></span>
+                  <span *ngIf="sort_columns['productName']['order'] == 'desc'"><md-icon class="smallIcon">arrow_downward</md-icon></span>
+                  Product
+                </th>
+                <th (click)="sortKpis(sort_columns['creationDate'])">
+                  <span *ngIf="sort_columns['creationDate']['order'] == 'asc'"><md-icon class="smallIcon">arrow_upward</md-icon></span>
+                  <span *ngIf="sort_columns['creationDate']['order'] == 'desc'"><md-icon class="smallIcon">arrow_downward</md-icon></span>
+                  Creation date
+                </th>
+                <th (click)="sortKpis(sort_columns['name'])">
+                  <span *ngIf="sort_columns['name']['order'] == 'asc'"><md-icon class="smallIcon">arrow_upward</md-icon></span>
+                  <span *ngIf="sort_columns['name']['order'] == 'desc'"><md-icon class="smallIcon">arrow_downward</md-icon></span>
+                  Name
+                </th>
                 <th>Description</th>
                 <th>Metacampaigns</th>
-                <th>KPI action</th>
-                <th>Last add/removal of tag</th>
+                <th (click)="sortKpis(sort_columns['kpiActionName'])">
+                  <span *ngIf="sort_columns['kpiActionName']['order'] == 'asc'"><md-icon class="smallIcon">arrow_upward</md-icon></span>
+                  <span *ngIf="sort_columns['kpiActionName']['order'] == 'desc'"><md-icon class="smallIcon">arrow_downward</md-icon></span>
+                  KPI action
+                </th>
+                <th (click)="sortKpis(sort_columns['lastAddOrRemovalTagDate'])">
+                  <span *ngIf="sort_columns['lastAddOrRemovalTagDate']['order'] == 'asc'"><md-icon class="smallIcon">arrow_upward</md-icon></span>
+                  <span *ngIf="sort_columns['lastAddOrRemovalTagDate']['order'] == 'desc'"><md-icon class="smallIcon">arrow_downward</md-icon></span>
+                  Last add/removal of tag
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -96,6 +146,10 @@
 <md-card>
   <md-card-title>
     Matching Tags
+    <div style="float:right">
+      <button md-raised-button [color]="'primary'" (click)="exportTagsToCSV(',','.')">Export (en)</button>
+      <button md-raised-button [color]="'primary'" (click)="exportTagsToCSV(';',',')">Export (fr)</button>
+    </div>
   </md-card-title>
   <md-card-content>
     <div class="row">
