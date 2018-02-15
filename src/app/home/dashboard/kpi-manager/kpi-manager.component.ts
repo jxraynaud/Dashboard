@@ -37,21 +37,24 @@ export class KpiManagerComponent implements OnInit {
             'checkbox':true,
             'attribute_from_kpi':(kpi)=>{ return kpi['product']['brand']; },
             'id_from_attribute':(attr)=>{ return attr['id']; },
-            'name_from_attribute':(attr)=>{ return attr['name']; }
+            'name_from_attribute':(attr)=>{ return attr['name']; },
+            'priority' : 1,
         },
         {
             'name':'Product',
             'checkbox':true,
             'attribute_from_kpi':(kpi)=>{ return kpi['product']; },
             'id_from_attribute':(attr)=>{ return attr['id']; },
-            'name_from_attribute':(attr)=>{ return attr['name']; }
+            'name_from_attribute':(attr)=>{ return attr['name']; },
+            'priority' : 2,
         },
         {
             'name':'KPI action',
             'checkbox':true,
             'attribute_from_kpi':(kpi)=>{ return kpi['kpi_action']; },
             'id_from_attribute':(attr)=>{ return attr['id']; },
-            'name_from_attribute':(attr)=>{ return attr['action']; }
+            'name_from_attribute':(attr)=>{ return attr['action']; },
+            'priority' : 3,
         },
         {
             'name':'Metacampaign',
@@ -59,14 +62,15 @@ export class KpiManagerComponent implements OnInit {
             'multiple':true,
             'attribute_from_kpi':(kpi)=>{ return kpi['metacampaigns']; },
             'id_from_attribute':(attr)=>{ return attr['api_id']; },
-            'name_from_attribute':(attr)=>{ return attr['api_name']; }
+            'name_from_attribute':(attr)=>{ return attr['api_name']; },
+            'priority' : 4,
         },
         {
             'name':'Creation date',
             'daterange':true,
             'attribute_from_kpi':(kpi)=>{ return kpi['creation_date']; },
             'id_from_attribute':null,
-            'name_from_attribute':null
+            'name_from_attribute':null,
         }
     ]
 
@@ -218,7 +222,7 @@ export class KpiManagerComponent implements OnInit {
                 //this.kpi_filtered_data.filter(kpi=>{ return this.isInFilterConditions(kpi) }).map(kpi=>{ filter.attribute_from_kpi(kpi).map(e=>{ attributes_only_array.push(e) }) });
                 this.kpi_filtered_data.map(kpi=>{
                     if(this.isInFilterConditions(kpi)){
-                        filter.attribute_from_kpi(kpi).map(e=>{ console.warn("toto5"); attributes_only_array.push(e) })
+                        filter.attribute_from_kpi(kpi).map(e=>{ attributes_only_array.push(e) })
                     }
                 });
 
@@ -264,6 +268,29 @@ export class KpiManagerComponent implements OnInit {
         return unique_attributes;
     }
 
+    initAllAvailableValuesForFilters(){
+        console.warn("REGENERATING FILTERS ON BASE OF : ")
+        console.log(this.kpi_filtered_data)
+        this.kpi_filters.map(f => {
+            f["values"] = this.initAvailableValuesForFilter(f);
+        })
+        console.log("Generated filter values :");
+        console.log(this.kpi_filters);
+    }
+
+    /*Refresh available values for filters, following a tunnel : the filter with lowest priority value drives the available values of all lower priority filters.
+    Date range is man aged separately*/
+    refreshFiltersConditionally(maxFilterNumber){
+        console.warn("uipdating filters condinitonnally, maximum : "+maxFilterNumber)
+        this.kpi_filters.map(f => {
+            if(f['priority'] && f['priority'] > maxFilterNumber){
+                f["values"] = this.initAvailableValuesForFilter(f);
+            }
+        })
+        console.log("Generated filter values :");
+        console.log(this.kpi_filters);
+    }
+
     dateChanged(value){
         //Refresh filters
         //this.initAllAvailableValuesForFilters();
@@ -273,16 +300,6 @@ export class KpiManagerComponent implements OnInit {
             endDate : new Date(value.end),
         };
         debugLog(this.DEBUG, "New daterange : "+this.dateRange.startDate+" - "+this.dateRange.endDate);
-    }
-
-    initAllAvailableValuesForFilters(){
-        console.warn("REGENERATING FILTERS ON BASE OF : ")
-        console.log(this.kpi_filtered_data)
-        this.kpi_filters.map(f => {
-            f["values"] = this.initAvailableValuesForFilter(f);
-        })
-        console.log("Generated filter values :");
-        console.log(this.kpi_filters);
     }
 
     /*refreshAllAvailableFiltersValues(filterName){

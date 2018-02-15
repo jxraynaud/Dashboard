@@ -21,6 +21,7 @@
                     type="checkbox"
                     value="{{filter.id_from_attribute(elem)}}"
                     [(ngModel)] = "elem.checked"
+                    (change)="refreshFiltersConditionally(filter.priority)"
                     >
                     <!--(change)="initAllAvailableValuesForFilters()"-->
                   {{ filter.name_from_attribute(elem) }}
