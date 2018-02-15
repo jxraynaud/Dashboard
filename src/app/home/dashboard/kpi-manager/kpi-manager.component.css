@@ -6,7 +6,27 @@
   color:green
 }
 
+.grey{
+  color:#777;
+}
+
 .smallIcon{
   font-size : 1em ;
   font-weight : bold;
+}
+
+.centerText, .centerText th{
+  text-align:center;
+}
+
+.centerText ul{
+  list-style-type : none;
+}
+
+.hidden_input{
+  display:none;
+}
+
+.kpi_check_col{
+  vertical-align:middle;
 }
