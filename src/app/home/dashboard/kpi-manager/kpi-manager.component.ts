@@ -449,6 +449,10 @@ export class KpiManagerComponent implements OnInit {
         }
     }
 
+    getNumberOfCheckedKpis(){
+        return this.kpi_filtered_data.filter(kpi=>{ return kpi['checked'] }).length;
+    }
+
     getFilterLabel(filter){
         if(filter["checkbox"]){
             return filter["name"]+" ("+this.getNumberOfCheckedValues(filter)+")"

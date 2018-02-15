@@ -55,7 +55,7 @@
 
 <md-card>
   <md-card-title>
-    Kpis
+    Kpis ({{getNumberOfCheckedKpis()}})
     <div style="float:right">
       <button md-raised-button [color]="'primary'" (click)="exportKpiToCSV(',','.')">Export (en)</button>
       <button md-raised-button [color]="'primary'" (click)="exportKpiToCSV(';',',')">Export (fr)</button>
