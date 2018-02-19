@@ -33,6 +33,7 @@ export class KpiManagerComponent implements OnInit {
 
     kpi_filters = [
         {
+            'machine_name':'brand',
             'name':'Brand',
             'checkbox':true,
             'attribute_from_kpi':(kpi)=>{ return kpi['product']['brand']; },
@@ -41,6 +42,7 @@ export class KpiManagerComponent implements OnInit {
             'priority' : 1,
         },
         {
+            'machine_name':'product',
             'name':'Product',
             'checkbox':true,
             'attribute_from_kpi':(kpi)=>{ return kpi['product']; },
@@ -49,6 +51,7 @@ export class KpiManagerComponent implements OnInit {
             'priority' : 2,
         },
         {
+            'machine_name':'kpi_action',
             'name':'KPI action',
             'checkbox':true,
             'attribute_from_kpi':(kpi)=>{ return kpi['kpi_action']; },
@@ -57,6 +60,7 @@ export class KpiManagerComponent implements OnInit {
             'priority' : 3,
         },
         {
+            'machine_name':'metacampaign',
             'name':'Metacampaign',
             'checkbox':true,
             'multiple':true,
@@ -88,6 +92,11 @@ export class KpiManagerComponent implements OnInit {
         'lastAddOrRemovalTagDate' : { 'getOrderField' : (kpi) => { if(kpi["tag_link_editions"]){ return kpi["tag_link_editions"]["action_time"];} else{return 0} }, 'order' : "", "type" : "dateSort" },
     }
 
+    /******************/
+    filtersChips:Object = {}
+    activeFiltersChips:Object = {}
+    /******************/
+
     constructor(
         private http: AuthenticatedHttpService,
         protected activatedRoute : ActivatedRoute,
@@ -95,6 +104,7 @@ export class KpiManagerComponent implements OnInit {
     ) { }
 
     ngOnInit() {
+        //Get kpis + use retrieved values to initiate values, chips and active chips objects
         this.getKpis();
         this.getTags();
         this.dateRange = this.initDefaultDateRange();
@@ -174,6 +184,7 @@ export class KpiManagerComponent implements OnInit {
                 this.kpi_filtered_data.map(kpi=>{
                     kpi["checked"]=false;
                 })
+                //Init values for filters and corresponding chips
                 this.initAllAvailableValuesForFilters();
                 debugLogGroup(this.DEBUG, ["Kpis, kpi_filtered_data", this.kpis, this.kpi_filtered_data])
            })
@@ -268,27 +279,84 @@ export class KpiManagerComponent implements OnInit {
         return unique_attributes;
     }
 
+    //Init values for filters and corresponding chips
     initAllAvailableValuesForFilters(){
         console.warn("REGENERATING FILTERS ON BASE OF : ")
         console.log(this.kpi_filtered_data)
         this.kpi_filters.map(f => {
-            f["values"] = this.initAvailableValuesForFilter(f);
+            let availableValuesForFilter = this.initAvailableValuesForFilter(f);
+            f["values"] = availableValuesForFilter;
+
+            //Init chips : create tempo empty array, fill it with names only and push it in filtersChips corresponding value
+            this.initKpisChipsValues(f, availableValuesForFilter);
         })
         console.log("Generated filter values :");
         console.log(this.kpi_filters);
+        console.log("Generated chips values for filters :");
+        console.log(this.filtersChips);
+    }
+
+    initKpisChipsValues(filter, availableValuesForFilter){
+        //Init chips : create tempo empty array, fill it with names only and push it in filtersChips corresponding value
+        let availableChipsForFilter = [];
+        availableValuesForFilter.map(v=>{ availableChipsForFilter.push(filter['name_from_attribute'](v)); })
+        this.filtersChips[filter['machine_name']] = availableChipsForFilter;
+        //Init active filters chips : insert an empty array for each machine_name key
+        this.activeFiltersChips[filter['machine_name']] = [];
     }
 
     /*Refresh available values for filters, following a tunnel : the filter with lowest priority value drives the available values of all lower priority filters.
     Date range is man aged separately*/
     refreshFiltersConditionally(maxFilterNumber){
-        console.warn("uipdating filters condinitonnally, maximum : "+maxFilterNumber)
+        console.warn("updating filters condinitonnally, maximum : "+maxFilterNumber)
         this.kpi_filters.map(f => {
             if(f['priority'] && f['priority'] > maxFilterNumber){
-                f["values"] = this.initAvailableValuesForFilter(f);
+                let availableValuesForFilter = this.initAvailableValuesForFilter(f)
+                f["values"] = availableValuesForFilter;
+                //Init chips : create tempo empty array, fill it with names only and push it in filtersChips corresponding value
+                this.initKpisChipsValues(f, availableValuesForFilter);
             }
         })
+
         console.log("Generated filter values :");
         console.log(this.kpi_filters);
+    }
+
+    addFilterChip(chip,filterMachineName):void{
+        debugLogGroup(this.DEBUG, [
+            "Form Data Filters : add chip",
+            chip,
+            "to",
+            filterMachineName,
+            "via",
+            this.kpi_filters
+        ]);
+        //Find correct filter
+        let one_kpi_filter = this.kpi_filters.find(f=>{return f['machine_name'] == filterMachineName});
+        //Find correct value based on name from attribute function
+        let one_value = one_kpi_filter['values'].find(val=>{ return one_kpi_filter['name_from_attribute'](val) == chip});
+        //Check it
+        one_value["checked"] = true;
+        //Refresh conditionnally other filters
+        this.refreshFiltersConditionally(one_kpi_filter['priority'])
+    }
+
+    removeFilterChip(chip,filterMachineName):void{
+        debugLogGroup(this.DEBUG, [
+            "Form Data Filters : remove chip",
+            chip,
+            "to",
+            filterMachineName,
+            "via",
+            this.kpi_filters
+        ]);
+        //Find correct filter
+        let one_kpi_filter = this.kpi_filters.find(f=>{return f['machine_name'] == filterMachineName});
+        //Find correct value based on name from attribute function
+        let one_value = one_kpi_filter['values'].find(val=>{ return one_kpi_filter['name_from_attribute'](val) == chip});
+        //Uncheck it
+        one_value["checked"] = false;
+        this.refreshFiltersConditionally(one_kpi_filter['priority'])
     }
 
     dateChanged(value){
@@ -443,11 +511,19 @@ export class KpiManagerComponent implements OnInit {
     }
 
     selectAllFilter(filter){
-        filter['values'].map(v=>{v["checked"]=true})
+        filter['values'].map(v=>{
+            v["checked"]=true;
+            this.activeFiltersChips[filter['machine_name']].push(filter['name_from_attribute'](v));
+        })
+        this.refreshFiltersConditionally(filter['priority']);
     }
 
     clearAllFilter(filter){
-        filter['values'].map(v=>{v["checked"]=false})
+        filter['values'].map(v=>{
+            v["checked"]=false;
+        })
+        this.activeFiltersChips[filter['machine_name']] = [];
+        this.refreshFiltersConditionally(filter['priority']);
     }
 
     clearAllCheckboxTabs(){

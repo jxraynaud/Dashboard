@@ -13,7 +13,17 @@
         <md-tab-group class="nav nav-pills">
           <md-tab label="{{getFilterLabel(filter)}}" *ngFor="let filter of kpi_filters">
 
-            <div *ngIf="filter.checkbox">
+            <div *ngIf="filter.checkbox && filtersChips[filter['machine_name']]">
+              <td-chips
+                [items]="filtersChips[filter['machine_name']]"
+                [(ngModel)]="activeFiltersChips[filter.machine_name]"
+                (add)="addFilterChip($event,filter.machine_name)"
+                (remove)="removeFilterChip($event,filter.machine_name)"
+                placeholder="Enter {{filter.name}} name to add to filters"
+                >
+              </td-chips>
+
+              <!--OLD SYSTEM (checkboxes)
               <div *ngFor="let elem of filter.values" class="form-check col-xs-6 col-sm-4 col-md-3 col-lg-3 col-xl-2">
                 <label class="form-check-label">
                   <input
@@ -23,10 +33,9 @@
                     [(ngModel)] = "elem.checked"
                     (change)="refreshFiltersConditionally(filter.priority)"
                     >
-                    <!--(change)="initAllAvailableValuesForFilters()"-->
                   {{ filter.name_from_attribute(elem) }}
                 </label>
-              </div>
+              </div>-->
               <div style="float:right">
                 <button md-raised-button [color]="'primary'" (click)="selectAllFilter(filter)">Select all</button>
                 <button md-button [color]="'primary'" (click)="clearAllFilter(filter)">Clear</button>
