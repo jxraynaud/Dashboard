@@ -69,6 +69,14 @@
           "description" : "Access to Kpi and Tags infos",
           "icon" : "assignment",
           "route" : "kpi-manager"
+      },
+      {
+          "name" : "documentation",
+          "menuText" : "Documentation",
+          "description" : "Access to Kpi and Tags infos",
+          "icon" : "assignment",
+          "direct_link" : true,
+          "link_address" : "http://dashboard.blizzard.pixelforest.io/Dashboard_documentation_20180220.pdf"
       }
   ]
 }
