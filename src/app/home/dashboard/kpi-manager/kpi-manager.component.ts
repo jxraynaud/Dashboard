@@ -20,7 +20,7 @@ import {debugLog, debugLogGroup, intersection} from '../../../utils';
 export class KpiManagerComponent implements OnInit {
     DEBUG : boolean = true;
     //API_URL : string = "http://localhost:8000/api/";
-    API_URL : string = "http://37.59.31.134:8001/api/";
+    API_URL : string = "https://clovis.blizzard.pixelforest.io/api/";
 
     //If set to false, nothing checked will display no result
     NO_CHECKED_MEANS_UNFILTERED = true;

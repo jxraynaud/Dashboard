@@ -1,10 +1,10 @@
 {
     "authentication": {
-        "url" : "http://37.59.31.134:8001/",
+        "url" : "https://clovis.blizzard.pixelforest.io/",
         "endpoint" : "api-token-auth/"
     },
     "passwordChange": {
-        "url" : "http://127.0.0.1:8000/",
+        "url" : "https://clovis.blizzard.pixelforest.io/",
         "endpoint" : "rest-auth/password/change/"
     }
 }
