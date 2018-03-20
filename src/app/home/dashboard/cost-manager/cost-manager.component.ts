@@ -33,6 +33,8 @@ export class CostManagerComponent implements OnInit{
     parsedData:Array<string>=[];
     data_to_send = [];
     errors:Array<string>=[];
+    APIresponse=[]
+    awaiting_api_response:boolean=false;
 
     //Successive tests
     //ok_columns:boolean = false;
@@ -378,14 +380,16 @@ export class CostManagerComponent implements OnInit{
     }
 
     sendToApi(){
-
+        this.awaiting_api_response=true;
         this.http.post(this.API_URL+"bulk_publishercostinfo/",
             {data:this.data_to_send},
             this.jwt())
           .toPromise()
           .then(response => {
-              debugLogGroup(this.DEBUG, ["Promise result received for CostManagerComponent.testApi()",
+                debugLogGroup(this.DEBUG, ["Promise result received for CostManagerComponent.testApi()",
                   response.json()]);
+                this.APIresponse = response.json();
+                this.awaiting_api_response=false;
           })
           .catch(error => {
               console.error("PROMISE REJECTED : could not get data from api in reporting section ");
@@ -394,5 +398,13 @@ export class CostManagerComponent implements OnInit{
           //    this.router.navigate(['/login'], { queryParams: { returnUrl : window.location.pathname }});
               return [];
           });
+    }
+
+    getCostLineForPk(placementPk,date){
+        //console.warn(this.data_to_send)
+        //console.warn(date)
+        //console.warn(placementPk)
+        //console.warn(this.data_to_send.find(d=>{ if(d['date']==date && d['placement']==placementPk){ return true }else{ return false } }))
+        return this.data_to_send.find(d=>{ if(d['date']==date && d['placement']==placementPk){ return true }else{ return false } })
     }
 }

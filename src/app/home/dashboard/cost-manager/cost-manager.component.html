@@ -27,7 +27,7 @@
     </div>
 
     <td-steps>
-      <td-step #step1 label="Get sample CSV file" sublabel="" [active]="true" [disabled]="disabled">
+      <td-step #step1 label="Get sample CSV file" sublabel="" [active]="true" [disabled]="false">
         <ng-template td-step-label><span> Get sample CSV file </span></ng-template>
         <button md-raised-button color="primary" (click)="getSample()"> Get sample CSV file </button>
         <button md-raised-button color="accent" (click)="skipSample()"> No need </button>
@@ -68,6 +68,14 @@
         </ng-template>
       </td-step>
     </td-steps>
+
+    <div *ngIf="awaiting_api_response">
+      <img height="50" src="assets/loading.gif" />Sending to API<img height="50" src="assets/loading.gif" />
+    </div>
+    <div *ngIf="APIresponse && APIresponse.length > 0">
+      Results :
+      <div *ngFor="let r of APIresponse"><strong>{{r.action}}</strong> {{getCostLineForPk(r.placement,r.date).placement_name}} for {{getCostLineForPk(r.placement,r.date).date}} [{{r.pk}}]</div>
+    </div>
 
   </md-card-content>
 </md-card>
