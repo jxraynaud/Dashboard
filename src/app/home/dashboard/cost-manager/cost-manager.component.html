@@ -1,0 +1,73 @@
+<md-card>
+  <md-card-title>
+    Costs Manager
+  </md-card-title>
+
+  <md-card-content class="container">
+
+    <div class="row">
+      <div class="col-md-12 col-xs-12">
+        <!--<div class="step">
+          <p>
+            <button md-raised-button color="primary" (click)="getSample()"> Get sample CSV file </button>
+          </p>
+          <button md-button onclick="document.getElementById('myFileInputField').click()" >
+            Select and upload file
+          </button>
+
+          {{file_name}}
+          <button *ngIf="placements && placements.length > 0" (click)="consistencyChecks()"> Check consistency of data </button>
+          <div class="errors">
+            <div *ngFor="let e of errors" class="oneError"><md-icon>warning</md-icon>{{e}}</div>
+            <div *ngIf="errors && errors.length == 0"></div>
+          </div>
+          <button *ngIf="ok_for_upload && data_to_send.length > 0" (click)="sendToApi()">Send to API</button>
+        </div>-->
+      </div>
+    </div>
+
+    <td-steps>
+      <td-step #step1 label="Get sample CSV file" sublabel="" [active]="true" [disabled]="disabled">
+        <ng-template td-step-label><span> Get sample CSV file </span></ng-template>
+        <button md-raised-button color="primary" (click)="getSample()"> Get sample CSV file </button>
+        <button md-raised-button color="accent" (click)="skipSample()"> No need </button>
+      </td-step>
+      <td-step #step2 label="Upload data [{{file_name}}]" sublabel="" [active]="false" disableRipple>
+        <ng-template td-step-actions>
+          <button md-raised-button [disabled]="is_file" color="primary" md-button onclick="document.getElementById('myFileInputField').click()" >
+            Select and upload file
+          </button>
+          <button md-raised-button [disabled]="!is_file" color="accent" md-button (click)="cleanAll()" >
+            Remove data
+          </button>
+          <input type="file" #fileInput id="myFileInputField" ng2FileSelect [uploader]="uploader" style="display:none">
+          {{file_name}}
+        </ng-template>
+      </td-step>
+      <td-step #step3 label="Check consistency ( {{errors.length }} errors )" sublabel="" [active]="false" [disabled]="true">
+          <div>
+            Check consistency of data :<br />
+            -Publisher name consistent with placement id's publisher in the database
+          </div>
+        <ng-template td-step-actions>
+          <div>
+            <button md-raised-button color="primary" [disabled]="!placements || placements.length == 0" (click)="consistencyChecks()"> Check consistency of data </button>
+            <!--<button md-raised-button color="primary" *ngIf="placements && placements.length > 0" (click)="consistencyChecks()"> Check consistency of data </button>-->
+            <button md-raised-button color="accent" (click)="backToStep2()"> Upload another file instead</button>
+          </div><br />
+        </ng-template>
+        <div class="errors">
+          <div *ngFor="let e of errors" class="oneError"><md-icon>warning</md-icon>{{e}}</div>
+          <div *ngIf="errors && errors.length == 0"></div>
+        </div>
+      </td-step>
+      <td-step #step4 label="Send to Database" sublabel="" [active]="false" [disabled]="true">
+        <md-icon class="green">thumb_up</md-icon> There was no error in consistency checks, data can be uploaded !
+        <ng-template td-step-actions>
+            <button md-raised-button color="primary" *ngIf="ok_for_upload && data_to_send.length > 0" (click)="sendToApi()">Send to API</button>
+        </ng-template>
+      </td-step>
+    </td-steps>
+
+  </md-card-content>
+</md-card>

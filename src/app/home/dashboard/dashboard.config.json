@@ -67,14 +67,21 @@
           "name" : "kpiManager",
           "menuText" : "Kpi Manager",
           "description" : "Access to Kpi and Tags infos",
-          "icon" : "assignment",
+          "icon" : "device_hub",
           "route" : "kpi-manager"
+      },
+      {
+          "name" : "costManager",
+          "menuText" : "Cost Manager",
+          "description" : "Cost manager",
+          "icon" : "attach_money",
+          "route" : "cost-manager"
       },
       {
           "name" : "documentation",
           "menuText" : "Documentation",
           "description" : "Access to Kpi and Tags infos",
-          "icon" : "assignment",
+          "icon" : "library_books",
           "direct_link" : true,
           "link_address" : "http://dashboard.blizzard.pixelforest.io/Dashboard_documentation_20180220.pdf"
       }

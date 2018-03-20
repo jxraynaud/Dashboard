@@ -43,6 +43,11 @@ const dashboardRoutes: Routes = [
                 canActivateChild: [AuthGuard],
                 loadChildren: './kpi-manager/kpi-manager.module#KpiManagerModule'
             },
+            {
+                path: 'cost-manager',
+                canActivateChild: [AuthGuard],
+                loadChildren: './cost-manager/cost-manager.module#CostManagerModule'
+            },
         ]
     }
 ];

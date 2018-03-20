@@ -28,11 +28,18 @@ export class DefaultComponent implements OnInit {
       title: 'Reporting',
     },
     {
-      color: 'red-700',
+      color: 'cyan-500',
       description: 'KPI manager',
-      icon: 'assignment',
+      icon: 'device_hub',
       route: 'kpi-manager',
       title: 'KPI Manager',
+    },
+    {
+      color: 'light-green-700',
+      description: 'Cost manager',
+      icon: 'attach_money',
+      route: 'cost-manager',
+      title: 'Cost Manager',
     },
   ];
 
