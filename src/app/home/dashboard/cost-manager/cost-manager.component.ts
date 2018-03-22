@@ -15,8 +15,8 @@ import {debugLog, debugLogGroup} from '../../../utils';
 })
 export class CostManagerComponent implements OnInit{
     DEBUG : boolean = true;
-    API_URL : string = "http://localhost:8000/api/";
-    //API_URL : string = "https://clovis.blizzard.pixelforest.io/api/";
+    //API_URL : string = "http://localhost:8000/api/";
+    API_URL : string = "https://clovis.blizzard.pixelforest.io/api/";
 
     @ViewChild('step2') step2;
     @ViewChild('step3') step3;
@@ -33,8 +33,11 @@ export class CostManagerComponent implements OnInit{
     parsedData:Array<string>=[];
     data_to_send = [];
     errors:Array<string>=[];
+    blocking_errors:Array<string>=[];
     APIresponse=[]
     awaiting_api_response:boolean=false;
+    //Couldn't manage to use it (consistencyChecks() runs it to true but change isn't impacted until the end of the file analysis ?!?)
+    //flag_analyzing_consistency:boolean=false;
 
     //Successive tests
     //ok_columns:boolean = false;
@@ -112,7 +115,7 @@ export class CostManagerComponent implements OnInit{
 
     constructor(
         private http: AuthenticatedHttpService,
-        private papaparse: PapaParseService
+        private papaparse: PapaParseService,
     ) { }
 
     ngOnInit() {
@@ -121,7 +124,8 @@ export class CostManagerComponent implements OnInit{
             console.warn("GO reader")
             this.parsedData = null;
             this.data=ev.target.result;
-            this.errors=[]
+            this.errors=[];
+            this.blocking_errors=[];
             this.papaparse.parse(this.data,{
                 header:true,
                 dynamicTyping:true,
@@ -137,7 +141,7 @@ export class CostManagerComponent implements OnInit{
                     console.error(error)
                 }
             });
-            console.log(this.data);
+            //console.log(this.data);
         };
         this.uploader.onAfterAddingFile = (fileItem: any) => {
             this.is_file=true;
@@ -228,7 +232,7 @@ export class CostManagerComponent implements OnInit{
                      "publisher_name","publisher_campaign_name","country","placement","targeting","creative","device","conversions",
                      "impressions_delivered","clicks_generated","publisher_total_media_cost","engagements","video_viewed","video_viewed_25","video_viewed_50","video_viewed_75","video_viewed_100"]
           });
-        this.goToToFileUpload
+        this.goToToFileUpload();
     }
 
     skipSample(){
@@ -269,6 +273,7 @@ export class CostManagerComponent implements OnInit{
         this.parsedData=[];
         /*this.data_to_send = [];*/
         this.errors = [];
+        this.blocking_errors = [];
         this.step4.disabled=true;
         this.step4.active=false;
         this.step3.disabled=true;
@@ -277,10 +282,12 @@ export class CostManagerComponent implements OnInit{
     }
 
     consistencyChecks(){
+        //this.flag_analyzing_consistency=true;
         let test_1_ok_columns = false;
         let test_2_partner_names = false;
 
         debugLogGroup(this.DEBUG,["Starting consistency checks for data (paarsedData, placements)",this.parsedData,this.placements])
+
         debugLog(this.DEBUG,"Checking partner name")
 
         //Check columns
@@ -288,16 +295,17 @@ export class CostManagerComponent implements OnInit{
         let dataKeys = Object.keys(this.parsedData[0]);
         //Use a temp variable to assure this.ok_columns is false at start, only pass it to true after tests are completed and successful
         let tests_1_columns_result = true;
+
         dataKeys.map(k=>{
             if(this.headers.indexOf(k) == -1){
                 tests_1_columns_result = false;
-                this.errors.push("Column from file not in required template : "+k)
+                this.blocking_errors.push("Column from file not in required template : "+k)
             }
         });
         this.headers.map(h=>{
             if(dataKeys.indexOf(h) == -1){
                 tests_1_columns_result = false;
-                this.errors.push("Required column from template not in file : "+h)
+                this.blocking_errors.push("Required column from template not in file : "+h)
             }
         })
 
@@ -316,7 +324,7 @@ export class CostManagerComponent implements OnInit{
                     line_ok = false;
                     tests_placement_name = false;
                     console.warn("!!!")
-                    this.errors.push("Placement "+line["placement_id"]+" : Publisher name ("+line['publisher_name']+") not consistent with partner name from DB ("+placement["partner_name"]+") for this placement")
+                    this.blocking_errors.push("Placement "+line["placement_id"]+" : Publisher name ("+line['publisher_name']+") not consistent with partner name from DB ("+placement["partner_name"]+") for this placement")
                 }else{
                     //if not different, change key to make it API compatible
                     line['partner']=placement['partner_id']
@@ -326,7 +334,8 @@ export class CostManagerComponent implements OnInit{
 
                 if(line_ok){
                     this.makeDataLineApiCompatible(line);
-                    this.data_to_send.push(line)
+                    //this.data_to_send.push(line)
+                    this.push_or_sum_to_data_to_send(line);
                 }
             })
             //Validation of step 2
@@ -337,13 +346,19 @@ export class CostManagerComponent implements OnInit{
         this.ok_for_upload = test_2_partner_names
 
         //At the end : go to upload if no errors
-        if(this.errors.length==0){
+        if(this.blocking_errors.length==0){
+            console.log("Ok for all !")
+            console.log(this.data_to_send)
             this.goToApiUpload();
+        }else{
+            console.log("Blocking errors remaining !")
+            console.log(this.data_to_send)
         }
+        //this.flag_analyzing_consistency=false;
     }
 
     makeDataLineApiCompatible(line){
-        console.log(line);
+        //console.log(line);
 
         line['date']=this.dateFormatConversion(line['date']);
 
@@ -355,28 +370,107 @@ export class CostManagerComponent implements OnInit{
 
         delete line['publisher_name'];
 
-        line["conversions"]=parseFloat(line["conversions"]);
-        line["publisher_total_media_cost"]=parseFloat(line["publisher_total_media_cost"]);
+        line["conversions"]=this.cleanAndParseFloat(line["conversions"]);
 
-        line["clicks_generated"]=parseInt(line["clicks_generated"]);
-        line["engagements"]=parseInt(line["engagements"]);
-        line["impressions_delivered"]=parseInt(line["impressions_delivered"]);
-        line["video_viewed"]=parseInt(line["video_viewed"]);
-        line["video_viewed_25"]=parseInt(line["video_viewed_25"]);
-        line["video_viewed_50"]=parseInt(line["video_viewed_50"]);
-        line["video_viewed_75"]=parseInt(line["video_viewed_75"]);
-        line["video_viewed_100"]=parseInt(line["video_viewed_100"]);
+        //let publisher_total_text = line["publisher_total_media_cost"];
+        //let publisher_total_number = publisher_total_text.replace(/[^0-9,.]/g,"").replace((/,/g,"."))
+        //line["publisher_total_media_cost"]=parseFloat(publisher_total_number);
+        line["publisher_total_media_cost"]=this.cleanAndParseFloat(line["publisher_total_media_cost"]);
 
-        console.log("--Making line API compatible")
-        console.log(line);
-        console.log(this.parsedData);
-        console.log(this.data_to_send);
+        line["clicks_generated"]=this.cleanAndParseInt(line["clicks_generated"]);
+        line["engagements"]=this.cleanAndParseInt(line["engagements"]);
+        line["impressions_delivered"]=this.cleanAndParseInt(line["impressions_delivered"]);
+        line["video_viewed"]=this.cleanAndParseInt(line["video_viewed"]);
+        line["video_viewed_25"]=this.cleanAndParseInt(line["video_viewed_25"]);
+        line["video_viewed_50"]=this.cleanAndParseInt(line["video_viewed_50"]);
+        line["video_viewed_75"]=this.cleanAndParseInt(line["video_viewed_75"]);
+        line["video_viewed_100"]=this.cleanAndParseInt(line["video_viewed_100"]);
+
+        //console.log("--Making line API compatible")
+        //console.log(line);
+        //console.log(this.parsedData);
+        //console.log(this.data_to_send);
+    }
+
+    cleanAndParseInt(strInt:string){
+        if(strInt==""
+        || strInt.toString().replace(/ /g,"")=="-"
+        || strInt.toString().replace(/ /g,"")=="NA"
+        || strInt.toString().replace(/ /g,"")=="N/A"
+        || strInt.toString().replace(/ /g,"")=="na"
+        || strInt.toString().replace(/ /g,"")=="n/a"
+        ){
+            return 0;
+        }else{
+            return parseInt(strInt.toString().replace(/[^0-9]/g,""));
+        }
+    }
+
+    cleanAndParseFloat(strFloat){
+        if(strFloat==""
+        || strFloat.toString().replace(/ /g,"")=="-"
+        || strFloat.toString().replace(/ /g,"")=="NA"
+        || strFloat.toString().replace(/ /g,"")=="N/A"
+        || strFloat.toString().replace(/ /g,"")=="na"
+        || strFloat.toString().replace(/ /g,"")=="n/a"
+        ){
+            return 0;
+        }else{
+            //Remove non numerical chars andcovnert , to . then parse to float
+            return(parseFloat(strFloat.replace(/[^0-9,.]/g,"").replace(",",".")));
+        }
     }
 
     dateFormatConversion(dateStr){
         let dateSplit = dateStr.split("/");
         //return new Date(parseInt(dateSplit[2]),parseInt(dateSplit[1]),parseInt(dateSplit[0]))
         return dateSplit[2]+"-"+dateSplit[1]+"-"+dateSplit[0];
+    }
+
+    push_or_sum_to_data_to_send(line){
+        //console.warn("ttt")
+        //console.warn(line);
+        let identical_line = this.data_to_send.find(l=>{ return l['date']==line["date"] && l["placement"]==line["placement"]; });
+        if(identical_line){
+            console.warn("IDENTICAL, summing")
+            //If lines are summable (if not there's a blocking error)
+            if(this.check_is_summable(line, identical_line)){
+                this.sumMetrics(line, identical_line);
+                console.warn("SUMMED : ")
+                console.log(identical_line)
+            }
+        }else{
+            //If no identical line, jsut push
+            this.data_to_send.push(line)
+        }
+    }
+
+    /*List of the columns names to check identity before summing*/
+    dimensions_to_be_identical:Array<string>=['publisher_name','publisher_campaign_name','country','placement_name','targeting','creative','device']
+    /*Checks that 2 lines are summable ()*/
+    check_is_summable(line, identical_line){
+        let ok=true;
+        for(let dimName of this.dimensions_to_be_identical){
+            if(line[dimName] != identical_line[dimName]){
+                ok=false;
+                this.blocking_errors.push("BLOCKING ERROR : placement "+line["placement"]+" for date "+line["date"]+" has 2 lines with different values for "+dimName+" ( "+line[dimName]+" != "+identical_line[dimName]+" )")
+                console.error("BLOCKING ERROR : placement "+line["placement"]+" for date "+line["date"]+" has 2 lines with different values for "+dimName+" ( "+line[dimName]+" != "+identical_line[dimName]+" )")
+            }
+        }
+        return ok;
+    }
+
+    summable_metrics:Array<string>=
+            ['conversions',
+            'impressions_delivered',
+            'clicks_generated',
+            'publisher_total_media_cost',
+            'engagements','video_viewed','video_viewed_25','video_viewed_50','video_viewed_75','video_viewed_100']
+
+    sumMetrics(newline,identical_line){
+        for(let metricName of this.summable_metrics){
+            identical_line[metricName]=identical_line[metricName]+newline[metricName];
+        }
     }
 
     sendToApi(){

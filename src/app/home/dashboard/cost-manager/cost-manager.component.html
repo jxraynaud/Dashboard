@@ -51,6 +51,12 @@
           </div>
         <ng-template td-step-actions>
           <div>
+            <div *ngIf="!placements || placements.length == 0" >
+              <img height="50" src="assets/loading.gif" />Loading...<img height="50" src="assets/loading.gif" />
+            </div>
+            <!--<div *ngIf="flag_analyzing_consistency==true" >
+              <img height="50" src="assets/loading.gif" />Analyzing file<img height="50" src="assets/loading.gif" />
+            </div>-->
             <button md-raised-button color="primary" [disabled]="!placements || placements.length == 0" (click)="consistencyChecks()"> Check consistency of data </button>
             <!--<button md-raised-button color="primary" *ngIf="placements && placements.length > 0" (click)="consistencyChecks()"> Check consistency of data </button>-->
             <button md-raised-button color="accent" (click)="backToStep2()"> Upload another file instead</button>
@@ -58,6 +64,10 @@
         </ng-template>
         <div class="errors">
           <div *ngFor="let e of errors" class="oneError"><md-icon>warning</md-icon>{{e}}</div>
+          <div *ngIf="errors && errors.length == 0"></div>
+        </div>
+        <div class="blocking_errors" *ngIf="blocking_errors && blocking_errors.length != 0">
+          <div *ngFor="let e of blocking_errors" class="oneBlockingError"><md-icon>error</md-icon>{{e}}</div>
           <div *ngIf="errors && errors.length == 0"></div>
         </div>
       </td-step>
