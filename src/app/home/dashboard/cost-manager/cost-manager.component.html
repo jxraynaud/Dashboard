@@ -48,7 +48,6 @@
           <div>
             Check consistency of data :<br />
             -Publisher name consistent with placement id's publisher in the database<br />
-            /{{data_to_send.length}}/
           </div>
         <ng-template td-step-actions>
           <div>
@@ -68,7 +67,7 @@
             <!--<div *ngIf="flag_analyzing_consistency==true" >
               <img height="50" src="assets/loading.gif" />Analyzing file<img height="50" src="assets/loading.gif" />
             </div>-->
-            <button md-raised-button color="primary" [disabled]="!placements || placements.length == 0" (click)="consistencyChecks()"> Check consistency of data </button>
+            <button md-raised-button color="primary" [disabled]="!placements || placements.length == 0" (click)="testAndConvertData()"> Check consistency of data </button>
             <!--<button md-raised-button color="primary" *ngIf="placements && placements.length > 0" (click)="consistencyChecks()"> Check consistency of data </button>-->
             <button md-raised-button color="accent" (click)="backToStep2()"> Upload another file instead</button>
           </div><br />

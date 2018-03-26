@@ -15,8 +15,8 @@ import {debugLog, debugLogGroup} from '../../../utils';
 })
 export class CostManagerComponent implements OnInit{
     DEBUG : boolean = true;
-    //API_URL : string = "http://localhost:8000/api/";
-    API_URL : string = "https://clovis.blizzard.pixelforest.io/api/";
+    API_URL : string = "http://localhost:8000/api/";
+    //API_URL : string = "https://clovis.blizzard.pixelforest.io/api/";
 
     @ViewChild('step2') step2;
     @ViewChild('step3') step3;
@@ -133,7 +133,7 @@ export class CostManagerComponent implements OnInit{
             'engagements','video_viewed','video_viewed_25','video_viewed_50','video_viewed_75','video_viewed_100']
 
     //ok_columns:boolean = false;
-    ok_for_upload:boolean = false;
+    //ok_for_upload:boolean = false;
 
     awaiting_api_response:boolean=false;
     APIresponse=[]
@@ -264,7 +264,7 @@ export class CostManagerComponent implements OnInit{
 
     goToApiUpload(){
         debugLog(this.DEBUG,"---File successfully checked, go to API upload---")
-        console.log(this.ok_for_upload, this.data_to_send)
+        console.log(this.data_to_send)
         this.step4.disabled=false;
         this.step4.active=true;
     }
@@ -286,32 +286,50 @@ export class CostManagerComponent implements OnInit{
 
     }
 
+    testAndConvertData(){
+        let consistency = this.consistencyChecks();
+
+        if(consistency){
+            this.parsedData.map(line=>{
+                this.push_or_sum_to_data_to_send(line);
+            });
+        }
+
+        //At the end : go to upload if no errors
+        if(this.blocking_errors.length==0){
+            console.log("Ok for all !")
+            console.log(this.data_to_send)
+            this.goToApiUpload();
+        }else{
+            console.log("Blocking errors remaining !")
+            console.log(this.data_to_send)
+        }
+    }
+
     consistencyCheck_columns(){
         debugLog(this.DEBUG, "Checking keys (column names)");
         let dataKeys = Object.keys(this.parsedData[0]);
         //Use a temp variable to assure this.ok_columns is false at start, only pass it to true after tests are completed and successful
-        let tests_1_columns_result = true;
+        let columns_test = true;
 
         dataKeys.map(k=>{
             if(this.headers.indexOf(k) == -1){
-                tests_1_columns_result = false;
+                columns_test = false;
                 this.blocking_errors.push("Column from file not in required template : "+k)
             }
         });
         this.headers.map(h=>{
             if(dataKeys.indexOf(h) == -1){
-                tests_1_columns_result = false;
+                columns_test = false;
                 this.blocking_errors.push("Required column from template not in file : "+h)
             }
         })
-        return tests_1_columns_result;
+        return columns_test;
     }
     consistencyCheck_byline_partnername(line){
         let this_test = true;
         let placement = this.placements.find(p=>{ return p["sizmek_id"] == line["placement_id"] })
         if(line['publisher_name'] != placement["partner_name"]){
-            //line_ok = false;
-            //tests_by_line_global_result = false;
             this_test=false;
             console.warn("!!!")
             this.blocking_errors.push("Placement "+line["placement_id"]+" : Publisher name ("+line['publisher_name']+") not consistent with partner name from DB ("+placement["partner_name"]+") for this placement")
@@ -323,74 +341,61 @@ export class CostManagerComponent implements OnInit{
     }
 
     consistencyChecks(){
+        let global_tests_flag = true;
 
-        let tests_up_to_now = true;
-
-        //let test_1_ok_columns = false;
-        let test_2_partner_names = false;
-
-        debugLogGroup(this.DEBUG,["Starting consistency checks for data (paarsedData, placements)",this.parsedData,this.placements])
-
+        debugLogGroup(this.DEBUG,["Starting consistency checks for data (parsedData, placements)",this.parsedData,this.placements])
         debugLog(this.DEBUG,"Checking partner name")
 
-        //Check columns
-        if(!this.consistencyCheck_columns()){
-            tests_up_to_now=false;
-        }
-        //test_1_ok_columns = this.consistencyCheck_columns();
+        /*--------------------------------------------------------------------------
+        --------------Global tests before data conversion to API format-------------
+        --------------------------------------------------------------------------*/
 
-        //Line by line tests
-        //if(test_1_ok_columns){
-        if(tests_up_to_now){
-            let tests_by_line_global_result = true;
+        /*----------------1/Check columns----------------*/
+        if(!this.consistencyCheck_columns()){
+            global_tests_flag=false;
+        }
+        console.log("Consistency tests : columns validity : "+global_tests_flag);
+
+
+        /*--------------------------------------------------------------------------
+        -----------------------------Line by line tests-----------------------------
+        --------------------------------------------------------------------------*/
+        if(global_tests_flag){
+            let loop_tests_flag = true;
 
             this.parsedData.map(line=>{
-                let line_ok = true;
-                //Check partner name
-                /*let placement = this.placements.find(p=>{ return p["sizmek_id"] == line["placement_id"] })
-                if(line['publisher_name'] != placement["partner_name"]){
-                    line_ok = false;
-                    tests_by_line_global_result = false;
-                    console.warn("!!!")
-                    this.blocking_errors.push("Placement "+line["placement_id"]+" : Publisher name ("+line['publisher_name']+") not consistent with partner name from DB ("+placement["partner_name"]+") for this placement")
-                }else{
-                    //if not different, change key to make it API compatible
-                    line['partner']=placement['partner_id']
-                }*/
+                let one_line_tests_flag = true;
+
+                /*--------------------------------------------------------------------------
+                ----------Line by line tests before data conversion to API format-----------
+                --------------------------------------------------------------------------*/
+                //1-Check partner name
                 if(!this.consistencyCheck_byline_partnername(line)){
-                    line_ok=false;
+                    one_line_tests_flag = false;
                 }
 
-                //If up to there OK, make conversions for API (dates, ints, floats, ...)
-                if(line_ok){
+                /*--------------------------------------------------------------------------
+                --If up to there OK, make conversions for API (dates, ints, floats, ...)----
+                --------------------------------------------------------------------------*/
+                if(one_line_tests_flag){
                     let line_conversion_return = this.makeDataLineApiCompatible(line);
-                    if(line_conversion_return=="ERROR" || !this.testDateFormatAfterConversion(line["date"])){ console.error("Line_conversion_return = ERROR"); line_ok=false; }
+                    if(line_conversion_return=="ERROR" || !this.testDateFormatAfterConversion(line["date"])){ console.error("Line_conversion_return = ERROR"); one_line_tests_flag=false; }
                 }
 
-                //Other tests ??
-
-                if(line_ok){
-                    //this.data_to_send.push(line)
-                    this.push_or_sum_to_data_to_send(line);
+                /*--------------------------------------------------------------------------
+                ----------Line by line tests after data conversion to API format-----------
+                --------------------------------------------------------------------------*/
+                if(!one_line_tests_flag){
+                    loop_tests_flag = false;
                 }
             })
-            //Validation of step 2
-            test_2_partner_names=tests_by_line_global_result;
+            //After loop finished, transfer result to global test flag (turns to false if loop failed, was by hypothesis true at the start of the if)
+            global_tests_flag=loop_tests_flag;
+            console.log("Consistency tests : line by line tests : "+global_tests_flag);
         }
 
-        //Global validation depending on each steps
-        this.ok_for_upload = test_2_partner_names
-
-        //At the end : go to upload if no errors
-        if(this.blocking_errors.length==0){
-            console.log("Ok for all !")
-            console.log(this.data_to_send)
-            this.goToApiUpload();
-        }else{
-            console.log("Blocking errors remaining !")
-            console.log(this.data_to_send)
-        }
-        //this.flag_analyzing_consistency=false;
+        //Global return for validation depending on each steps
+        return global_tests_flag;
     }
 
     makeDataLineApiCompatible(line){
@@ -450,13 +455,15 @@ export class CostManagerComponent implements OnInit{
     }
 
     //Used in makeDataLineApiCompatible() for cleaning float formats (berk excel)
-    cleanAndParseFloat(strFloat){
+    cleanAndParseFloat(strFloatParam){
+        let strFloat=strFloatParam.toString().replace(/ /g,"");
+
         if(strFloat==""
-        || strFloat.toString().replace(/ /g,"")=="-"
-        || strFloat.toString().replace(/ /g,"")=="NA"
-        || strFloat.toString().replace(/ /g,"")=="N/A"
-        || strFloat.toString().replace(/ /g,"")=="na"
-        || strFloat.toString().replace(/ /g,"")=="n/a"
+        || strFloat=="-"
+        || strFloat=="NA"
+        || strFloat=="N/A"
+        || strFloat=="na"
+        || strFloat=="n/a"
         ){
             return 0;
         }else{
