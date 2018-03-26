@@ -47,10 +47,21 @@
       <td-step #step3 label="Check consistency ( {{errors.length }} errors )" sublabel="" [active]="false" [disabled]="true">
           <div>
             Check consistency of data :<br />
-            -Publisher name consistent with placement id's publisher in the database
+            -Publisher name consistent with placement id's publisher in the database<br />
+            /{{data_to_send.length}}/
           </div>
         <ng-template td-step-actions>
           <div>
+            <md-select class="separator-select" placeholder="Separator" [(ngModel)]="selected_separator" >
+              <md-option *ngFor="let separator of separators" [value]="separator.value">
+                {{ separator.viewValue }}
+              </md-option>
+            </md-select>
+            <md-select class="date-format-select" placeholder="Date format" [(ngModel)]="selected_date_format" >
+              <md-option *ngFor="let date_format of date_formats" [value]="date_format.value">
+                {{date_format.first}}{{ selected_separator }}{{date_format.second}}<span *ngIf="date_format.third!=''">{{ selected_separator }}{{date_format.third}}</span>
+              </md-option>
+            </md-select>
             <div *ngIf="!placements || placements.length == 0" >
               <img height="50" src="assets/loading.gif" />Loading...<img height="50" src="assets/loading.gif" />
             </div>

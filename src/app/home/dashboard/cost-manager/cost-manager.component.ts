@@ -25,28 +25,9 @@ export class CostManagerComponent implements OnInit{
 
     placements;
 
-    uploader: FileUploader = new FileUploader({}); //Empty options to avoid having a target URL
-    is_file:boolean=false;
-    file_name:string;
-    reader: FileReader = new FileReader();
-    data:string;
-    parsedData:Array<string>=[];
-    data_to_send = [];
-    errors:Array<string>=[];
-    blocking_errors:Array<string>=[];
-    APIresponse=[]
-    awaiting_api_response:boolean=false;
-    //Couldn't manage to use it (consistencyChecks() runs it to true but change isn't impacted until the end of the file analysis ?!?)
-    //flag_analyzing_consistency:boolean=false;
-
-    //Successive tests
-    //ok_columns:boolean = false;
-    ok_for_upload:boolean = false;
-
     headers=["date","placement_id",
             "publisher_name","publisher_campaign_name","country","placement","targeting","creative","device","conversions",
             "impressions_delivered","clicks_generated","publisher_total_media_cost","engagements","video_viewed","video_viewed_25","video_viewed_50","video_viewed_75","video_viewed_100"]
-
     sample_data=[
         /*{
             date:"Date",
@@ -112,6 +93,53 @@ export class CostManagerComponent implements OnInit{
             video_viewed_100:""
         }
     ]
+    uploader: FileUploader = new FileUploader({}); //Empty options to avoid having a target URL
+    is_file:boolean=false;
+    file_name:string;
+    reader: FileReader = new FileReader();
+
+    /*Options*/
+    separators=[
+        {value: '/', viewValue: '/'},
+        {value: '-', viewValue: '-'},
+      ];
+    selected_separator:string="/";
+    date_formats=[
+        {first:'YYYY', second:'MM', third:'DD', value: 'YYYYMMDD'},
+        {first:'YYYY', second:'DD', third:'MM', value: 'YYYYDDMM'},
+        {first:'DD', second:'MM', third:'YYYY', value: 'DDMMYYYY'},
+        {first:'MM', second:'DD', third:'YYYY', value: 'MMDDYYYY'},
+        {first:'MM', second:'DD', third:'', value: 'MMDD'},
+        {first:'DD', second:'MM', third:'', value: 'DDMM'},
+      ];
+    selected_date_format:string='DDMMYYYY'
+
+    data:string;
+    parsedData:Array<string>=[];
+    data_to_send = [];
+
+    errors:Array<string>=[];
+    blocking_errors:Array<string>=[];
+
+    //Tests and data conformity functions
+    /*List of the columns names to check identity with check_is_summable before summing with sumMetrics*/
+    dimensions_to_be_identical:Array<string>=['publisher_name','publisher_campaign_name','country','placement_name','targeting','creative','device']
+    /*List of metrics columns to sum for matching lines (same placement id + same date)*/
+    summable_metrics:Array<string>=
+            ['conversions',
+            'impressions_delivered',
+            'clicks_generated',
+            'publisher_total_media_cost',
+            'engagements','video_viewed','video_viewed_25','video_viewed_50','video_viewed_75','video_viewed_100']
+
+    //ok_columns:boolean = false;
+    ok_for_upload:boolean = false;
+
+    awaiting_api_response:boolean=false;
+    APIresponse=[]
+
+    //Couldn't manage to use it (consistencyChecks() runs it to true but change isn't impacted until the end of the file analysis ?!?)
+    //flag_analyzing_consistency:boolean=false;
 
     constructor(
         private http: AuthenticatedHttpService,
@@ -198,31 +226,6 @@ export class CostManagerComponent implements OnInit{
            });
     }
 
-    //cleanTestsAndErrors(){}
-
-    /*testApi(){
-        this.http.post(this.API_URL+"bulk_publishercostinfo/",{data:
-            [{
-                "date" : "2018-01-12", "placement" : 24079234, "partner" : 123, "placement_name" : "NAME2",
-            },
-            {
-                "date" : "2018-01-13", "placement" : 24079234, "partner" : 123, "placement_name" : "NAME",
-            }]}
-            , this.jwt())
-          .toPromise()
-          .then(response => {
-              debugLogGroup(this.DEBUG, ["Promise result received for CostManagerComponent.testApi()",
-                  response.json()]);
-          })
-          .catch(error => {
-              console.error("PROMISE REJECTED : could not get data from api in reporting section ");
-              console.log("error : "+error.json().detail);
-              console.log(error.json());
-          //    this.router.navigate(['/login'], { queryParams: { returnUrl : window.location.pathname }});
-              return [];
-          });
-    }*/
-
     getSample(){
         new Angular2Csv(this.sample_data, 'sample_costs_data',
          {
@@ -235,6 +238,7 @@ export class CostManagerComponent implements OnInit{
         this.goToToFileUpload();
     }
 
+    //Step changes
     skipSample(){
         debugLog(this.DEBUG,"---Skip sample, go to step 2 (Upload)---")
         this.step2.active = true;
@@ -265,6 +269,7 @@ export class CostManagerComponent implements OnInit{
         this.step4.active=true;
     }
 
+    //Clean before reuploading a new file of data
     cleanAll(){
         this.file_name="";
         this.is_file=false;
@@ -281,16 +286,7 @@ export class CostManagerComponent implements OnInit{
 
     }
 
-    consistencyChecks(){
-        //this.flag_analyzing_consistency=true;
-        let test_1_ok_columns = false;
-        let test_2_partner_names = false;
-
-        debugLogGroup(this.DEBUG,["Starting consistency checks for data (paarsedData, placements)",this.parsedData,this.placements])
-
-        debugLog(this.DEBUG,"Checking partner name")
-
-        //Check columns
+    consistencyCheck_columns(){
         debugLog(this.DEBUG, "Checking keys (column names)");
         let dataKeys = Object.keys(this.parsedData[0]);
         //Use a temp variable to assure this.ok_columns is false at start, only pass it to true after tests are completed and successful
@@ -308,38 +304,78 @@ export class CostManagerComponent implements OnInit{
                 this.blocking_errors.push("Required column from template not in file : "+h)
             }
         })
+        return tests_1_columns_result;
+    }
+    consistencyCheck_byline_partnername(line){
+        let this_test = true;
+        let placement = this.placements.find(p=>{ return p["sizmek_id"] == line["placement_id"] })
+        if(line['publisher_name'] != placement["partner_name"]){
+            //line_ok = false;
+            //tests_by_line_global_result = false;
+            this_test=false;
+            console.warn("!!!")
+            this.blocking_errors.push("Placement "+line["placement_id"]+" : Publisher name ("+line['publisher_name']+") not consistent with partner name from DB ("+placement["partner_name"]+") for this placement")
+        }else{
+            //if not different, change key to make it API compatible
+            line['partner']=placement['partner_id']
+        }
+        return this_test;
+    }
 
-        //Validation of step 1
-        test_1_ok_columns = tests_1_columns_result;
+    consistencyChecks(){
+
+        let tests_up_to_now = true;
+
+        //let test_1_ok_columns = false;
+        let test_2_partner_names = false;
+
+        debugLogGroup(this.DEBUG,["Starting consistency checks for data (paarsedData, placements)",this.parsedData,this.placements])
+
+        debugLog(this.DEBUG,"Checking partner name")
+
+        //Check columns
+        if(!this.consistencyCheck_columns()){
+            tests_up_to_now=false;
+        }
+        //test_1_ok_columns = this.consistencyCheck_columns();
 
         //Line by line tests
-        if(test_1_ok_columns){
-            let tests_placement_name = true;
+        //if(test_1_ok_columns){
+        if(tests_up_to_now){
+            let tests_by_line_global_result = true;
+
             this.parsedData.map(line=>{
                 let line_ok = true;
-
                 //Check partner name
-                let placement = this.placements.find(p=>{ return p["sizmek_id"] == line["placement_id"] })
+                /*let placement = this.placements.find(p=>{ return p["sizmek_id"] == line["placement_id"] })
                 if(line['publisher_name'] != placement["partner_name"]){
                     line_ok = false;
-                    tests_placement_name = false;
+                    tests_by_line_global_result = false;
                     console.warn("!!!")
                     this.blocking_errors.push("Placement "+line["placement_id"]+" : Publisher name ("+line['publisher_name']+") not consistent with partner name from DB ("+placement["partner_name"]+") for this placement")
                 }else{
                     //if not different, change key to make it API compatible
                     line['partner']=placement['partner_id']
+                }*/
+                if(!this.consistencyCheck_byline_partnername(line)){
+                    line_ok=false;
+                }
+
+                //If up to there OK, make conversions for API (dates, ints, floats, ...)
+                if(line_ok){
+                    let line_conversion_return = this.makeDataLineApiCompatible(line);
+                    if(line_conversion_return=="ERROR" || !this.testDateFormatAfterConversion(line["date"])){ console.error("Line_conversion_return = ERROR"); line_ok=false; }
                 }
 
                 //Other tests ??
 
                 if(line_ok){
-                    this.makeDataLineApiCompatible(line);
                     //this.data_to_send.push(line)
                     this.push_or_sum_to_data_to_send(line);
                 }
             })
             //Validation of step 2
-            test_2_partner_names=tests_placement_name;
+            test_2_partner_names=tests_by_line_global_result;
         }
 
         //Global validation depending on each steps
@@ -359,8 +395,14 @@ export class CostManagerComponent implements OnInit{
 
     makeDataLineApiCompatible(line){
         //console.log(line);
-
+        //Stock date for use in error if necessary
+        let date_before_test=line['date'];
         line['date']=this.dateFormatConversion(line['date']);
+        if(line['date']=="ERROR"){
+            //console.error("DATE FORMAT NOT RECOGNIZED, selected "+this.selected_date_format+" with separator "+this.selected_separator+" // Found : "+date_before_test);
+            this.blocking_errors.push("DATE FORMAT NOT RECOGNIZED, selected "+this.selected_date_format+" with separator "+this.selected_separator+" // Found : "+date_before_test);
+            return "ERROR";
+        }
 
         line['placement_name']=line['placement'];
         //delete line['placement_name'];
@@ -392,6 +434,7 @@ export class CostManagerComponent implements OnInit{
         //console.log(this.data_to_send);
     }
 
+    //Used in makeDataLineApiCompatible() for cleaning int formats (berk excel)
     cleanAndParseInt(strInt:string){
         if(strInt==""
         || strInt.toString().replace(/ /g,"")=="-"
@@ -406,6 +449,7 @@ export class CostManagerComponent implements OnInit{
         }
     }
 
+    //Used in makeDataLineApiCompatible() for cleaning float formats (berk excel)
     cleanAndParseFloat(strFloat){
         if(strFloat==""
         || strFloat.toString().replace(/ /g,"")=="-"
@@ -421,10 +465,49 @@ export class CostManagerComponent implements OnInit{
         }
     }
 
+    //Used in makeDataLineApiCompatible() for cleaning date formats
     dateFormatConversion(dateStr){
-        let dateSplit = dateStr.split("/");
-        //return new Date(parseInt(dateSplit[2]),parseInt(dateSplit[1]),parseInt(dateSplit[0]))
-        return dateSplit[2]+"-"+dateSplit[1]+"-"+dateSplit[0];
+        let dateSplit = dateStr.split(this.selected_separator);
+        let today = new Date();
+
+        let dateToReturn:string;
+        switch(this.selected_date_format){//YYYYMMDD
+            case "YYYYMMDD":
+                dateToReturn = dateSplit[0]+"-"+dateSplit[1]+"-"+dateSplit[2];
+                break;
+            case "YYYYDDMM":
+                dateToReturn = dateSplit[0]+"-"+dateSplit[2]+"-"+dateSplit[1];
+                break;
+            case "DDMMYYYY":
+                dateToReturn = dateSplit[2]+"-"+dateSplit[1]+"-"+dateSplit[0];
+                break;
+            case "MMDDYYYY":
+                dateToReturn = dateSplit[2]+"-"+dateSplit[0]+"-"+dateSplit[1];
+                break;
+            case "MMDD":
+                dateToReturn = today.getFullYear()+"-"+dateSplit[0]+"-"+dateSplit[1];
+                break;
+            case "MMDD":
+                dateToReturn = today.getFullYear()+"-"+dateSplit[1]+"-"+dateSplit[0];
+                break;
+            default:
+                dateToReturn = "ERROR";
+        }
+
+        return dateToReturn
+
+        //return dateSplit[2]+"-"+dateSplit[1]+"-"+dateSplit[0];
+    }
+
+    testDateFormatAfterConversion(date){
+        //Match date to check (year in 4 digits format, then month (!!will not find error if month and day are permuted and no date is over 12))
+        if(!date.match(/^20\d\d-(0[1-9]|1[012])-[0-9]{2}$/)){
+            console.error("PROBLEM WITH DATE FORMAT, please uise on of the authorized date format or choose the right format in the options");
+            this.blocking_errors.push("PROBLEM WITH DATE FORMAT, please use one of the authorized date format or choose the right format in the options");
+            return false;
+        }else{
+            return true;
+        }
     }
 
     push_or_sum_to_data_to_send(line){
@@ -445,9 +528,7 @@ export class CostManagerComponent implements OnInit{
         }
     }
 
-    /*List of the columns names to check identity before summing*/
-    dimensions_to_be_identical:Array<string>=['publisher_name','publisher_campaign_name','country','placement_name','targeting','creative','device']
-    /*Checks that 2 lines are summable ()*/
+    /*Checks that 2 lines are summable */
     check_is_summable(line, identical_line){
         let ok=true;
         for(let dimName of this.dimensions_to_be_identical){
@@ -459,13 +540,6 @@ export class CostManagerComponent implements OnInit{
         }
         return ok;
     }
-
-    summable_metrics:Array<string>=
-            ['conversions',
-            'impressions_delivered',
-            'clicks_generated',
-            'publisher_total_media_cost',
-            'engagements','video_viewed','video_viewed_25','video_viewed_50','video_viewed_75','video_viewed_100']
 
     sumMetrics(newline,identical_line){
         for(let metricName of this.summable_metrics){
@@ -494,11 +568,7 @@ export class CostManagerComponent implements OnInit{
           });
     }
 
-    getCostLineForPk(placementPk,date){
-        //console.warn(this.data_to_send)
-        //console.warn(date)
-        //console.warn(placementPk)
-        //console.warn(this.data_to_send.find(d=>{ if(d['date']==date && d['placement']==placementPk){ return true }else{ return false } }))
+    /*getCostLineForPk(placementPk,date){
         return this.data_to_send.find(d=>{ if(d['date']==date && d['placement']==placementPk){ return true }else{ return false } })
-    }
+    }*/
 }
