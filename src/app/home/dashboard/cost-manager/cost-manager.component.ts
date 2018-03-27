@@ -15,8 +15,8 @@ import {debugLog, debugLogGroup} from '../../../utils';
 })
 export class CostManagerComponent implements OnInit{
     DEBUG : boolean = true;
-    API_URL : string = "http://localhost:8000/api/";
-    //API_URL : string = "https://clovis.blizzard.pixelforest.io/api/";
+    //API_URL : string = "http://localhost:8000/api/";
+    API_URL : string = "https://clovis.blizzard.pixelforest.io/api/";
 
     @ViewChild('step2') step2;
     @ViewChild('step3') step3;
@@ -633,7 +633,7 @@ export class CostManagerComponent implements OnInit{
           });
     }
 
-    /*getCostLineForPk(placementPk,date){
+    getCostLineForPk(placementPk,date){
         return this.data_to_send.find(d=>{ if(d['date']==date && d['placement']==placementPk){ return true }else{ return false } })
-    }*/
+    }
 }
