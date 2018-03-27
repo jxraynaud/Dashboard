@@ -84,7 +84,7 @@
       <td-step #step4 label="Send to Database" sublabel="" [active]="false" [disabled]="true">
         <md-icon class="green">thumb_up</md-icon> There was no error in consistency checks, data can be uploaded !
         <ng-template td-step-actions>
-            <button md-raised-button color="primary" *ngIf="ok_for_upload && data_to_send.length > 0" (click)="sendToApi()">Send to API</button>
+            <button md-raised-button color="primary" *ngIf="data_to_send.length > 0" (click)="sendToApi()">Send to API</button>
         </ng-template>
       </td-step>
     </td-steps>

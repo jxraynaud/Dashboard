@@ -118,6 +118,10 @@ export class CostManagerComponent implements OnInit{
     parsedData:Array<string>=[];
     data_to_send = [];
 
+    /*Info on file*/
+    min_date:string;
+    max_date:string;
+
     errors:Array<string>=[];
     blocking_errors:Array<string>=[];
 
@@ -274,6 +278,8 @@ export class CostManagerComponent implements OnInit{
         this.file_name="";
         this.is_file=false;
         this.fileInput.nativeElement.value="";
+        delete this.min_date;
+        delete this.max_date;
         this.data="";
         this.parsedData=[];
         /*this.data_to_send = [];*/
@@ -288,26 +294,25 @@ export class CostManagerComponent implements OnInit{
 
     testAndConvertData(){
         let consistency = this.consistencyChecks();
-
+        console.log("------Global consistency tests : "+consistency)
         if(consistency){
             this.parsedData.map(line=>{
                 this.push_or_sum_to_data_to_send(line);
             });
-        }
 
-        //At the end : go to upload if no errors
-        if(this.blocking_errors.length==0){
-            console.log("Ok for all !")
-            console.log(this.data_to_send)
-            this.goToApiUpload();
-        }else{
-            console.log("Blocking errors remaining !")
-            console.log(this.data_to_send)
+            //At the end : go to upload if no errors
+            if(this.blocking_errors.length==0){
+                console.log("Ok for all !")
+                console.log(this.data_to_send)
+                this.goToApiUpload();
+            }else{
+                console.log("Blocking errors remaining !")
+                console.log(this.data_to_send)
+            }
         }
     }
 
     consistencyCheck_columns(){
-        debugLog(this.DEBUG, "Checking keys (column names)");
         let dataKeys = Object.keys(this.parsedData[0]);
         //Use a temp variable to assure this.ok_columns is false at start, only pass it to true after tests are completed and successful
         let columns_test = true;
@@ -326,6 +331,7 @@ export class CostManagerComponent implements OnInit{
         })
         return columns_test;
     }
+
     consistencyCheck_byline_partnername(line){
         let this_test = true;
         let placement = this.placements.find(p=>{ return p["sizmek_id"] == line["placement_id"] })
@@ -340,23 +346,63 @@ export class CostManagerComponent implements OnInit{
         return this_test;
     }
 
+    consistencyCheck_dateContinuity(){
+        debugLog(this.DEBUG, "Checking date continuity");
+
+        let ordered_unique_dates = this.parsedData.map(line=>{ return line["date"] }).filter((date,index,self)=>{ return self.indexOf(date)===index; }).sort();
+        this.min_date=ordered_unique_dates[0];
+        this.max_date=ordered_unique_dates[ordered_unique_dates.length-1];
+        debugLog(this.DEBUG, "------Unique date list (min : "+this.min_date+" / max : "+this.max_date+" ) : "+ordered_unique_dates);
+
+        //Create dates to loop on
+        let dayInterval=1000*60*60*24
+        let splitted_min = this.min_date.split("-");
+        let splitted_max = this.max_date.split("-");
+        let max_date_tempo = new Date(parseInt(splitted_max[0]),parseInt(splitted_max[1])-1,parseInt(splitted_max[2]));
+        let complete_date_array = [];
+        let current_date=new Date(parseInt(splitted_min[0]),parseInt(splitted_min[1])-1,parseInt(splitted_min[2]));
+
+        //Loop and add a textual version of each date to an array
+        while(current_date.getTime()<=max_date_tempo.getTime()){
+            complete_date_array.push(current_date.getFullYear()+"-"+("0" + (current_date.getMonth()+1)).slice(-2)+"-"+("0" + current_date.getDate()).slice(-2));
+            current_date = new Date(current_date.getTime() + dayInterval);
+        }
+        console.warn(complete_date_array)
+
+        //Check every date of the list is in the array
+        let all_dates_ok=true;
+        complete_date_array.map(d=>{
+            console.warn(d)
+            console.warn("---")
+            let is_in = ordered_unique_dates.indexOf(d)!=-1;
+            if(!is_in){
+                all_dates_ok=false;
+                this.blocking_errors.push("Missing data for date (YYYY-MM-DD) : "+d);
+            }
+            return is_in;
+        })
+
+        return all_dates_ok;
+    }
+
+
     consistencyChecks(){
         let global_tests_flag = true;
 
         debugLogGroup(this.DEBUG,["Starting consistency checks for data (parsedData, placements)",this.parsedData,this.placements])
-        debugLog(this.DEBUG,"Checking partner name")
 
         /*--------------------------------------------------------------------------
         --------------Global tests before data conversion to API format-------------
         --------------------------------------------------------------------------*/
 
         /*----------------1/Check columns----------------*/
+        debugLog(this.DEBUG, "---Consistency tests : Checking column names");
         if(!this.consistencyCheck_columns()){
             global_tests_flag=false;
         }
-        console.log("Consistency tests : columns validity : "+global_tests_flag);
+        console.log("------Columns validity : "+global_tests_flag);
 
-
+        console.log("Consistency tests : starting line-by-line tests and conversion");
         /*--------------------------------------------------------------------------
         -----------------------------Line by line tests-----------------------------
         --------------------------------------------------------------------------*/
@@ -391,8 +437,20 @@ export class CostManagerComponent implements OnInit{
             })
             //After loop finished, transfer result to global test flag (turns to false if loop failed, was by hypothesis true at the start of the if)
             global_tests_flag=loop_tests_flag;
-            console.log("Consistency tests : line by line tests : "+global_tests_flag);
+            console.log("------Line by line tests finished, converted data: ",this.parsedData);
+            console.log("------Consistency tests : line by line tests : "+global_tests_flag);
         }
+
+        /*--------------------------------------------------------------------------
+        --------------Global tests after data conversion to API format-------------
+        --------------------------------------------------------------------------*/
+        console.log("---Consistency tests : starting after-conversion tests");
+        /*----------------1/Check columns----------------*/
+        console.log("---Consistency tests : starting date continuity");
+        if(!this.consistencyCheck_dateContinuity()){
+            global_tests_flag=false;
+        }
+        console.log("------Date continuity : "+global_tests_flag);
 
         //Global return for validation depending on each steps
         return global_tests_flag;
