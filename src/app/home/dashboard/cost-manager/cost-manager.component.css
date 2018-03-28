@@ -26,3 +26,12 @@ md-icon{
 .date-format-select{
   width:150px;
 }
+
+.previz{
+  width: 90vw;
+  position: relative;
+  left: 45%;
+  right: 45%;
+  margin-left: -45vw;
+  margin-right: -450vw;
+}

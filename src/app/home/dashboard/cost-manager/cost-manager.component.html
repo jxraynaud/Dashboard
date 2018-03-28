@@ -61,6 +61,11 @@
                 {{date_format.first}}{{ selected_separator }}{{date_format.second}}<span *ngIf="date_format.third!=''">{{ selected_separator }}{{date_format.third}}</span>
               </md-option>
             </md-select>
+            <!--<md-select class="decimal-select" placeholder="Decimal separator" [(ngModel)]="selected_decimal" >
+              <md-option *ngFor="let decimal of decimals" [value]="decimal.value">
+                {{decimal.viewValue}}
+              </md-option>
+            </md-select>-->
             <div *ngIf="!placements || placements.length == 0" >
               <img height="50" src="assets/loading.gif" />Loading...<img height="50" src="assets/loading.gif" />
             </div>
@@ -82,9 +87,11 @@
         </div>
       </td-step>
       <td-step #step4 label="Send to Database" sublabel="" [active]="false" [disabled]="true">
-        <md-icon class="green">thumb_up</md-icon> There was no error in consistency checks, data can be uploaded !
+        <md-icon class="green">thumb_up</md-icon> There was no error in consistency checks, data can be uploaded !<br />
+        Note : Upadting lines can be slower than creating new ones
         <ng-template td-step-actions>
             <button md-raised-button color="primary" *ngIf="data_to_send.length > 0" (click)="sendToApi()">Send to API</button>
+            <button md-raised-button color="primary" *ngIf="data_to_send.length > 0" (click)="previsualizeData()">Previsualize data</button>
         </ng-template>
       </td-step>
     </td-steps>
@@ -94,7 +101,30 @@
     </div>
     <div *ngIf="APIresponse && APIresponse.length > 0">
       Results :
-      <div *ngFor="let r of APIresponse"><strong>{{r.action}}</strong> {{getCostLineForPk(r.placement,r.date).placement_name}} for {{getCostLineForPk(r.placement,r.date).date}} [{{r.pk}}]</div>
+      <div *ngFor="let r of APIresponse"><strong>{{r.action}}</strong> Placement <strong>{{getCostLineForPk(r.placement,r.date).placement_name}}</strong> for <strong>{{getCostLineForPk(r.placement,r.date).date}}</strong> </div>
+    </div>
+    <div class="previz" *ngIf="previz_active">
+      Previsualization :
+      <td-data-table
+          #dataTable
+          [data]="filteredByDataTableData"
+          [columns]="previz_columns"
+          >
+          <ng-template
+              tdDataTableTemplate="type"
+              let-value="value"
+              let-row="row"
+              let-column="column">
+              <div layout="row">
+                  <span flex>{{value}}</span> // or <span flex>{{row[column]}}</span>
+                  <md-icon>star</md-icon>
+              </div>
+          </ng-template>
+      </td-data-table>
+      <td-paging-bar #pagingBar [pageSizes]="pageSizes" (change)="page($event)">
+          <span td-paging-bar-label hide-xs>Row per page:</span>
+          {{pagingBar.range}} <span hide-xs>of {{pagingBar.total}}</span>
+      </td-paging-bar>
     </div>
 
   </md-card-content>

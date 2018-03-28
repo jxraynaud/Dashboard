@@ -2,6 +2,13 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import {/* Http,*/ Headers, RequestOptions, Response } from '@angular/http';
 import { AuthenticatedHttpService } from '../../../services/authenticatedHttpService';
 
+import {
+    TdDataTableService,
+    TdDataTableSortingOrder,
+    ITdDataTableSortChangeEvent,
+    ITdDataTableColumn,
+    IPageChangeEvent } from '@covalent/core';
+
 import { FileUploader } from 'ng2-file-upload';
 import { PapaParseService } from 'ngx-papaparse';
 import { Angular2Csv } from 'angular2-csv/Angular2-csv';
@@ -113,6 +120,11 @@ export class CostManagerComponent implements OnInit{
         {first:'DD', second:'MM', third:'', value: 'DDMM'},
       ];
     selected_date_format:string='DDMMYYYY'
+    /*decimals=[
+        {value: ',', viewValue: ','},
+        {value: '.', viewValue: '.'},
+      ];
+    selected_decimal:string=","*/
 
     data:string;
     parsedData:Array<string>=[];
@@ -121,6 +133,54 @@ export class CostManagerComponent implements OnInit{
     /*Info on file*/
     min_date:string;
     max_date:string;
+    previz_active:boolean=false;
+    previz_columns: ITdDataTableColumn[] = [
+        { name: 'date',  label: 'date' },
+        { name: 'placement_id',  label: 'Placement ID' },
+        { name: 'publisher_name',  label: 'Publisher name' },
+        { name: 'publisher_campaign_name',  label: 'Publisher Campaign Name' },
+        { name: 'country',  label: 'Country' },
+        { name: 'placement',  label: 'Placement' },
+        { name: 'targeting',  label: 'Targeting' },
+        { name: 'creative',  label: 'Creative' },
+        { name: 'device',  label: 'Device' },
+        { name: 'conversions',  label: 'Conversions' },
+        { name: 'impressions_delivered',  label: 'Impressions delivered' },
+        { name: 'clicks_generated',  label: 'Clicks generated' },
+        { name: 'publisher_total_media_cost',  label: 'Publisher total media cost' },
+        { name: 'video_viewed',  label: 'Video viewed' },
+        { name: 'video_viewed_25',  label: 'Video viewed 25' },
+        { name: 'video_viewed_50',  label: 'Video viewed 50' },
+        { name: 'video_viewed_75',  label: 'Video viewed 75' },
+        { name: 'video_viewed_100',  label: 'Video viewed 100' },
+    ]
+    pageSizes = [10, 50, 100, 150, 200];
+    pageSize: number = 10;
+    fromRow: number = 1;
+    currentPage: number = 1;
+    filteredByDataTableData: any[];
+
+    page(pagingEvent: IPageChangeEvent): void {
+        this.fromRow = pagingEvent.fromRow;
+        this.currentPage = pagingEvent.page;
+        this.pageSize = pagingEvent.pageSize;
+        this.filter();
+    }
+
+    filter(): void {
+        //First input of filtereddata is empty, then filter is triggered in ngonchange
+        if(this.data_to_send.length>0){
+            let newData: any[] = this.data_to_send;
+            console.warn(newData)
+            //newData = this._dataTableService.filterData(newData, this.searchTerm, true);
+            //this.filteredTotal = newData.length;
+            //newData = this._dataTableService.sortData(newData, this.sortBy, this.sortOrder);
+            //For CSV
+            //this.filteredUnpagedData = newData.slice();
+            newData = this._dataTableService.pageData(newData, this.fromRow, this.currentPage * this.pageSize);
+            this.filteredByDataTableData = newData;
+        }
+    }
 
     errors:Array<string>=[];
     blocking_errors:Array<string>=[];
@@ -148,6 +208,7 @@ export class CostManagerComponent implements OnInit{
     constructor(
         private http: AuthenticatedHttpService,
         private papaparse: PapaParseService,
+        private _dataTableService: TdDataTableService
     ) { }
 
     ngOnInit() {
@@ -285,6 +346,7 @@ export class CostManagerComponent implements OnInit{
         /*this.data_to_send = [];*/
         this.errors = [];
         this.blocking_errors = [];
+        this.APIresponse = [];
         this.step4.disabled=true;
         this.step4.active=false;
         this.step3.disabled=true;
@@ -634,6 +696,13 @@ export class CostManagerComponent implements OnInit{
     }
 
     getCostLineForPk(placementPk,date){
-        return this.data_to_send.find(d=>{ if(d['date']==date && d['placement']==placementPk){ return true }else{ return false } })
+        let line = this.data_to_send.find(d=>{ if(d['date']==date && d['placement']==placementPk){ return true }else{ return false } });
+        if(line["placement_name"]==""){ line["placement_name"]=this.placements.find(p=>{return p["sizmek_id"]==line["placement"]})["sizmek_name"] }
+        return line;
+    }
+
+    previsualizeData(){
+        this.filter();
+        this.previz_active=true;
     }
 }
