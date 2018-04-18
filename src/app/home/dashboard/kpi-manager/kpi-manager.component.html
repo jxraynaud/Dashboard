@@ -1,6 +1,7 @@
 <md-card>
   <md-card-title>
     Kpi Manager
+    //{{selectedTabIndex}}//
   </md-card-title>
 
   <md-card-content class="reporting-form container">
@@ -75,75 +76,117 @@
   <md-card-content>
     <div class="row">
       <div class="col-md-12 col-xs-12">
-          <table class="table table-bordered table-striped centerText">
-            <thead>
-              <tr>
-                <th style="width:80px;">Selected
-                  <button md-raised-button [color]="'primary'" (click)="selectAllVisibleKpis()">All</button>
-                  <button md-button [color]="'primary'" (click)="clearAllCheckedKpis()">Clear</button>
-                </th>
-                <th (click)="sortKpis(sort_columns['id'])">
-                  <span *ngIf="sort_columns['id']['order'] == 'asc'"><md-icon class="smallIcon">arrow_upward</md-icon></span>
-                  <span *ngIf="sort_columns['id']['order'] == 'desc'"><md-icon class="smallIcon">arrow_downward</md-icon></span>
-                  #
-                </th>
-                <th (click)="sortKpis(sort_columns['brandName'])">
-                  <span *ngIf="sort_columns['brandName']['order'] == 'asc'"><md-icon class="smallIcon">arrow_upward</md-icon></span>
-                  <span *ngIf="sort_columns['brandName']['order'] == 'desc'"><md-icon class="smallIcon">arrow_downward</md-icon></span>
-                  Brand
-                </th>
-                <th (click)="sortKpis(sort_columns['productName'])">
-                  <span *ngIf="sort_columns['productName']['order'] == 'asc'"><md-icon class="smallIcon">arrow_upward</md-icon></span>
-                  <span *ngIf="sort_columns['productName']['order'] == 'desc'"><md-icon class="smallIcon">arrow_downward</md-icon></span>
-                  Product
-                </th>
-                <th (click)="sortKpis(sort_columns['creationDate'])">
-                  <span *ngIf="sort_columns['creationDate']['order'] == 'asc'"><md-icon class="smallIcon">arrow_upward</md-icon></span>
-                  <span *ngIf="sort_columns['creationDate']['order'] == 'desc'"><md-icon class="smallIcon">arrow_downward</md-icon></span>
-                  Creation date
-                </th>
-                <th (click)="sortKpis(sort_columns['name'])">
-                  <span *ngIf="sort_columns['name']['order'] == 'asc'"><md-icon class="smallIcon">arrow_upward</md-icon></span>
-                  <span *ngIf="sort_columns['name']['order'] == 'desc'"><md-icon class="smallIcon">arrow_downward</md-icon></span>
-                  Name
-                </th>
-                <th>Description</th>
-                <th>Metacampaigns</th>
-                <th (click)="sortKpis(sort_columns['kpiActionName'])">
-                  <span *ngIf="sort_columns['kpiActionName']['order'] == 'asc'"><md-icon class="smallIcon">arrow_upward</md-icon></span>
-                  <span *ngIf="sort_columns['kpiActionName']['order'] == 'desc'"><md-icon class="smallIcon">arrow_downward</md-icon></span>
-                  KPI action
-                </th>
-                <th (click)="sortKpis(sort_columns['lastAddOrRemovalTagDate'])">
-                  <span *ngIf="sort_columns['lastAddOrRemovalTagDate']['order'] == 'asc'"><md-icon class="smallIcon">arrow_upward</md-icon></span>
-                  <span *ngIf="sort_columns['lastAddOrRemovalTagDate']['order'] == 'desc'"><md-icon class="smallIcon">arrow_downward</md-icon></span>
-                  Last add/removal of tag
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr *ngFor='let kpi of kpi_filtered_data' >
-                <ng-container *ngIf="isInFilterConditions(kpi)">
-                  <td class="kpi_check_col">
-                    <input type="checkbox" class="hidden_input" [(ngModel)]="kpi.checked" id="kpi_{{kpi.id}}">
-                    <label for="kpi_{{kpi.id}}">
-                      <span *ngIf="kpi.checked"><md-icon class="green">check_circle</md-icon></span>
-                      <span *ngIf="!kpi.checked"><md-icon class="grey">not_interested</md-icon></span>
-                    </label>
-                  </td>
-                  <td scope="row">{{kpi.id}}</td>
-                  <td>{{kpi.product.brand.name}}</td>
-                  <td>{{kpi.product.name}}</td>
-                  <td>{{kpi.creation_date | date:"short"}}</td>
-                  <td>{{kpi.name}}</td>
-                  <td>{{kpi.description}}</td>
-                  <td><ul><li *ngFor="let metacampaign of kpi.metacampaigns">{{metacampaign.api_name}}</li></ul></td>
-                  <td>{{kpi.kpi_action.action}}</td>
-                  <td><span *ngIf="kpi.tag_link_editions">{{kpi.tag_link_editions.action_time | date:"medium"}}</span></td>
-              </ng-container>
-              </tr>
-            </tbody>
-          </table>
+        <md-tab-group [(selectedIndex)]="selectedTabIndex">
+          <md-tab label="KPI details">
+              <table class="table table-bordered table-striped centerText">
+                <thead>
+                  <tr>
+                    <th style="width:80px;">Selected
+                      <button md-raised-button [color]="'primary'" (click)="selectAllVisibleKpis()">All</button>
+                      <button md-button [color]="'primary'" (click)="clearAllCheckedKpis()">Clear</button>
+                    </th>
+                    <th (click)="sortKpis(sort_columns['id'])">
+                      <span *ngIf="sort_columns['id']['order'] == 'asc'"><md-icon class="smallIcon">arrow_upward</md-icon></span>
+                      <span *ngIf="sort_columns['id']['order'] == 'desc'"><md-icon class="smallIcon">arrow_downward</md-icon></span>
+                      #
+                    </th>
+                    <th (click)="sortKpis(sort_columns['brandName'])">
+                      <span *ngIf="sort_columns['brandName']['order'] == 'asc'"><md-icon class="smallIcon">arrow_upward</md-icon></span>
+                      <span *ngIf="sort_columns['brandName']['order'] == 'desc'"><md-icon class="smallIcon">arrow_downward</md-icon></span>
+                      Brand
+                    </th>
+                    <th (click)="sortKpis(sort_columns['productName'])">
+                      <span *ngIf="sort_columns['productName']['order'] == 'asc'"><md-icon class="smallIcon">arrow_upward</md-icon></span>
+                      <span *ngIf="sort_columns['productName']['order'] == 'desc'"><md-icon class="smallIcon">arrow_downward</md-icon></span>
+                      Product
+                    </th>
+                    <th (click)="sortKpis(sort_columns['creationDate'])">
+                      <span *ngIf="sort_columns['creationDate']['order'] == 'asc'"><md-icon class="smallIcon">arrow_upward</md-icon></span>
+                      <span *ngIf="sort_columns['creationDate']['order'] == 'desc'"><md-icon class="smallIcon">arrow_downward</md-icon></span>
+                      Creation date
+                    </th>
+                    <th (click)="sortKpis(sort_columns['name'])">
+                      <span *ngIf="sort_columns['name']['order'] == 'asc'"><md-icon class="smallIcon">arrow_upward</md-icon></span>
+                      <span *ngIf="sort_columns['name']['order'] == 'desc'"><md-icon class="smallIcon">arrow_downward</md-icon></span>
+                      Name
+                    </th>
+                    <th>Description</th>
+                    <th>Metacampaigns</th>
+                    <th (click)="sortKpis(sort_columns['kpiActionName'])">
+                      <span *ngIf="sort_columns['kpiActionName']['order'] == 'asc'"><md-icon class="smallIcon">arrow_upward</md-icon></span>
+                      <span *ngIf="sort_columns['kpiActionName']['order'] == 'desc'"><md-icon class="smallIcon">arrow_downward</md-icon></span>
+                      KPI action
+                    </th>
+                    <th (click)="sortKpis(sort_columns['lastAddOrRemovalTagDate'])">
+                      <span *ngIf="sort_columns['lastAddOrRemovalTagDate']['order'] == 'asc'"><md-icon class="smallIcon">arrow_upward</md-icon></span>
+                      <span *ngIf="sort_columns['lastAddOrRemovalTagDate']['order'] == 'desc'"><md-icon class="smallIcon">arrow_downward</md-icon></span>
+                      Last add/removal of tag
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor='let kpi of kpi_filtered_data' >
+                    <ng-container *ngIf="isInFilterConditions(kpi)">
+                      <td class="kpi_check_col">
+                        <input type="checkbox" class="hidden_input" [(ngModel)]="kpi.checked" id="kpi_{{kpi.id}}">
+                        <label for="kpi_{{kpi.id}}">
+                          <span *ngIf="kpi.checked"><md-icon class="green">check_circle</md-icon></span>
+                          <span *ngIf="!kpi.checked"><md-icon class="grey">not_interested</md-icon></span>
+                        </label>
+                      </td>
+                      <td scope="row">{{kpi.id}}</td>
+                      <td>{{kpi.product.brand.name}}</td>
+                      <td>{{kpi.product.name}}</td>
+                      <td>{{kpi.creation_date | date:"short"}}</td>
+                      <td>{{kpi.name}}</td>
+                      <td>{{kpi.description}}</td>
+                      <td><ul><li *ngFor="let metacampaign of kpi.metacampaigns">{{metacampaign.api_name}}</li></ul></td>
+                      <td>{{kpi.kpi_action.action}}</td>
+                      <td><span *ngIf="kpi.tag_link_editions">{{kpi.tag_link_editions.action_time | date:"medium"}}</span></td>
+                  </ng-container>
+                  </tr>
+                </tbody>
+              </table>
+          </md-tab>
+          <md-tab label="Tag lists & partners">
+            <div class="center" *ngIf="kpiTagsDetails.length==0"><img height="50" src="assets/loading.gif" />Loading...<img height="50" src="assets/loading.gif" /></div>
+            <div *ngIf="selectedTabIndex==1">
+            <div *ngFor="let kpiTag of kpiTagsDetails">
+              <td-expansion-panel label="{{kpiTag.name}}" sublabel="{{kpiTag.description}}" [expand]="expanded" [disabled]="disabled">
+                <div class="md-padding">
+                  <td-expansion-panel label="Tag Lists" sublabel="" [expand]="expanded" [disabled]="disabled">
+                    <div class="md-padding">
+                      <td-expansion-panel *ngFor="let tagList of kpiTag.tag_lists" label="{{tagList.tag_list_type_name}}" sublabel="" [expand]="expanded" [disabled]="disabled">
+                        <div class="md-padding">
+                          <td-expansion-panel label="Tags" sublabel="" [expand]="expanded" [disabled]="disabled">
+                            <div class="md-padding">
+                              <div *ngFor="let tag of tagList.tags">{{tag.api_name}}</div>
+                            </div>
+                          </td-expansion-panel>
+                          <td-expansion-panel label="Pixels by partner" sublabel="" [expand]="expanded" [disabled]="disabled">
+                            <div *ngFor="let partner of objectKeys(tagList.pixels_by_partners)" class="md-padding">
+                              <div><strong>{{partner}}</strong></div>
+                              <div class="md-padding">
+                                <div *ngFor="let pixel of tagList.pixels_by_partners[partner]">
+                                  {{pixel.name}}
+                                  <div class="md-padding">
+                                    {{pixel.url}}
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </td-expansion-panel>
+                        </div>
+                      </td-expansion-panel>
+                    </div>
+                  </td-expansion-panel>
+
+                </div>
+              </td-expansion-panel>
+            </div>
+            </div>
+          </md-tab>
+        </md-tab-group>
       </div>
 
       <div class="col-md-12 col-xs-12">

@@ -19,8 +19,10 @@ import {debugLog, debugLogGroup, intersection} from '../../../utils';
 })
 export class KpiManagerComponent implements OnInit {
     DEBUG : boolean = true;
-    //API_URL : string = "http://localhost:8000/api/";
-    API_URL : string = "https://clovis.blizzard.pixelforest.io/api/";
+    API_URL : string = "http://localhost:8000/api/";
+    //API_URL : string = "http://dagobert.blizzard.pixelforest.io/api/";
+    //API_URL : string = "https://clovis.blizzard.pixelforest.io/api/";
+    objectKeys = Object.keys;
 
     //If set to false, nothing checked will display no result
     NO_CHECKED_MEANS_UNFILTERED = true;
@@ -30,6 +32,7 @@ export class KpiManagerComponent implements OnInit {
     kpi_filtered_data = [];
 
     globalTags = [];
+    kpiTagsDetails= [];
 
     kpi_filters = [
         {
@@ -97,6 +100,12 @@ export class KpiManagerComponent implements OnInit {
     activeFiltersChips:Object = {}
     /******************/
 
+    selectedTabIndex="0"
+
+    tagsTabExpanded(){
+        alert("expanded")
+    }
+
     constructor(
         private http: AuthenticatedHttpService,
         protected activatedRoute : ActivatedRoute,
@@ -107,6 +116,7 @@ export class KpiManagerComponent implements OnInit {
         //Get kpis + use retrieved values to initiate values, chips and active chips objects
         this.getKpis();
         this.getTags();
+        this.getKpisTagsDetails();
         this.dateRange = this.initDefaultDateRange();
         let today = new Date();
         this.daterange_options = {
@@ -190,6 +200,23 @@ export class KpiManagerComponent implements OnInit {
            })
            .catch(error => {
                console.error("PROMISE REJECTED : could not get data from api in kpi manager for kpis");
+               console.log("error : "+error.json().detail);
+               console.log(error.json());
+           //    this.router.navigate(['/login'], { queryParams: { returnUrl : window.location.pathname }});
+               return [];
+           });
+    }
+
+    getKpisTagsDetails(){
+        return this.http.get(this.API_URL+"kpis-tags-details/", this.jwt())
+           .toPromise()
+           .then(response => {
+               debugLogGroup(this.DEBUG, ["Promise result received for Kpi-manager.getKpisTagsDetails()",
+                   response.json()]);
+                this.kpiTagsDetails = response.json();
+           })
+           .catch(error => {
+               console.error("PROMISE REJECTED : could not get data from api in kpi manager for kpisTagsDetails");
                console.log("error : "+error.json().detail);
                console.log(error.json());
            //    this.router.navigate(['/login'], { queryParams: { returnUrl : window.location.pathname }});

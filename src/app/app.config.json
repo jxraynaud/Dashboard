@@ -1,10 +1,10 @@
 {
     "authentication": {
-        "url" : "https://clovis.blizzard.pixelforest.io/",
+        "url" : "http://dagobert.blizzard.pixelforest.io/",
         "endpoint" : "api-token-auth/"
     },
     "passwordChange": {
-        "url" : "https://clovis.blizzard.pixelforest.io/",
+        "url" : "http://dagobert.blizzard.pixelforest.io/",
         "endpoint" : "rest-auth/password/change/"
     }
 }

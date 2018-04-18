@@ -64,9 +64,13 @@ export class DataRequestService {
                         //Deep copy of data Request Params with date transformed to string to avoid date time + GMT => takes one day before because of 00:00 GMT+1
                         let formattedDataRequestParams =[]
                         formattedDataRequestParams.push({});
+                        console.log("Elements of date");
+                        console.log()
                         formattedDataRequestParams[0].attribution_model = dataRequestParams[0].attribution_model;
-                        formattedDataRequestParams[0].start_date = dataRequestParams[0].start_date.getDate()+"/"+(dataRequestParams[0].start_date.getMonth()+1)+"/"+dataRequestParams[0].start_date.getFullYear()
-                        formattedDataRequestParams[0].end_date = dataRequestParams[0].end_date.getDate()+"/"+(dataRequestParams[0].end_date.getMonth()+1)+"/"+dataRequestParams[0].end_date.getFullYear()
+                        //formattedDataRequestParams[0].start_date = dataRequestParams[0].start_date.getDate()+"/"+(dataRequestParams[0].start_date.getMonth()+1)+"/"+dataRequestParams[0].start_date.getFullYear()
+                        //formattedDataRequestParams[0].end_date = dataRequestParams[0].end_date.getDate()+"/"+(dataRequestParams[0].end_date.getMonth()+1)+"/"+dataRequestParams[0].end_date.getFullYear()
+                        formattedDataRequestParams[0].start_date = (dataRequestParams[0].start_date.getMonth()+1)+"/"+dataRequestParams[0].start_date.getDate()+"/"+dataRequestParams[0].start_date.getFullYear()
+                        formattedDataRequestParams[0].end_date = (dataRequestParams[0].end_date.getMonth()+1)+"/"+dataRequestParams[0].end_date.getDate()+"/"+dataRequestParams[0].end_date.getFullYear()
                         this.getAll(config, formattedDataRequestParams).then(response => {
                             this.requestDimensionMappingBehaviorSubject.next(this.mapDimensionFromRawData(response, config));
                             this.rawDataBehaviorSubject.next(response);

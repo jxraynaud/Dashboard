@@ -1,6 +1,6 @@
 {
     "name" : "FRAUD DETECTOR CONFIG",
-    "api_url" : "https://clovis.blizzard.pixelforest.io/api/",
+    "api_url" : "http://dagobert.blizzard.pixelforest.io/api/",
     "api_endpoint" : "aggregated_suspicious_data/",
     "is_attribution_model_multiple" : false,
     "attribution_models_endpoint" : "attribution-models/",

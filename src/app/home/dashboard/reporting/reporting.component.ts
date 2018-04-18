@@ -21,7 +21,8 @@ import {debugLog, debugLogGroup} from '../../../utils';
 export class ReportingComponent implements OnInit {
     DEBUG : boolean = true;
     //API_URL : string = "http://localhost:8000/api/";
-    API_URL : string = "https://clovis.blizzard.pixelforest.io/api/";
+    API_URL : string = "http://dagobert.blizzard.pixelforest.io/api/";
+    //API_URL : string = "https://clovis.blizzard.pixelforest.io/api/";
 
     /*Theoretically could be any value to max number of attribution models requested,
     * but keep in mind UI has 1 problem : when maximum reached, chip field goes into readonly mode
@@ -475,7 +476,7 @@ export class ReportingComponent implements OnInit {
                     report_generated = response.json()["generated"];
 
                     if(report_generated){
-                        var url_assets_file = response.json()["file"].replace("/var/www/FraudDetector/newmecblizzardtools/assets","https://clovis.blizzard.pixelforest.io/static")
+                        var url_assets_file = response.json()["file"].replace("/var/www/FraudDetector/newmecblizzardtools/assets","http://dagobert.blizzard.pixelforest.io/static")
                         var file_name_array = response.json()["file"].split("/");
                         var file_name = file_name_array[file_name_array.length -1];
                         console.warn(file_name)
