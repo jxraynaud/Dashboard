@@ -22,8 +22,8 @@ import {debugLog, debugLogGroup} from '../../../utils';
 })
 export class CostManagerComponent implements OnInit{
     DEBUG : boolean = true;
-    //API_URL : string = "http://localhost:8000/api/";
-    API_URL : string = "http://dagobert.blizzard.pixelforest.io/api/";
+    API_URL : string = "http://localhost:8000/api/";
+    //API_URL : string = "http://dagobert.blizzard.pixelforest.io/api/";
     //API_URL : string = "https://clovis.blizzard.pixelforest.io/api/";
 
     @ViewChild('step2') step2;
@@ -60,8 +60,8 @@ export class CostManagerComponent implements OnInit{
         },*/
         {
             date:"25/12/2017",
-            placement_id:123456,
-            publisher_name:"Erad",
+            placement_id:55905089,
+            publisher_name:"Google",
             publisher_campaign_name:"OVERWATCH WINTER SALE",
             country:"Russia",
             placement:"RU_X_Video_OW_Active",
@@ -81,8 +81,8 @@ export class CostManagerComponent implements OnInit{
         },
         {
             date:"25/12/2017",
-            placement_id:123456,
-            publisher_name:"Erad",
+            placement_id:24674491,
+            publisher_name:"Local FR",
             publisher_campaign_name:"",
             country:"",
             placement:"",
@@ -398,13 +398,17 @@ export class CostManagerComponent implements OnInit{
     consistencyCheck_byline_partnername(line){
         let this_test = true;
         let placement = this.placements.find(p=>{ return p["sizmek_id"] == line["placement_id"] })
-        if(line['publisher_name'] != placement["partner_name"]){
-            this_test=false;
-            console.warn("!!!")
-            this.blocking_errors.push("Placement "+line["placement_id"]+" : Publisher name ("+line['publisher_name']+") not consistent with partner name from DB ("+placement["partner_name"]+") for this placement")
+        if(placement){
+            if(line['publisher_name'] != placement["partner_name"]){
+                this_test=false;
+                console.warn("!!!")
+                this.blocking_errors.push("Placement "+line["placement_id"]+" : Publisher name ("+line['publisher_name']+") not consistent with partner name from DB ("+placement["partner_name"]+") for this placement")
+            }else{
+                //if not different, change key to make it API compatible
+                line['partner']=placement['partner_id']
+            }
         }else{
-            //if not different, change key to make it API compatible
-            line['partner']=placement['partner_id']
+            this.blocking_errors.push("No placement in DB for id "+line["placement_id"])
         }
         return this_test;
     }
