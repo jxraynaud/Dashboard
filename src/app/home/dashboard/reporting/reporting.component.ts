@@ -519,4 +519,10 @@ export class ReportingComponent implements OnInit {
         },1000)
     }
 
+    urlCleanFromServerFolders(url){
+        if(url){
+            return url.replace("/var/www/dashboard.blizzard.pixelforest.io","")
+        }
+    }
+
 }

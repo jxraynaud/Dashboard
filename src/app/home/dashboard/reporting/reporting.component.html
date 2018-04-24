@@ -164,7 +164,7 @@
                 </div>
                 <div class="col-md-10 col-xs-9" >
                   <strong>Report for metacampaign {{report.campaign_name}}</strong> - {{ report.startDate | date:'y/MM/dd' }} to {{ report.endDate | date:'y/MM/dd' }} <br />
-                  ===> <a href="{{ report.url }}">{{ report.file_name }}</a>
+                  ===> <a href="{{ urlCleanFromServerFolders(report.url) }}">{{ report.file_name }}</a>
                   <div *ngFor="let warning of report.warnings" ><md-icon class="report_warnings">warning</md-icon> {{warning}}</div>
                   <div *ngFor="let warningR of report.warnings_r" ><md-icon class="report_warnings">warning</md-icon> {{warningR}}</div>
                 </div>

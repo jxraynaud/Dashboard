@@ -188,7 +188,8 @@ export class CostManagerComponent implements OnInit{
 
     //Tests and data conformity functions
     /*List of the columns names to check identity with check_is_summable before summing with sumMetrics*/
-    dimensions_to_be_identical:Array<string>=['publisher_name','publisher_campaign_name','country','placement_name','targeting','creative','device']
+    dimensions_to_be_identical:Array<string>=['publisher_name','publisher_campaign_name']
+    dimensions_to_concatenate:Array<string>=['country','placement_name','targeting','creative','device']
     /*List of metrics columns to sum for matching lines (same placement id + same date)*/
     summable_metrics:Array<string>=
             ['conversions',
@@ -645,14 +646,15 @@ export class CostManagerComponent implements OnInit{
     push_or_sum_to_data_to_send(line){
         //console.warn("ttt")
         //console.warn(line);
-        let identical_line = this.data_to_send.find(l=>{ return l['date']==line["date"] && l["placement"]==line["placement"]; });
-        if(identical_line){
+        let identical_line_in_data_to_send = this.data_to_send.find(l=>{ return l['date']==line["date"] && l["placement"]==line["placement"]; });
+        if(identical_line_in_data_to_send){
             console.warn("IDENTICAL, summing")
             //If lines are summable (if not there's a blocking error)
-            if(this.check_is_summable(line, identical_line)){
-                this.sumMetrics(line, identical_line);
+            if(this.check_is_summable(line, identical_line_in_data_to_send)){
+                this.concatenateDimensions(line, identical_line_in_data_to_send);
+                this.sumMetrics(line, identical_line_in_data_to_send);
                 console.warn("SUMMED : ")
-                console.log(identical_line)
+                console.log(identical_line_in_data_to_send)
             }
         }else{
             //If no identical line, jsut push
@@ -661,21 +663,38 @@ export class CostManagerComponent implements OnInit{
     }
 
     /*Checks that 2 lines are summable */
-    check_is_summable(line, identical_line){
+    check_is_summable(line, identical_line_in_data_to_send){
         let ok=true;
         for(let dimName of this.dimensions_to_be_identical){
-            if(line[dimName] != identical_line[dimName]){
+            if(line[dimName] != identical_line_in_data_to_send[dimName]){
                 ok=false;
-                this.blocking_errors.push("BLOCKING ERROR : placement "+line["placement"]+" for date "+line["date"]+" has 2 lines with different values for "+dimName+" ( "+line[dimName]+" != "+identical_line[dimName]+" )")
-                console.error("BLOCKING ERROR : placement "+line["placement"]+" for date "+line["date"]+" has 2 lines with different values for "+dimName+" ( "+line[dimName]+" != "+identical_line[dimName]+" )")
+                this.blocking_errors.push("BLOCKING ERROR : placement "+line["placement"]+" for date "+line["date"]+" has 2 lines with different values for "+dimName+" ( "+line[dimName]+" != "+identical_line_in_data_to_send[dimName]+" )")
+                console.error("BLOCKING ERROR : placement "+line["placement"]+" for date "+line["date"]+" has 2 lines with different values for "+dimName+" ( "+line[dimName]+" != "+identical_line_in_data_to_send[dimName]+" )")
             }
         }
         return ok;
     }
+    concat_separator=" @concat@ "
+    concatenateDimensions(line, identical_line_in_data_to_send){
+        for(let dimName of this.dimensions_to_concatenate){
+            //Deconcatenate in line from data to send
+            let dimensions = identical_line_in_data_to_send[dimName].split(this.concat_separator);
+            //Check if already in it
+            if(dimensions.indexOf(line[dimName])==-1){
+                //Add if not in it
+                dimensions.push(line[dimName]);
+            }
+            //Order alphabetically
+            dimensions.sort();
+            //Attribute to line
+            identical_line_in_data_to_send[dimName]=dimensions.join(this.concat_separator);
+        }
+        debugLogGroup(this.DEBUG,["Concatenated lines : ",identical_line_in_data_to_send])
+    }
 
-    sumMetrics(newline,identical_line){
+    sumMetrics(newline,identical_line_in_data_to_send){
         for(let metricName of this.summable_metrics){
-            identical_line[metricName]=identical_line[metricName]+newline[metricName];
+            identical_line_in_data_to_send[metricName]=identical_line_in_data_to_send[metricName]+newline[metricName];
         }
     }
 

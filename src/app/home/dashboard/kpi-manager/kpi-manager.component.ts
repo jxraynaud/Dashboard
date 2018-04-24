@@ -100,7 +100,7 @@ export class KpiManagerComponent implements OnInit {
     activeFiltersChips:Object = {}
     /******************/
 
-    selectedTabIndex="0"
+    selectedTabIndex:number=0
 
     tagsTabExpanded(){
         alert("expanded")
