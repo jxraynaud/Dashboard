@@ -28,9 +28,9 @@
             <md-select class="attrib-model-select" placeholder="" #modelChoice (change)="changeModel($event.value)" name="attributionModel" [(ngModel)]="selectedAttributionModel_s" >
                          <ng-template ngFor let-modelObject [ngForOf]="attributionModelsMapping">
                            <md-option
-                              *ngIf="modelObject.is_active" [value]="modelObject.id"
+                              [value]="modelObject.id"
                               [attr.selected]="selectedAttributionModel_s==modelObject.id">
-                           >
+                           ><!--*ngIf="modelObject.is_active"-->
                                 {{ modelObject.name }} - {{ modelObject.id }}
                            </md-option>
                         </ng-template>

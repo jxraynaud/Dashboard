@@ -19,8 +19,8 @@ import {debugLog, debugLogGroup, intersection} from '../../../utils';
 })
 export class KpiManagerComponent implements OnInit {
     DEBUG : boolean = true;
-    API_URL : string = "http://localhost:8000/api/";
-    //API_URL : string = "http://dagobert.blizzard.pixelforest.io/api/";
+    //API_URL : string = "http://localhost:8000/api/";
+    API_URL : string = "http://dagobert.blizzard.pixelforest.io/api/";
     //API_URL : string = "https://clovis.blizzard.pixelforest.io/api/";
     objectKeys = Object.keys;
 

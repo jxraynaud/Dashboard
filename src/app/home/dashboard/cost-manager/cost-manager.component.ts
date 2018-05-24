@@ -22,8 +22,8 @@ import {debugLog, debugLogGroup} from '../../../utils';
 })
 export class CostManagerComponent implements OnInit{
     DEBUG : boolean = true;
-    API_URL : string = "http://localhost:8000/api/";
-    //API_URL : string = "http://dagobert.blizzard.pixelforest.io/api/";
+    //API_URL : string = "http://localhost:8000/api/";
+    API_URL : string = "http://dagobert.blizzard.pixelforest.io/api/";
     //API_URL : string = "https://clovis.blizzard.pixelforest.io/api/";
 
     @ViewChild('step2') step2;
