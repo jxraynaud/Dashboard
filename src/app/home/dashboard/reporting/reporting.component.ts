@@ -72,7 +72,7 @@ export class ReportingComponent implements OnInit {
     separatePostImpPostClick : boolean = true;
     csvFormatEn : boolean = true;
     addIdColumn : boolean = false;
-    certifiedConversionsOnly : boolean = true;
+    certifiedConversionsOnly : boolean = false;
 
     conversionsGroupingTypes = [{id:1, name:"No breakdown per date or week"},{id:2, name:"By Week"},{id:3, name:"By Day"}];
     groupConversionsBy:number = 3;
