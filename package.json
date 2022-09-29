@@ -48,7 +48,7 @@
     "@types/node": "~6.0.60",
     "codelyzer": "~2.0.0",
     "css-loader": "^0.28.9",
-    "d3": "^4.12.2",
+    "d3": "^7.6.1",
     "jasmine-core": "~2.5.2",
     "jasmine-spec-reporter": "~3.2.0",
     "karma": "~1.4.1",
