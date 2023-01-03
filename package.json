@@ -41,7 +41,7 @@
     "zone.js": "^0.8.9"
   },
   "devDependencies": {
-    "@angular/cli": "1.2.6",
+    "@angular/cli": "15.0.4",
     "@angular/compiler-cli": "^4.0.0",
     "@types/hammerjs": "^2.0.8",
     "@types/jasmine": "2.5.38",
